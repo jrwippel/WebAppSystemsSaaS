@@ -266,6 +266,13 @@
             window.addEventListener('pageshow', hideLoader);
             window.addEventListener('load', hideLoader);
 
+            // Rastrear o botão que disparou o submit
+            var lastSubmitButton = null;
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('button[type="submit"], input[type="submit"]');
+                if (btn) lastSubmitButton = btn;
+            }, true);
+
             // Intercept link clicks
             document.addEventListener('click', function (e) {
                 var el = e.target.closest('a');
@@ -278,11 +285,22 @@
                 scheduleLoader();
             });
 
+            // Downloads conhecidos — não mostrar loader
+            var downloadActions = ['DownloadReport', 'DownloadPdfReport', 'GerarPreFatura'];
+
             // Intercept form submits
             document.addEventListener('submit', function (e) {
-                if (e.target.tagName === 'FORM') {
-                    scheduleLoader();
+                if (e.target.tagName !== 'FORM') return;
+
+                // Verificar se o botão tem formaction de download
+                var formaction = lastSubmitButton ? lastSubmitButton.getAttribute('formaction') : null;
+                if (formaction) {
+                    var isDownload = downloadActions.some(function(a) { return formaction.indexOf(a) !== -1; });
+                    if (isDownload) { lastSubmitButton = null; return; }
                 }
+
+                scheduleLoader();
+                lastSubmitButton = null;
             });
         })();
     </script>  
