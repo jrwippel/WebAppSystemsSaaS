@@ -60,7 +60,8 @@ namespace WebAppSystems.Controllers
             return RedirectToAction("Index", "Login");
         }
 
-        [HttpPost]        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EnviarLinkParaRedefinirSenha(RedefinirSenhaModel redefinirSenhaModel)
         {
             try
@@ -169,12 +170,14 @@ namespace WebAppSystems.Controllers
             }
             catch (Exception erro)
             {
-                TempData["MensagemErro"] = $"Ops, não conseguimos redefinir sua senha, tente novamente. Detalhes do erro: {erro.Message}";
+                Console.WriteLine($"Erro ao redefinir senha: {erro.Message}");
+                TempData["MensagemErro"] = "Ops, não conseguimos redefinir sua senha. Tente novamente.";
                 return RedirectToAction("Index");
             }
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Entrar(LoginModel loginModel)
         {
             try
@@ -280,7 +283,8 @@ namespace WebAppSystems.Controllers
             }
             catch (Exception erro)
             {
-                TempData["MensagemErro"] = $"Ops, não conseguimos realizar o seu login. Mais detalhes no erro: {erro.Message}";
+                Console.WriteLine($"Erro no login: {erro.Message}");
+                TempData["MensagemErro"] = "Ops, não conseguimos realizar o seu login. Tente novamente.";
                 return RedirectToAction("Index");
             }
         }

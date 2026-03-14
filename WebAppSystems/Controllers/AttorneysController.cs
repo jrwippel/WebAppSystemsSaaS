@@ -184,6 +184,18 @@ namespace WebAppSystems.Controllers
             try
             {                
                 await _attorneyService.UpdateAsync(attorney);
+                
+                // Se editou o próprio usuário, atualiza a sessão
+                if (usuario.Id == attorney.Id)
+                {
+                    var atualizado = _attorneyService.ListarPorId(attorney.Id);
+                    if (atualizado != null)
+                    {
+                        atualizado.Department = null; // evita loop circular na serialização
+                        _isessao.CriarSessaoDoUsuario(atualizado);
+                    }
+                }
+                
                 return RedirectToAction(nameof(Index));
             }catch (NotFoundException ex)
             {

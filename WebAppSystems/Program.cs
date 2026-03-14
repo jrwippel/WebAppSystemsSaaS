@@ -65,7 +65,9 @@ namespace WebAppSystems
             {
                 o.Cookie.HttpOnly = true;
                 o.Cookie.IsEssential = true;
-                o.IdleTimeout = TimeSpan.FromMinutes(240);
+                o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                o.Cookie.SameSite = SameSiteMode.Strict;
+                o.IdleTimeout = TimeSpan.FromMinutes(60);
             });
 
             builder.Services.AddControllersWithViews();
@@ -80,7 +82,7 @@ namespace WebAppSystems
             })
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = false;
+                options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -133,15 +135,26 @@ namespace WebAppSystems
 
             app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
+            // Security Headers
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers["X-Frame-Options"] = "DENY";
+                context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+                context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+                context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+                context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+                await next();
+            });
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
 
             // Adicionar middlewares de autenticação e autorização
+            app.UseSession();
+
             app.UseAuthentication();
             app.UseAuthorization();
-
-            app.UseSession();
 
             app.MapControllers(); // Adicione suporte ao roteamento da API
 

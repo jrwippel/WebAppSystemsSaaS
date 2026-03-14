@@ -23,6 +23,7 @@ namespace WebAppSystems.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Criar(RegistroTenantModel model)
         {
             try
@@ -112,7 +113,8 @@ namespace WebAppSystems.Controllers
             }
             catch (Exception ex)
             {
-                TempData["MensagemErro"] = $"Erro ao criar conta: {ex.Message}";
+                Console.WriteLine($"Erro ao criar tenant: {ex.Message}");
+                TempData["MensagemErro"] = "Erro ao criar conta. Tente novamente ou entre em contato com o suporte.";
                 return View("Index", model);
             }
         }

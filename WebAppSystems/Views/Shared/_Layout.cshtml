@@ -1,4 +1,26 @@
-﻿<!DOCTYPE html>
+﻿@using Newtonsoft.Json
+@using WebAppSystems.Models
+@using WebAppSystems.Data
+@using Microsoft.EntityFrameworkCore
+@inject WebAppSystemsContext _layoutContext
+@{
+    bool alwaysOnTop = false;
+    string sessao = Context.Session.GetString("sessaoUsuarioLogado");
+    if (!string.IsNullOrEmpty(sessao))
+    {
+        var usuarioSessao = JsonConvert.DeserializeObject<Attorney>(sessao);
+        if (usuarioSessao != null)
+        {
+            // Lê direto do banco para sempre ter o valor mais atual
+            var usuarioDB = _layoutContext.Attorney.IgnoreQueryFilters()
+                .Where(a => a.Id == usuarioSessao.Id)
+                .Select(a => new { a.UseCronometroAlwaysOnTop })
+                .FirstOrDefault();
+            alwaysOnTop = usuarioDB?.UseCronometroAlwaysOnTop ?? false;
+        }
+    }
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -698,103 +720,62 @@
     <script>
         let floatingTimerInterval = null;
         let floatingStartTime = null;
+        const alwaysOnTop = @(alwaysOnTop ? "true" : "false");
 
         // Check for active timer on page load
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('Floating Timer: DOMContentLoaded');
             let loggedUserId = '@ViewBag.LoggedUserId';
-            console.log('Floating Timer: LoggedUserId from ViewBag =', loggedUserId);
             
-            // Fallback: try to get from session/cookie if ViewBag is empty
+            // Fallback: try to get from data attribute if ViewBag is empty
             if (!loggedUserId || loggedUserId === '') {
-                console.log('Floating Timer: ViewBag empty, trying alternative methods');
-                // Try to get from a hidden field or data attribute if available
                 const userIdElement = document.querySelector('[data-user-id]');
                 if (userIdElement) {
                     loggedUserId = userIdElement.getAttribute('data-user-id');
-                    console.log('Floating Timer: LoggedUserId from data attribute =', loggedUserId);
                 }
             }
             
             if (loggedUserId && loggedUserId !== '') {
                 try {
                     const response = await fetch(`/TimeTracker/GetActiveTimer?attorneyId=${loggedUserId}`);
-                    console.log('Floating Timer: Response status =', response.status);
                     
                     if (response.ok) {
                         const data = await response.json();
-                        console.log('Floating Timer: Data =', data);
                         
                         if (data && data.horaInicial) {
-                            // Parse date and time correctly in local timezone
-                            const dateStr = data.date.split('T')[0]; // Get YYYY-MM-DD
+                            const dateStr = data.date.split('T')[0];
                             const [year, month, day] = dateStr.split('-').map(Number);
                             const [hours, minutes, seconds] = data.horaInicial.split(':').map(Number);
-                            
-                            // Create date in local timezone (month is 0-indexed)
                             floatingStartTime = new Date(year, month - 1, day, hours, minutes, seconds, 0);
-                            
-                            console.log('Floating Timer: Data from server =', data);
-                            console.log('Floating Timer: Date string =', dateStr);
-                            console.log('Floating Timer: Parsed date =', year, month, day);
-                            console.log('Floating Timer: Time =', hours, minutes, seconds);
-                            console.log('Floating Timer: Start time =', floatingStartTime);
-                            console.log('Floating Timer: Current time =', new Date());
-                            console.log('Floating Timer: Difference in hours =', (new Date() - floatingStartTime) / 1000 / 3600);
                             
                             showFloatingTimer();
                             floatingTimerInterval = setInterval(updateFloatingTimer, 1000);
                         } else {
-                            console.log('Floating Timer: No active timer');
-                            // Garantir que o timer está parado e escondido
-                            if (floatingTimerInterval) {
-                                clearInterval(floatingTimerInterval);
-                                floatingTimerInterval = null;
-                            }
+                            if (floatingTimerInterval) { clearInterval(floatingTimerInterval); floatingTimerInterval = null; }
                             floatingStartTime = null;
                             hideFloatingTimer();
                         }
                     } else {
-                        console.log('Floating Timer: No active timer (404 or error)');
-                        // Garantir que o timer está parado e escondido
-                        if (floatingTimerInterval) {
-                            clearInterval(floatingTimerInterval);
-                            floatingTimerInterval = null;
-                        }
+                        if (floatingTimerInterval) { clearInterval(floatingTimerInterval); floatingTimerInterval = null; }
                         floatingStartTime = null;
                         hideFloatingTimer();
                     }
                 } catch (error) {
-                    console.error('Floating Timer: Erro ao verificar timer ativo:', error);
-                    // Em caso de erro, esconder o timer
-                    if (floatingTimerInterval) {
-                        clearInterval(floatingTimerInterval);
-                        floatingTimerInterval = null;
-                    }
+                    if (floatingTimerInterval) { clearInterval(floatingTimerInterval); floatingTimerInterval = null; }
                     floatingStartTime = null;
                     hideFloatingTimer();
                 }
-            } else {
-                console.log('Floating Timer: No logged user');
             }
         });
 
         function showFloatingTimer() {
+            if (!alwaysOnTop) return; // só mostra se o usuário habilitou
             const timer = document.getElementById('floatingTimer');
-            console.log('Floating Timer: showFloatingTimer, element =', timer);
-            if (timer) {
-                timer.style.display = 'block';
-                console.log('Floating Timer: Displayed');
-            } else {
-                console.error('Floating Timer: Element not found!');
-            }
+            if (timer) timer.style.display = 'block';
         }
 
         function hideFloatingTimer() {
             const timer = document.getElementById('floatingTimer');
-            if (timer) {
-                timer.style.display = 'none';
-            }
+            if (timer) timer.style.display = 'none';
         }
 
         function updateFloatingTimer() {
@@ -861,7 +842,6 @@
 
         // Expose functions globally for TimeTracker page
         window.startFloatingTimer = function(startTime) {
-            console.log('Floating Timer: startFloatingTimer called');
             floatingStartTime = startTime;
             showFloatingTimer();
             if (floatingTimerInterval) {
@@ -871,7 +851,6 @@
         };
 
         window.stopFloatingTimerGlobal = function() {
-            console.log('Floating Timer: stopFloatingTimerGlobal called');
             if (floatingTimerInterval) {
                 clearInterval(floatingTimerInterval);
                 floatingTimerInterval = null;

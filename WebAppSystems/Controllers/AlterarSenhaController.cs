@@ -23,7 +23,7 @@ namespace WebAppSystems.Controllers
         }
 
         [HttpPost]
-
+        [ValidateAntiForgeryToken]
         public IActionResult Alterar(AlterarSenhaModel alterarSenhaModel)
         {
             try
@@ -66,7 +66,8 @@ namespace WebAppSystems.Controllers
             }
             catch (Exception erro)
             {
-                TempData["MensagemErro"] = $"Ops, não conseguimos alterar a senha, detalhe do erro: {erro.Message}";
+                Console.WriteLine($"Erro ao alterar senha: {erro.Message}");
+                TempData["MensagemErro"] = "Ops, não conseguimos alterar a senha. Tente novamente.";
                 return View("Index", alterarSenhaModel);
             }
         }
