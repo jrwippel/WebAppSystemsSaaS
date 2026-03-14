@@ -155,15 +155,17 @@ namespace WebAppSystems.Controllers
                         {
                             usuarioModel.MustChangePassword = true;
                             _attorneyService.AtualizarSenha(usuarioModel);
-                            TempData["MensagemSucesso"] = "Enviamos para o seu email cadastrado uma nova senha.";
                         }
                         else
                         {
-                            TempData["MensagemErro"] = "Não conseguimos enviar o email. Tente novamente.";
+                            Console.WriteLine($"Falha ao enviar email de redefinição para {usuarioModel.Email}");
                         }
+                        // Sempre a mesma mensagem — não revela se o email/usuário existe
+                        TempData["MensagemSucesso"] = "Se os dados informados estiverem corretos, você receberá uma nova senha por email em breve.";
                         return RedirectToAction("Index", "Login");
                     }
-                    TempData["MensagemErro"] = "Não conseguimos redefinir sua senha. Dados informados inválidos.";
+                    // Usuário não encontrado — mesma mensagem genérica
+                    TempData["MensagemSucesso"] = "Se os dados informados estiverem corretos, você receberá uma nova senha por email em breve.";
                 }
 
                 return View("Index");

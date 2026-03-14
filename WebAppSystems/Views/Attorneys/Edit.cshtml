@@ -3,6 +3,7 @@
 @model AttorneyFormViewModel    
 @{
     ViewData["Title"] = "Editar Usuário";
+    bool isAdmin = (ProfileEnum?)ViewBag.CurrentUserPerfil == ProfileEnum.Admin;
 }
 
 <div class="edit-container">
@@ -97,10 +98,33 @@
                         <label asp-for="Attorney.Perfil">
                             <i class="bi bi-award"></i>
                             Perfil
+                            <span class="profile-tooltip-trigger" tabindex="0">
+                                <i class="bi bi-question-circle"></i>
+                                <div class="profile-tooltip">
+                                    @if (isAdmin)
+                                    {
+                                        <div class="profile-tooltip-item">
+                                            <span class="profile-badge admin">Admin</span>
+                                            <span>Acesso total, incluindo financeiro e configurações</span>
+                                        </div>
+                                    }
+                                    <div class="profile-tooltip-item">
+                                        <span class="profile-badge controladoria">Controladoria</span>
+                                        <span>Cadastros operacionais. Sem acesso ao financeiro</span>
+                                    </div>
+                                    <div class="profile-tooltip-item">
+                                        <span class="profile-badge padrao">Padrão</span>
+                                        <span>Time tracker e atividades. Sem configurações</span>
+                                    </div>
+                                </div>
+                            </span>
                         </label>
                         <select asp-for="Attorney.Perfil" class="form-control">
                             <option value="">Selecione o perfil</option>
-                            <option value="@ProfileEnum.Admin">Administrador</option>
+                            @if (isAdmin)
+                            {
+                                <option value="@ProfileEnum.Admin">Administrador</option>
+                            }
                             <option value="@ProfileEnum.Padrao">Padrão</option>
                             <option value="@ProfileEnum.Controladoria">Controladoria</option>
                         </select>
@@ -492,5 +516,94 @@
         .form-actions {
             flex-direction: column;
         }
+    }
+
+    .profile-tooltip-trigger {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 4px;
+        cursor: pointer;
+        color: #a0aec0;
+    }
+
+    .profile-tooltip-trigger:hover,
+    .profile-tooltip-trigger:focus {
+        color: #667eea;
+        outline: none;
+    }
+
+    .profile-tooltip-trigger i {
+        font-size: 14px;
+        color: inherit !important;
+    }
+
+    .profile-tooltip {
+        display: none;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        z-index: 1000;
+        min-width: 280px;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .profile-tooltip::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: 50%;
+        width: 10px;
+        height: 10px;
+        background: white;
+        border-left: 1px solid #e2e8f0;
+        border-top: 1px solid #e2e8f0;
+        transform: translateX(-50%) rotate(45deg);
+    }
+
+    .profile-tooltip-trigger:hover .profile-tooltip,
+    .profile-tooltip-trigger:focus .profile-tooltip {
+        display: flex;
+    }
+
+    .profile-tooltip-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #4a5568;
+        font-weight: normal;
+    }
+
+    .profile-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .profile-badge.admin {
+        background: rgba(102, 126, 234, 0.15);
+        color: #553c9a;
+    }
+
+    .profile-badge.controladoria {
+        background: rgba(246, 173, 85, 0.2);
+        color: #b7791f;
+    }
+
+    .profile-badge.padrao {
+        background: rgba(72, 187, 120, 0.15);
+        color: #276749;
     }
 </style>
