@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "WebAppSystems": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:5095;http://localhost:8000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER": "1",
+        "DOTNET_WATCH_RESTART_ON_RUDE_EDIT": "false",
+        "DOTNET_WATCH_SUPPRESS_HOTRELOAD_STATIC_FILES": "1",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": ""
+      },
+      "hotReloadEnabled": false,
+      "hotReloadProfile": "aspnetcore"
+    }
+  }
+}

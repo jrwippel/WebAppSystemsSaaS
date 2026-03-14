@@ -1,0 +1,164 @@
+@model WebAppSystems.Models.ActivityType
+
+@{
+    ViewData["Title"] = "Novo Tipo de Atividade";
+}
+
+<div class="container-fluid px-4">
+    <!-- Header com gradiente -->
+    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card-body text-white py-4">
+            <h2 class="mb-2">
+                <i class="fas fa-plus-circle me-2"></i>Novo Tipo de Atividade
+            </h2>
+            <p class="mb-0 opacity-90">Crie um novo tipo de atividade personalizado</p>
+        </div>
+    </div>
+
+    <!-- Formulário -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger" id="validationSummary" style="display:none;"></div>
+
+                        <!-- Informações Básicas -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Informações Básicas
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label fw-bold">Nome do Tipo</label>
+                                <input asp-for="Name" class="form-control form-control-lg" placeholder="Ex: Consultivo, Reunião, Desenvolvimento" />
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label fw-bold">Descrição</label>
+                                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Descreva quando este tipo deve ser usado"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Aparência -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-palette me-2"></i>Aparência
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Color" class="form-label fw-bold">Cor</label>
+                                    <div class="input-group">
+                                        <input type="color" id="colorPicker" class="form-control form-control-color" value="#667eea" title="Escolha uma cor" />
+                                        <input asp-for="Color" type="text" class="form-control" placeholder="#667eea" />
+                                    </div>
+                                    <span asp-validation-for="Color" class="text-danger small"></span>
+                                    <small class="text-muted">Cor usada em gráficos e relatórios</small>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="DisplayOrder" class="form-label fw-bold">Ordem de Exibição</label>
+                                    <input asp-for="DisplayOrder" type="number" class="form-control" value="1" min="1" />
+                                    <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
+                                    <small class="text-muted">Ordem na lista de seleção</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                <label asp-for="IsActive" class="form-check-label fw-bold">Tipo Ativo</label>
+                            </div>
+                            <small class="text-muted">Tipos inativos não aparecem na seleção de novos registros</small>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Salvar Tipo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel de Ajuda -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>Dicas
+                    </h6>
+                    <ul class="small mb-0">
+                        <li class="mb-2">Escolha nomes claros e objetivos</li>
+                        <li class="mb-2">Use cores diferentes para facilitar identificação</li>
+                        <li class="mb-2">A ordem define como aparecem nas listas</li>
+                        <li class="mb-2">Você pode desativar tipos sem excluí-los</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-palette text-primary me-2"></i>Sugestões de Cores
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #4A90E2; border-radius: 6px; cursor: pointer;" title="#4A90E2"></div>
+                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #E24A4A; border-radius: 6px; cursor: pointer;" title="#E24A4A"></div>
+                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #50C878; border-radius: 6px; cursor: pointer;" title="#50C878"></div>
+                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #FFA500; border-radius: 6px; cursor: pointer;" title="#FFA500"></div>
+                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #9B59B6; border-radius: 6px; cursor: pointer;" title="#9B59B6"></div>
+                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #1ABC9C; border-radius: 6px; cursor: pointer;" title="#1ABC9C"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Mostrar validation summary se tiver erros
+        const vs = document.getElementById('validationSummary');
+        if (vs && vs.innerText.trim() !== '') {
+            vs.style.display = 'block';
+        }
+
+        // Sincronizar color picker com input text
+        const colorPicker = document.getElementById('colorPicker');
+        const colorText = document.querySelector('input[type="text"][name="Color"]');
+
+        colorPicker.addEventListener('input', (e) => {
+            colorText.value = e.target.value.toUpperCase();
+        });
+
+        colorText.addEventListener('input', (e) => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                colorPicker.value = e.target.value;
+            }
+        });
+
+        // Inicializar color picker com valor atual
+        if (colorText.value) colorPicker.value = colorText.value;
+
+        // Sugestões de cores
+        document.querySelectorAll('.color-suggestion').forEach(el => {
+            el.addEventListener('click', function() {
+                const color = this.getAttribute('title');
+                document.querySelector('input[type="color"]').value = color;
+                document.querySelector('input[type="text"][name="Color"]').value = color;
+            });
+        });
+    </script>
+}
