@@ -49,6 +49,23 @@ namespace WebAppSystems.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AlterarLimites(int id, int maxUsers)
+        {
+            if (HttpContext.Session.GetString("superadmin") != "true")
+                return RedirectToAction("Login");
+
+            var tenant = await _context.Tenants.FindAsync(id);
+            if (tenant != null)
+            {
+                tenant.MaxUsers = maxUsers;
+                await _context.SaveChangesAsync();
+                TempData["Sucesso"] = $"Limite de {tenant.Name} atualizado para {maxUsers} usuários.";
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Ativar(int id)
         {
             if (HttpContext.Session.GetString("superadmin") != "true")

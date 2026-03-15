@@ -81,7 +81,14 @@
                             { <span class="badge badge-ativo px-2 py-1">Ativo</span> }
                         </td>
                         <td class="text-end pe-4">
-                            <div class="d-flex gap-1 justify-content-end">
+                            <div class="d-flex gap-1 justify-content-end align-items-center">
+                                <!-- Alterar limite de usuários -->
+                                <form method="post" action="/SuperAdmin/AlterarLimites" class="d-flex gap-1 align-items-center">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <input type="number" name="maxUsers" value="@t.MaxUsers" min="1" max="999" style="width:60px;" class="form-control form-control-sm" title="Máx. usuários" />
+                                    <button class="btn btn-sm btn-secondary" title="Salvar limite"><i class="bi bi-people"></i></button>
+                                </form>
                                 <form method="post" action="/SuperAdmin/EstenderTrial">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@t.Id" />
