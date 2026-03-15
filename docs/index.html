@@ -250,7 +250,97 @@
     </div>
 </section>
 
-<!-- PRICING -->
+<!-- SCREENSHOTS -->
+<section id="screenshots" style="text-align:center; background:#fff;">
+    <div class="section-label" data-i18n="screenshots.label">O sistema</div>
+    <h2 class="section-title" data-i18n="screenshots.title">Veja o ClockTrack em ação</h2>
+    <p class="section-sub" style="margin:0 auto" data-i18n="screenshots.sub">Interface limpa, intuitiva e pensada para o dia a dia do seu negócio.</p>
+
+    <div class="screenshots-tabs">
+        <button class="tab-btn active" onclick="showTab(0)" data-i18n="tab.timetracker">Time Tracker</button>
+        <button class="tab-btn" onclick="showTab(1)" data-i18n="tab.atividades">Atividades</button>
+        <button class="tab-btn" onclick="showTab(2)" data-i18n="tab.relatorio">Relatórios</button>
+        <button class="tab-btn" onclick="showTab(3)" data-i18n="tab.prefatura">Pré-Fatura</button>
+        <button class="tab-btn" onclick="showTab(4)" data-i18n="tab.resultados">Resultados</button>
+        <button class="tab-btn" onclick="showTab(5)" data-i18n="tab.calendario">Calendário</button>
+    </div>
+
+    <div class="screenshots-viewer">
+        <div class="screenshot-frame">
+            <div class="frame-bar">
+                <span class="frame-dot" style="background:#ff5f57"></span>
+                <span class="frame-dot" style="background:#febc2e"></span>
+                <span class="frame-dot" style="background:#28c840"></span>
+                <span class="frame-url">clocktrack.com.br</span>
+            </div>
+            <div class="screenshot-slides">
+                <img src="screenshots/timetracker.png" class="screenshot-slide active" alt="Time Tracker" />
+                <img src="screenshots/atividades.png" class="screenshot-slide" alt="Atividades" />
+                <img src="screenshots/relatorio.png" class="screenshot-slide" alt="Relatórios" />
+                <img src="screenshots/prefatura.png" class="screenshot-slide" alt="Pré-Fatura" />
+                <img src="screenshots/resultados.png" class="screenshot-slide" alt="Resultados" />
+                <img src="screenshots/calendario.png" class="screenshot-slide" alt="Calendário" />
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .screenshots-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 36px 0 24px;
+    }
+    .tab-btn {
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 20px;
+        padding: 8px 20px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all .2s;
+    }
+    .tab-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .tab-btn.active { background: var(--gradient); color: white; border-color: transparent; }
+    .screenshots-viewer {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 5%;
+    }
+    .screenshot-frame {
+        background: #1a202c;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 24px 80px rgba(0,0,0,.2);
+    }
+    .frame-bar {
+        background: #2d3748;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .frame-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .frame-url {
+        margin-left: 12px;
+        background: #4a5568;
+        border-radius: 4px;
+        padding: 2px 12px;
+        font-size: 12px;
+        color: #a0aec0;
+    }
+    .screenshot-slides { position: relative; }
+    .screenshot-slide {
+        width: 100%;
+        display: none;
+        border-radius: 0 0 12px 12px;
+    }
+    .screenshot-slide.active { display: block; }
+</style>
 <section id="pricing" style="text-align:center">
     <div class="section-label" data-i18n="pricing.label">Preços</div>
     <h2 class="section-title" data-i18n="pricing.title">Simples e transparente</h2>
@@ -385,7 +475,9 @@ const i18n = {
         'faq.q5':'O sistema tem app mobile?','faq.a5':'O ClockTrack é responsivo e funciona muito bem no celular pelo navegador. Um app nativo está no roadmap.',
         'cta.title':'Pronto para organizar seu negócio?','cta.sub':'Comece hoje. 14 dias grátis, sem cartão, sem compromisso.','cta.btn':'Criar minha conta grátis',
         'footer.desc':'Gestão de tempo e recursos para pequenas e médias empresas. Simples, eficiente e personalizável.',
-        'footer.product':'Produto','footer.contact':'Contato','footer.rights':'Todos os direitos reservados.','footer.made':'Feito com ❤️ no Brasil'
+        'footer.product':'Produto','footer.contact':'Contato','footer.rights':'Todos os direitos reservados.','footer.made':'Feito com ❤️ no Brasil',
+        'screenshots.label':'O sistema','screenshots.title':'Veja o ClockTrack em ação','screenshots.sub':'Interface limpa, intuitiva e pensada para o dia a dia do seu negócio.',
+        'tab.timetracker':'Time Tracker','tab.atividades':'Atividades','tab.relatorio':'Relatórios','tab.prefatura':'Pré-Fatura','tab.resultados':'Resultados','tab.calendario':'Calendário'
     },
     en: {
         'nav.features':'Features','nav.pricing':'Pricing','nav.faq':'FAQ','nav.trial':'Free Trial',
@@ -418,7 +510,9 @@ const i18n = {
         'faq.q5':'Is there a mobile app?','faq.a5':'ClockTrack is fully responsive and works great on mobile via browser. A native app is on the roadmap.',
         'cta.title':'Ready to organize your business?','cta.sub':'Start today. 14 days free, no card, no commitment.','cta.btn':'Create my free account',
         'footer.desc':'Time and resource management for small and medium businesses. Simple, efficient and customizable.',
-        'footer.product':'Product','footer.contact':'Contact','footer.rights':'All rights reserved.','footer.made':'Made with ❤️ in Brazil'
+        'footer.product':'Product','footer.contact':'Contact','footer.rights':'All rights reserved.','footer.made':'Made with ❤️ in Brazil',
+        'screenshots.label':'The system','screenshots.title':'See ClockTrack in action','screenshots.sub':'Clean, intuitive interface designed for your daily business operations.',
+        'tab.timetracker':'Time Tracker','tab.atividades':'Activities','tab.relatorio':'Reports','tab.prefatura':'Pre-Invoice','tab.resultados':'Results','tab.calendario':'Calendar'
     }
 };
 
@@ -433,6 +527,11 @@ function setLang(lang) {
     });
     document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
 }
+
+function showTab(index) {
+        document.querySelectorAll('.screenshot-slide').forEach((s, i) => s.classList.toggle('active', i === index));
+        document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === index));
+    }
 
 function toggleFaq(el) {
     el.parentElement.classList.toggle('open');
