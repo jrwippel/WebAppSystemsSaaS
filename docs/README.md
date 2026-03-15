@@ -1,64 +1,18 @@
-# JRWIT.COM - Landing Page
+# ClockTrack Landing Page
 
-Landing page profissional para JRWIT - Soluções em Tecnologia
+## Como publicar no GitHub Pages
 
-## 🚀 Como Ativar no GitHub Pages
-
-1. Vá para o repositório no GitHub
-2. Clique em **Settings** (Configurações)
-3. No menu lateral, clique em **Pages**
-4. Em **Source**, selecione:
-   - Branch: `main`
-   - Folder: `/docs`
+1. Vá em **Settings** do repositório no GitHub
+2. No menu lateral, clique em **Pages**
+3. Em **Source**, selecione **Deploy from a branch**
+4. Em **Branch**, selecione `main` e pasta `/docs`
 5. Clique em **Save**
-6. Aguarde alguns minutos
-7. Acesse: `https://jrwippel.github.io/WebAppSystems/`
 
-## 🎨 Características
+A página ficará disponível em:
+`https://[seu-usuario].github.io/[nome-do-repo]/`
 
-- ✅ Design moderno e profissional
-- ✅ Totalmente responsivo (mobile-first)
-- ✅ Animações suaves
-- ✅ Gradientes roxo/azul (identidade visual)
-- ✅ Seções: Hero, Serviços, Sobre, Contato
-- ✅ Performance otimizada
-- ✅ SEO friendly
-- ✅ Sem dependências externas (exceto Google Fonts)
+## Domínio personalizado (quando comprar)
 
-## 📝 Personalização
-
-Edite o arquivo `index.html` para personalizar:
-
-- **Email**: Altere `contato@jrwit.com`
-- **Estatísticas**: Atualize os números na seção "Sobre"
-- **Serviços**: Adicione ou remova cards de serviços
-- **Cores**: Modifique as variáveis CSS em `:root`
-
-## 🎯 Domínio Personalizado (Opcional)
-
-Para usar `jrwit.com`:
-
-1. Crie um arquivo `CNAME` na pasta `docs/`
-2. Adicione apenas: `jrwit.com`
-3. Configure DNS do domínio:
-   - Tipo: `CNAME`
-   - Nome: `www`
-   - Valor: `jrwippel.github.io`
-4. Aguarde propagação DNS (até 48h)
-
-## 📱 Preview
-
-A página inclui:
-- Header fixo com navegação suave
-- Hero section com call-to-action
-- Grid de 6 serviços
-- Seção sobre com estatísticas
-- Formulário de contato
-- Footer profissional
-
-## 🛠️ Tecnologias
-
-- HTML5
-- CSS3 (Grid, Flexbox, Animations)
-- JavaScript Vanilla
-- Google Fonts (Inter)
+1. Em **Pages > Custom domain**, coloque seu domínio (ex: `clocktrack.com.br`)
+2. No seu provedor de domínio, crie um registro CNAME apontando para `[seu-usuario].github.io`
+3. Aguarde a propagação (até 24h)

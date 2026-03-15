@@ -1,651 +1,460 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JRWIT - Time Tracking & Productivity Suite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClockTrack — Gestão de Tempo e Recursos</title>
+    <meta name="description" content="Gerencie tempo, equipe e faturamento do seu negócio com simplicidade. Ideal para escritórios, agências e pequenas empresas." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text: #2d3748;
+            --muted: #718096;
+            --light: #f7fafc;
+            --border: #e2e8f0;
+            --white: #ffffff;
         }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #000000;
-            color: #ffffff;
-            line-height: 1.6;
-        }
-
-        /* Header */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
+        /* NAV */
         nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 5%; height: 64px;
         }
+        .nav-logo { font-size: 22px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; align-items: center; gap: 28px; }
+        .nav-links a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; transition: color .2s; }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-cta { background: var(--gradient); color: white !important; padding: 8px 20px; border-radius: 8px; font-weight: 600 !important; }
+        .nav-cta:hover { opacity: .9; }
+        .lang-toggle { display: flex; gap: 6px; }
+        .lang-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--muted); transition: all .2s; }
+        .lang-btn.active { background: var(--gradient); color: white; border-color: transparent; }
+        .hamburger { display: none; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text); }
+        .mobile-menu { display: none; flex-direction: column; gap: 12px; padding: 16px 5%; background: white; border-bottom: 1px solid var(--border); }
+        .mobile-menu.open { display: flex; }
+        .mobile-menu a { text-decoration: none; color: var(--text); font-weight: 500; padding: 8px 0; border-bottom: 1px solid var(--border); }
 
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            color: #ffffff;
-            text-decoration: none;
-        }
-
-        .logo span {
-            color: #2254E1;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 40px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: #2254E1;
-        }
-
-        .btn-primary {
-            background: #2254E1;
-            color: #ffffff;
-            padding: 12px 28px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            background: #1a42b8;
-            transform: translateY(-2px);
-        }
-
-        /* Hero Section */
+        /* HERO */
         .hero {
-            padding: 180px 40px 120px;
-            text-align: center;
-            position: relative;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 100px 5% 60px;
+            background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 100%);
         }
+        .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(102,126,234,.12); color: var(--primary); border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+        .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+        .hero h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: clamp(16px, 2vw, 20px); color: var(--muted); max-width: 600px; margin: 0 auto 36px; line-height: 1.7; }
+        .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .btn-primary { background: var(--gradient); color: white; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 16px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all .3s; box-shadow: 0 4px 20px rgba(102,126,234,.35); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(102,126,234,.45); }
+        .btn-outline { background: white; color: var(--primary); padding: 14px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--primary); transition: all .3s; }
+        .btn-outline:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+        .hero-note { margin-top: 16px; font-size: 13px; color: var(--muted); }
+        .hero-screenshot { margin-top: 60px; max-width: 900px; width: 100%; border-radius: 16px; box-shadow: 0 24px 80px rgba(0,0,0,.15); border: 1px solid var(--border); overflow: hidden; }
+        .screenshot-mockup { background: white; border-radius: 16px; overflow: hidden; }
+        .mockup-bar { background: #f1f5f9; padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+        .mockup-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .mockup-nav { background: var(--gradient); padding: 14px 24px; display: flex; align-items: center; gap: 20px; }
+        .mockup-nav-item { color: rgba(255,255,255,.8); font-size: 13px; font-weight: 500; }
+        .mockup-nav-item.active { color: white; font-weight: 700; }
+        .mockup-content { padding: 24px; display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+        .mockup-card { background: var(--light); border-radius: 10px; padding: 16px; }
+        .mockup-card-title { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+        .mockup-card-value { font-size: 22px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, rgba(34, 84, 225, 0.15) 0%, transparent 70%);
-            pointer-events: none;
-        }
+        /* LOGOS / SOCIAL PROOF */
+        .social-proof { padding: 40px 5%; text-align: center; border-bottom: 1px solid var(--border); }
+        .social-proof p { font-size: 13px; color: var(--muted); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .logos { display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap; }
+        .logo-item { font-size: 15px; font-weight: 700; color: #cbd5e0; letter-spacing: .5px; }
 
-        .hero-content {
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
+        /* FEATURES */
+        section { padding: 80px 5%; }
+        .section-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 12px; }
+        .section-title { font-size: clamp(28px, 4vw, 42px); font-weight: 800; margin-bottom: 16px; }
+        .section-sub { font-size: 18px; color: var(--muted); max-width: 560px; line-height: 1.7; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 48px; }
+        .feature-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 28px; transition: all .3s; }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(102,126,234,.12); border-color: var(--primary); }
+        .feature-icon { width: 48px; height: 48px; background: linear-gradient(135deg,rgba(102,126,234,.15),rgba(118,75,162,.15)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+        .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
-        .hero h1 {
-            font-size: 72px;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            letter-spacing: -2px;
-        }
+        /* HOW IT WORKS */
+        .how-bg { background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 100%); }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; margin-top: 48px; }
+        .step { text-align: center; }
+        .step-num { width: 52px; height: 52px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: 800; margin: 0 auto 16px; }
+        .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .step p { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
-        .hero h1 .highlight {
-            color: #2254E1;
-        }
+        /* PRICING */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 48px; max-width: 960px; margin-left: auto; margin-right: auto; }
+        .pricing-card { background: white; border: 2px solid var(--border); border-radius: 20px; padding: 32px; position: relative; transition: all .3s; }
+        .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(102,126,234,.15); }
+        .pricing-card.featured { border-color: var(--primary); box-shadow: 0 8px 32px rgba(102,126,234,.2); }
+        .pricing-badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--gradient); color: white; padding: 4px 18px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+        .pricing-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+        .pricing-price { font-size: 42px; font-weight: 800; margin-bottom: 4px; }
+        .pricing-price span { font-size: 16px; font-weight: 500; color: var(--muted); }
+        .pricing-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+        .pricing-features { list-style: none; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
+        .pricing-features li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .pricing-features li i { color: var(--primary); font-size: 16px; flex-shrink: 0; }
+        .btn-pricing { display: block; text-align: center; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all .3s; }
+        .btn-pricing-primary { background: var(--gradient); color: white; }
+        .btn-pricing-primary:hover { opacity: .9; transform: translateY(-1px); }
+        .btn-pricing-outline { border: 2px solid var(--primary); color: var(--primary); }
+        .btn-pricing-outline:hover { background: var(--primary); color: white; }
 
-        .hero p {
-            font-size: 24px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 40px;
-        }
+        /* FAQ */
+        .faq-list { max-width: 720px; margin: 48px auto 0; display: flex; flex-direction: column; gap: 12px; }
+        .faq-item { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .faq-q { padding: 18px 20px; font-weight: 600; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background .2s; }
+        .faq-q:hover { background: var(--light); }
+        .faq-q i { transition: transform .3s; flex-shrink: 0; color: var(--primary); }
+        .faq-item.open .faq-q i { transform: rotate(180deg); }
+        .faq-a { display: none; padding: 0 20px 18px; font-size: 14px; color: var(--muted); line-height: 1.7; }
+        .faq-item.open .faq-a { display: block; }
 
-        .hero-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            background: #ffffff;
-            color: #000000;
-            padding: 18px 36px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 17px;
-            transition: all 0.3s;
-        }
+        /* CTA FINAL */
+        .cta-section { background: var(--gradient); padding: 80px 5%; text-align: center; }
+        .cta-section h2 { font-size: clamp(28px, 4vw, 42px); font-weight: 800; color: white; margin-bottom: 16px; }
+        .cta-section p { font-size: 18px; color: rgba(255,255,255,.85); margin-bottom: 36px; }
+        .btn-white { background: white; color: var(--primary); padding: 14px 36px; border-radius: 10px; font-weight: 700; font-size: 16px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all .3s; box-shadow: 0 4px 20px rgba(0,0,0,.15); }
+        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.2); }
 
-        .hero-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.2);
-        }
+        /* FOOTER */
+        footer { background: #1a202c; color: #a0aec0; padding: 48px 5% 24px; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+        .footer-brand { font-size: 22px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .footer-desc { font-size: 14px; line-height: 1.7; }
+        .footer-col h4 { color: white; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+        .footer-col a { display: block; color: #a0aec0; text-decoration: none; font-size: 14px; margin-bottom: 8px; transition: color .2s; }
+        .footer-col a:hover { color: white; }
+        .footer-bottom { border-top: 1px solid #2d3748; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 13px; }
 
-        .hero-cta::after {
-            content: '→';
-            font-size: 20px;
-        }
+        /* WHATSAPP */
+        .whatsapp-btn { position: fixed; bottom: 24px; right: 24px; z-index: 200; background: #25d366; color: white; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; text-decoration: none; box-shadow: 0 4px 20px rgba(37,211,102,.4); transition: all .3s; }
+        .whatsapp-btn:hover { transform: scale(1.1); box-shadow: 0 8px 32px rgba(37,211,102,.5); }
 
-        /* Trusted By */
-        .trusted {
-            padding: 80px 40px;
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .trusted p {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 40px;
-            font-weight: 600;
-        }
-
-        .trusted-logos {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 60px;
-            flex-wrap: wrap;
-        }
-
-        .trusted-logos span {
-            font-size: 18px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.4);
-            transition: color 0.3s;
-        }
-
-        .trusted-logos span:hover {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        /* Features */
-        .features {
-            padding: 120px 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .features-header {
-            text-align: center;
-            margin-bottom: 80px;
-        }
-
-        .features-header h2 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 20px;
-        }
-
-        .features-header p {
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 40px;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 40px;
-            transition: all 0.3s;
-        }
-
-        .feature-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(34, 84, 225, 0.5);
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            width: 56px;
-            height: 56px;
-            background: #2254E1;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 24px;
-        }
-
-        .feature-card h3 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .feature-card p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 16px;
-            line-height: 1.7;
-        }
-
-        /* Stats */
-        .stats {
-            padding: 100px 40px;
-            background: rgba(34, 84, 225, 0.05);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .stats-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 60px;
-            text-align: center;
-        }
-
-        .stat-item h3 {
-            font-size: 56px;
-            font-weight: 800;
-            color: #2254E1;
-            margin-bottom: 12px;
-        }
-
-        .stat-item p {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 500;
-        }
-
-        /* CTA Section */
-        .cta-section {
-            padding: 120px 40px;
-            text-align: center;
-        }
-
-        .cta-section h2 {
-            font-size: 56px;
-            font-weight: 800;
-            margin-bottom: 24px;
-        }
-
-        .cta-section p {
-            font-size: 22px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 40px;
-        }
-
-        /* Contact Cards */
-        .contact-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            max-width: 800px;
-            margin: 60px auto 0;
-        }
-
-        .contact-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 30px 20px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .contact-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(34, 84, 225, 0.3);
-            transform: translateY(-3px);
-        }
-
-        .contact-icon {
-            font-size: 32px;
-            margin-bottom: 16px;
-        }
-
-        .contact-card h4 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .contact-card p {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-            margin: 0;
-        }
-
-        /* Footer */
-        footer {
-            padding: 80px 40px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 60px;
-        }
-
-        .footer-brand h3 {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .footer-brand p {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .social-links a {
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .social-links a:hover {
-            background: #2254E1;
-            color: #ffffff;
-        }
-
-        .footer-links h4 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .footer-links ul {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 12px;
-        }
-
-        .footer-links a {
-            color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.3s;
-        }
-
-        .footer-links a:hover {
-            color: #2254E1;
-        }
-
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 40px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 60px;
-        }
-
-        .footer-legal {
-            display: flex;
-            gap: 24px;
-        }
-
-        .footer-legal a {
-            color: rgba(255, 255, 255, 0.4);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.3s;
-        }
-
-        .footer-legal a:hover {
-            color: #2254E1;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 42px;
-            }
-
-            .hero p {
-                font-size: 18px;
-            }
-
-            .features-header h2 {
-                font-size: 36px;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                gap: 20px;
-                text-align: center;
-            }
-
-            .contact-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .cta-section h2 {
-                font-size: 36px;
-            }
+            .nav-links { display: none; }
+            .hamburger { display: block; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .mockup-content { grid-template-columns: 1fr; }
         }
+    </style>
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="#" class="logo">JR<span>WIT</span></a>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#about">About</a>
-                <a href="https://jrwit.com" class="btn-primary">Get started</a>
-            </div>
-        </nav>
-    </header>
 
-    <section class="hero">
-        <div class="hero-content">
-            <h1>
-                <span class="highlight">JRWIT</span> productivity suite
-            </h1>
-            <p>Get work done, the simple way</p>
-            <a href="contact.html" class="hero-cta">Enviar Email</a>
+<!-- HERO -->
+<section class="hero">
+    <div>
+        <div class="hero-badge"><i class="bi bi-stars"></i> <span data-i18n="hero.badge">14 dias grátis · Sem cartão</span></div>
+        <h1 data-i18n="hero.title">Gerencie tempo e recursos<br/><span>com simplicidade real</span></h1>
+        <p data-i18n="hero.sub">ClockTrack é a plataforma ideal para escritórios, agências e pequenas empresas que querem controlar horas, equipe e faturamento sem complicação.</p>
+        <div class="hero-actions">
+            <a href="https://clocktrack-cpbygygbayedaye9.eastus-01.azurewebsites.net/Registro" class="btn-primary">
+                <i class="bi bi-rocket-takeoff"></i> <span data-i18n="hero.cta">Começar grátis por 14 dias</span>
+            </a>
+            <a href="#features" class="btn-outline">
+                <i class="bi bi-play-circle"></i> <span data-i18n="hero.cta2">Ver funcionalidades</span>
+            </a>
         </div>
-    </section>
+        <p class="hero-note" data-i18n="hero.note">Sem cartão de crédito. Cancele quando quiser.</p>
 
-    <section class="trusted">
-        <p>Trusted by professionals worldwide</p>
-        <div class="trusted-logos">
-            <span>Legal Firms</span>
-            <span>Consultancies</span>
-            <span>Agencies</span>
-            <span>Enterprises</span>
-            <span>Startups</span>
-        </div>
-    </section>
-
-    <section class="features" id="features">
-        <div class="features-header">
-            <h2>Everything you need to track time</h2>
-            <p>Powerful features for modern teams</p>
-        </div>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">⏱️</div>
-                <h3>Time Tracking</h3>
-                <p>Track time effortlessly with our intuitive timer. Start, stop, and manage your work hours with precision.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>Detailed Reports</h3>
-                <p>Generate comprehensive reports to analyze productivity and make data-driven decisions for your business.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <h3>Team Management</h3>
-                <p>Manage your team efficiently with role-based access control and collaborative features.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">💼</div>
-                <h3>Client Portal</h3>
-                <p>Organize clients and projects in one place. Keep track of billable hours and project progress.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📅</div>
-                <h3>Calendar Integration</h3>
-                <p>Sync your schedule and never miss a deadline. Plan your work with our integrated calendar system.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔒</div>
-                <h3>Secure & Reliable</h3>
-                <p>Your data is protected with enterprise-grade security. Enjoy reliable service with 99.9% uptime.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="stats">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <h3>10K+</h3>
-                <p>Active users</p>
-            </div>
-            <div class="stat-item">
-                <h3>1M+</h3>
-                <p>Hours tracked</p>
-            </div>
-            <div class="stat-item">
-                <h3>99.9%</h3>
-                <p>Uptime</p>
-            </div>
-            <div class="stat-item">
-                <h3>24/7</h3>
-                <p>Support</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="cta-section" id="contact">
-        <h2>Let's Talk?</h2>
-        <p>Get in touch and discover how we can help your business</p>
-        <a href="contact.html" class="hero-cta">Send Email</a>
-    </section>
-
-    <footer>
-        <div class="footer-content">
-            <div class="footer-brand">
-                <h3>JRWIT</h3>
-                <p>Blumenau - SC - Brasil<br>
-                +55 11 9999-9999<br>
-                contato@jrwit.com</p>
-                <div class="social-links">
-                    <a href="#" aria-label="LinkedIn"><span>in</span></a>
-                    <a href="https://github.com/jrwippel" aria-label="GitHub"><span>gh</span></a>
-                    <a href="#" aria-label="Email"><span>@</span></a>
+        <!-- Mockup visual -->
+        <div class="hero-screenshot">
+            <div class="screenshot-mockup">
+                <div class="mockup-bar">
+                    <div class="mockup-dot" style="background:#ff5f57"></div>
+                    <div class="mockup-dot" style="background:#febc2e"></div>
+                    <div class="mockup-dot" style="background:#28c840"></div>
+                </div>
+                <div class="mockup-nav">
+                    <span class="mockup-nav-item active">ClockTrack</span>
+                    <span class="mockup-nav-item">Time Tracker</span>
+                    <span class="mockup-nav-item">Relatórios</span>
+                    <span class="mockup-nav-item">Gerenciar</span>
+                </div>
+                <div class="mockup-content">
+                    <div class="mockup-card"><div class="mockup-card-title">Horas este mês</div><div class="mockup-card-value">142:30</div></div>
+                    <div class="mockup-card"><div class="mockup-card-title">Clientes ativos</div><div class="mockup-card-value">12</div></div>
+                    <div class="mockup-card"><div class="mockup-card-title">Faturamento</div><div class="mockup-card-value">R$ 18.400</div></div>
                 </div>
             </div>
-            <div class="footer-links">
-                <h4>Products</h4>
-                <ul>
-                    <li><a href="https://jrwit.com">Time Tracker</a></li>
-                    <li><a href="https://jrwit.com">Reports</a></li>
-                    <li><a href="https://jrwit.com">Analytics</a></li>
-                    <li><a href="https://jrwit.com">Try for free</a></li>
-                    <li><a href="https://jrwit.com">Log in</a></li>
-                </ul>
-            </div>
-            <div class="footer-links">
-                <h4>Company</h4>
-                <ul>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="https://jrwit.com">Careers</a></li>
-                    <li><a href="https://jrwit.com">Press</a></li>
-                </ul>
-            </div>
-            <div class="footer-links">
-                <h4>Resources</h4>
-                <ul>
-                    <li><a href="https://jrwit.com">Help Center</a></li>
-                    <li><a href="https://jrwit.com">Updates</a></li>
-                    <li><a href="https://jrwit.com">Tutorials</a></li>
-                    <li><a href="https://jrwit.com">Request demo</a></li>
-                    <li><a href="https://jrwit.com">Events</a></li>
-                </ul>
-            </div>
         </div>
-        <div class="footer-bottom">
-            <div>
-                <p>&copy; 2024 JRWIT Inc. All rights reserved.</p>
-            </div>
-            <div class="footer-legal">
-                <a href="#">Cookies</a>
-                <a href="#">Terms</a>
-                <a href="#">Privacy</a>
-                <a href="#">Security</a>
-            </div>
+    </div>
+</section>
+<nav id="navbar">
+    <span class="nav-logo">ClockTrack</span>
+    <div class="nav-links" id="navLinks">
+        <a href="#features" data-i18n="nav.features">Funcionalidades</a>
+        <a href="#pricing" data-i18n="nav.pricing">Preços</a>
+        <a href="#faq" data-i18n="nav.faq">FAQ</a>
+        <div class="lang-toggle">
+            <button class="lang-btn active" onclick="setLang('pt')">PT</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
         </div>
-    </footer>
+        <a href="https://clocktrack-cpbygygbayedaye9.eastus-01.azurewebsites.net/Registro" class="nav-cta" data-i18n="nav.trial">Teste Grátis</a>
+    </div>
+    <button class="hamburger" id="hamburger"><i class="bi bi-list"></i></button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+    <a href="#features" data-i18n="nav.features">Funcionalidades</a>
+    <a href="#pricing" data-i18n="nav.pricing">Preços</a>
+    <a href="#faq" data-i18n="nav.faq">FAQ</a>
+    <a href="https://clocktrack-cpbygygbayedaye9.eastus-01.azurewebsites.net/Registro" data-i18n="nav.trial">Teste Grátis</a>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+    <div style="text-align:center">
+        <div class="section-label" data-i18n="features.label">Funcionalidades</div>
+        <h2 class="section-title" data-i18n="features.title">Tudo que você precisa, sem o que não precisa</h2>
+        <p class="section-sub" style="margin:0 auto" data-i18n="features.sub">Simples de usar, poderoso quando precisa. Feito para quem quer resultado, não complexidade.</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card"><div class="feature-icon">⏱️</div><h3 data-i18n="f1.title">Time Tracker em tempo real</h3><p data-i18n="f1.desc">Registre horas com início e fim, descrição e tipo de atividade. Tudo salvo automaticamente.</p></div>
+        <div class="feature-card"><div class="feature-icon">📊</div><h3 data-i18n="f2.title">Relatórios e Pré-Fatura</h3><p data-i18n="f2.desc">Gere relatórios por cliente, período e usuário. Exporte Pré-Fatura em PDF com logo da sua empresa.</p></div>
+        <div class="feature-card"><div class="feature-icon">👥</div><h3 data-i18n="f3.title">Gestão de equipe</h3><p data-i18n="f3.desc">Cadastre usuários com perfis diferentes. Controle quem vê o quê com permissões por nível.</p></div>
+        <div class="feature-card"><div class="feature-icon">🏢</div><h3 data-i18n="f4.title">Multi-cliente</h3><p data-i18n="f4.desc">Gerencie múltiplos clientes com valores por hora individuais. Cada cliente, sua própria régua.</p></div>
+        <div class="feature-card"><div class="feature-icon">📅</div><h3 data-i18n="f5.title">Calendário integrado</h3><p data-i18n="f5.desc">Visualize atividades no calendário. Planeje e acompanhe a distribuição de horas da equipe.</p></div>
+        <div class="feature-card"><div class="feature-icon">🎨</div><h3 data-i18n="f6.title">Personalizável sob demanda</h3><p data-i18n="f6.desc">Logo da empresa, tipos de atividade customizados e configurações por negócio. Seu sistema, sua cara.</p></div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-bg">
+    <div style="text-align:center">
+        <div class="section-label" data-i18n="how.label">Como funciona</div>
+        <h2 class="section-title" data-i18n="how.title">Em 3 passos você está operando</h2>
+    </div>
+    <div class="steps">
+        <div class="step"><div class="step-num">1</div><h3 data-i18n="s1.title">Crie sua conta</h3><p data-i18n="s1.desc">Registre sua empresa em menos de 2 minutos. Sem cartão, sem burocracia.</p></div>
+        <div class="step"><div class="step-num">2</div><h3 data-i18n="s2.title">Cadastre equipe e clientes</h3><p data-i18n="s2.desc">Adicione seus colaboradores, clientes e defina os valores por hora de cada um.</p></div>
+        <div class="step"><div class="step-num">3</div><h3 data-i18n="s3.title">Registre e fature</h3><p data-i18n="s3.desc">Comece a registrar horas e gere Pré-Faturas profissionais com um clique.</p></div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="text-align:center">
+    <div class="section-label" data-i18n="pricing.label">Preços</div>
+    <h2 class="section-title" data-i18n="pricing.title">Simples e transparente</h2>
+    <p class="section-sub" style="margin:0 auto" data-i18n="pricing.sub">14 dias grátis em qualquer plano. Sem surpresas na fatura.</p>
+    <div class="pricing-grid">
+        <div class="pricing-card">
+            <div class="pricing-name">Starter</div>
+            <div class="pricing-price">R$ 97<span>/mês</span></div>
+            <div class="pricing-desc" data-i18n="p1.desc">Ideal para autônomos e equipes pequenas</div>
+            <ul class="pricing-features">
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p1.f1">Até 5 usuários</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p1.f2">Time Tracker ilimitado</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p1.f3">Relatórios em PDF e Excel</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p1.f4">Clientes ilimitados</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p1.f5">Suporte por e-mail</span></li>
+            </ul>
+            <a href="https://clocktrack-cpbygygbayedaye9.eastus-01.azurewebsites.net/Registro" class="btn-pricing btn-pricing-outline" data-i18n="pricing.cta">Começar grátis</a>
+        </div>
+        <div class="pricing-card featured">
+            <div class="pricing-badge" data-i18n="pricing.popular">Mais popular</div>
+            <div class="pricing-name">Pro</div>
+            <div class="pricing-price">R$ 197<span>/mês</span></div>
+            <div class="pricing-desc" data-i18n="p2.desc">Para equipes em crescimento</div>
+            <ul class="pricing-features">
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p2.f1">Até 15 usuários</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p2.f2">Tudo do Starter</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p2.f3">Pré-Fatura com logo</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p2.f4">Calendário de equipe</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p2.f5">Suporte prioritário</span></li>
+            </ul>
+            <a href="https://clocktrack-cpbygygbayedaye9.eastus-01.azurewebsites.net/Registro" class="btn-pricing btn-pricing-primary" data-i18n="pricing.cta">Começar grátis</a>
+        </div>
+        <div class="pricing-card">
+            <div class="pricing-name">Enterprise</div>
+            <div class="pricing-price" style="font-size:28px;padding-top:8px" data-i18n="p3.price">Sob consulta</div>
+            <div class="pricing-desc" data-i18n="p3.desc">Para empresas com necessidades específicas</div>
+            <ul class="pricing-features">
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p3.f1">Usuários ilimitados</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p3.f2">Tudo do Pro</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p3.f3">Personalização sob demanda</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p3.f4">Integração com sistemas</span></li>
+                <li><i class="bi bi-check-circle-fill"></i><span data-i18n="p3.f5">Suporte dedicado via WhatsApp</span></li>
+            </ul>
+            <a href="https://wa.me/5547999346159" class="btn-pricing btn-pricing-outline" data-i18n="p3.cta">Falar no WhatsApp</a>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="how-bg" style="text-align:center">
+    <div class="section-label" data-i18n="faq.label">FAQ</div>
+    <h2 class="section-title" data-i18n="faq.title">Perguntas frequentes</h2>
+    <div class="faq-list">
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q1">Preciso de cartão de crédito para o trial?</span><i class="bi bi-chevron-down"></i></div><div class="faq-a" data-i18n="faq.a1">Não. O trial de 14 dias é completamente gratuito e não exige cartão. Você só informa dados de pagamento se decidir continuar.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q2">Posso usar para qualquer tipo de negócio?</span><i class="bi bi-chevron-down"></i></div><div class="faq-a" data-i18n="faq.a2">Sim. Embora seja muito usado por escritórios de advocacia, o ClockTrack funciona para qualquer negócio que precise controlar horas e recursos — agências, consultorias, freelancers e mais.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q3">Meus dados ficam seguros?</span><i class="bi bi-chevron-down"></i></div><div class="faq-a" data-i18n="faq.a3">Sim. Cada empresa tem seu próprio espaço isolado (multi-tenant). Os dados são armazenados no Microsoft Azure com backup automático e conexão criptografada.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q4">Posso cancelar a qualquer momento?</span><i class="bi bi-chevron-down"></i></div><div class="faq-a" data-i18n="faq.a4">Sim, sem multa e sem burocracia. Entre em contato e cancelamos imediatamente.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq.q5">O sistema tem app mobile?</span><i class="bi bi-chevron-down"></i></div><div class="faq-a" data-i18n="faq.a5">O ClockTrack é responsivo e funciona muito bem no celular pelo navegador. Um app nativo está no roadmap.</div></div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+    <h2 data-i18n="cta.title">Pronto para organizar seu negócio?</h2>
+    <p data-i18n="cta.sub">Comece hoje. 14 dias grátis, sem cartão, sem compromisso.</p>
+    <a href="https://clocktrack-cpbygygbayedaye9.eastus-01.azurewebsites.net/Registro" class="btn-white">
+        <i class="bi bi-rocket-takeoff"></i> <span data-i18n="cta.btn">Criar minha conta grátis</span>
+    </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-grid">
+        <div>
+            <div class="footer-brand">ClockTrack</div>
+            <p class="footer-desc" data-i18n="footer.desc">Gestão de tempo e recursos para pequenas e médias empresas. Simples, eficiente e personalizável.</p>
+        </div>
+        <div class="footer-col">
+            <h4 data-i18n="footer.product">Produto</h4>
+            <a href="#features" data-i18n="nav.features">Funcionalidades</a>
+            <a href="#pricing" data-i18n="nav.pricing">Preços</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://clocktrack-cpbygygbayedaye9.eastus-01.azurewebsites.net/Registro" data-i18n="nav.trial">Teste Grátis</a>
+        </div>
+        <div class="footer-col">
+            <h4 data-i18n="footer.contact">Contato</h4>
+            <a href="mailto:jrwsolucoesti@hotmail.com">jrwsolucoesti@hotmail.com</a>
+            <a href="https://wa.me/5547999346159">WhatsApp</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2026 ClockTrack. <span data-i18n="footer.rights">Todos os direitos reservados.</span></span>
+        <span data-i18n="footer.made">Feito com ❤️ no Brasil</span>
+    </div>
+</footer>
+
+<!-- WhatsApp flutuante -->
+<a href="https://wa.me/5547999346159?text=Olá!%20Tenho%20interesse%20no%20ClockTrack." class="whatsapp-btn" title="WhatsApp" target="_blank" rel="noopener">
+    <i class="bi bi-whatsapp"></i>
+</a>
+
+<script>
+const i18n = {
+    pt: {
+        'nav.features':'Funcionalidades','nav.pricing':'Preços','nav.faq':'FAQ','nav.trial':'Teste Grátis',
+        'hero.badge':'14 dias grátis · Sem cartão',
+        'hero.title':'Gerencie tempo e recursos<br/><span>com simplicidade real</span>',
+        'hero.sub':'ClockTrack é a plataforma ideal para escritórios, agências e pequenas empresas que querem controlar horas, equipe e faturamento sem complicação.',
+        'hero.cta':'Começar grátis por 14 dias','hero.cta2':'Ver funcionalidades','hero.note':'Sem cartão de crédito. Cancele quando quiser.',
+        'features.label':'Funcionalidades','features.title':'Tudo que você precisa, sem o que não precisa',
+        'features.sub':'Simples de usar, poderoso quando precisa. Feito para quem quer resultado, não complexidade.',
+        'f1.title':'Time Tracker em tempo real','f1.desc':'Registre horas com início e fim, descrição e tipo de atividade. Tudo salvo automaticamente.',
+        'f2.title':'Relatórios e Pré-Fatura','f2.desc':'Gere relatórios por cliente, período e usuário. Exporte Pré-Fatura em PDF com logo da sua empresa.',
+        'f3.title':'Gestão de equipe','f3.desc':'Cadastre usuários com perfis diferentes. Controle quem vê o quê com permissões por nível.',
+        'f4.title':'Multi-cliente','f4.desc':'Gerencie múltiplos clientes com valores por hora individuais. Cada cliente, sua própria régua.',
+        'f5.title':'Calendário integrado','f5.desc':'Visualize atividades no calendário. Planeje e acompanhe a distribuição de horas da equipe.',
+        'f6.title':'Personalizável sob demanda','f6.desc':'Logo da empresa, tipos de atividade customizados e configurações por negócio. Seu sistema, sua cara.',
+        'how.label':'Como funciona','how.title':'Em 3 passos você está operando',
+        's1.title':'Crie sua conta','s1.desc':'Registre sua empresa em menos de 2 minutos. Sem cartão, sem burocracia.',
+        's2.title':'Cadastre equipe e clientes','s2.desc':'Adicione seus colaboradores, clientes e defina os valores por hora de cada um.',
+        's3.title':'Registre e fature','s3.desc':'Comece a registrar horas e gere Pré-Faturas profissionais com um clique.',
+        'pricing.label':'Preços','pricing.title':'Simples e transparente','pricing.sub':'14 dias grátis em qualquer plano. Sem surpresas na fatura.',
+        'pricing.popular':'Mais popular','pricing.cta':'Começar grátis',
+        'p1.desc':'Ideal para autônomos e equipes pequenas','p1.f1':'Até 5 usuários','p1.f2':'Time Tracker ilimitado','p1.f3':'Relatórios em PDF e Excel','p1.f4':'Clientes ilimitados','p1.f5':'Suporte por e-mail',
+        'p2.desc':'Para equipes em crescimento','p2.f1':'Até 15 usuários','p2.f2':'Tudo do Starter','p2.f3':'Pré-Fatura com logo','p2.f4':'Calendário de equipe','p2.f5':'Suporte prioritário',
+        'p3.price':'Sob consulta','p3.desc':'Para empresas com necessidades específicas','p3.f1':'Usuários ilimitados','p3.f2':'Tudo do Pro','p3.f3':'Personalização sob demanda','p3.f4':'Integração com sistemas','p3.f5':'Suporte dedicado via WhatsApp','p3.cta':'Falar no WhatsApp',
+        'faq.label':'FAQ','faq.title':'Perguntas frequentes',
+        'faq.q1':'Preciso de cartão de crédito para o trial?','faq.a1':'Não. O trial de 14 dias é completamente gratuito e não exige cartão. Você só informa dados de pagamento se decidir continuar.',
+        'faq.q2':'Posso usar para qualquer tipo de negócio?','faq.a2':'Sim. Embora seja muito usado por escritórios de advocacia, o ClockTrack funciona para qualquer negócio que precise controlar horas e recursos — agências, consultorias, freelancers e mais.',
+        'faq.q3':'Meus dados ficam seguros?','faq.a3':'Sim. Cada empresa tem seu próprio espaço isolado (multi-tenant). Os dados são armazenados no Microsoft Azure com backup automático e conexão criptografada.',
+        'faq.q4':'Posso cancelar a qualquer momento?','faq.a4':'Sim, sem multa e sem burocracia. Entre em contato e cancelamos imediatamente.',
+        'faq.q5':'O sistema tem app mobile?','faq.a5':'O ClockTrack é responsivo e funciona muito bem no celular pelo navegador. Um app nativo está no roadmap.',
+        'cta.title':'Pronto para organizar seu negócio?','cta.sub':'Comece hoje. 14 dias grátis, sem cartão, sem compromisso.','cta.btn':'Criar minha conta grátis',
+        'footer.desc':'Gestão de tempo e recursos para pequenas e médias empresas. Simples, eficiente e personalizável.',
+        'footer.product':'Produto','footer.contact':'Contato','footer.rights':'Todos os direitos reservados.','footer.made':'Feito com ❤️ no Brasil'
+    },
+    en: {
+        'nav.features':'Features','nav.pricing':'Pricing','nav.faq':'FAQ','nav.trial':'Free Trial',
+        'hero.badge':'14-day free trial · No credit card',
+        'hero.title':'Manage time and resources<br/><span>with real simplicity</span>',
+        'hero.sub':'ClockTrack is the ideal platform for law firms, agencies and small businesses that want to track hours, team and billing without the hassle.',
+        'hero.cta':'Start free for 14 days','hero.cta2':'See features','hero.note':'No credit card required. Cancel anytime.',
+        'features.label':'Features','features.title':'Everything you need, nothing you don\'t',
+        'features.sub':'Easy to use, powerful when needed. Built for results, not complexity.',
+        'f1.title':'Real-time Time Tracker','f1.desc':'Log hours with start/end times, description and activity type. Everything saved automatically.',
+        'f2.title':'Reports & Pre-Invoice','f2.desc':'Generate reports by client, period and user. Export professional PDF invoices with your company logo.',
+        'f3.title':'Team management','f3.desc':'Add users with different profiles. Control who sees what with role-based permissions.',
+        'f4.title':'Multi-client','f4.desc':'Manage multiple clients with individual hourly rates. Each client, their own rules.',
+        'f5.title':'Integrated calendar','f5.desc':'View activities on the calendar. Plan and track team hour distribution.',
+        'f6.title':'Customizable on demand','f6.desc':'Company logo, custom activity types and per-business settings. Your system, your brand.',
+        'how.label':'How it works','how.title':'Up and running in 3 steps',
+        's1.title':'Create your account','s1.desc':'Register your company in under 2 minutes. No card, no hassle.',
+        's2.title':'Add team & clients','s2.desc':'Add your team members, clients and set individual hourly rates.',
+        's3.title':'Track & invoice','s3.desc':'Start logging hours and generate professional Pre-Invoices in one click.',
+        'pricing.label':'Pricing','pricing.title':'Simple and transparent','pricing.sub':'14-day free trial on any plan. No billing surprises.',
+        'pricing.popular':'Most popular','pricing.cta':'Start free',
+        'p1.desc':'Ideal for freelancers and small teams','p1.f1':'Up to 5 users','p1.f2':'Unlimited time tracking','p1.f3':'PDF and Excel reports','p1.f4':'Unlimited clients','p1.f5':'Email support',
+        'p2.desc':'For growing teams','p2.f1':'Up to 15 users','p2.f2':'Everything in Starter','p2.f3':'Pre-Invoice with logo','p2.f4':'Team calendar','p2.f5':'Priority support',
+        'p3.price':'Contact us','p3.desc':'For companies with specific needs','p3.f1':'Unlimited users','p3.f2':'Everything in Pro','p3.f3':'Custom development','p3.f4':'System integrations','p3.f5':'Dedicated WhatsApp support','p3.cta':'Talk on WhatsApp',
+        'faq.label':'FAQ','faq.title':'Frequently asked questions',
+        'faq.q1':'Do I need a credit card for the trial?','faq.a1':'No. The 14-day trial is completely free and requires no card. You only provide payment info if you decide to continue.',
+        'faq.q2':'Can I use it for any type of business?','faq.a2':'Yes. While widely used by law firms, ClockTrack works for any business that needs to track hours and resources — agencies, consultancies, freelancers and more.',
+        'faq.q3':'Is my data secure?','faq.a3':'Yes. Each company has its own isolated space (multi-tenant). Data is stored on Microsoft Azure with automatic backup and encrypted connections.',
+        'faq.q4':'Can I cancel anytime?','faq.a4':'Yes, no penalties, no hassle. Just contact us and we cancel immediately.',
+        'faq.q5':'Is there a mobile app?','faq.a5':'ClockTrack is fully responsive and works great on mobile via browser. A native app is on the roadmap.',
+        'cta.title':'Ready to organize your business?','cta.sub':'Start today. 14 days free, no card, no commitment.','cta.btn':'Create my free account',
+        'footer.desc':'Time and resource management for small and medium businesses. Simple, efficient and customizable.',
+        'footer.product':'Product','footer.contact':'Contact','footer.rights':'All rights reserved.','footer.made':'Made with ❤️ in Brazil'
+    }
+};
+
+let currentLang = 'pt';
+
+function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang || b.textContent.trim().toLowerCase() === lang));
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang][key]) el.innerHTML = i18n[lang][key];
+    });
+    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+}
+
+function toggleFaq(el) {
+    el.parentElement.classList.toggle('open');
+}
+
+// Hamburger
+document.getElementById('hamburger').addEventListener('click', () => {
+    document.getElementById('mobileMenu').classList.toggle('open');
+});
+
+// Fechar mobile menu ao clicar em link
+document.querySelectorAll('.mobile-menu a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('mobileMenu').classList.remove('open'));
+});
+
+// Smooth scroll offset para nav fixa
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); window.scrollTo({ top: target.offsetTop - 70, behavior: 'smooth' }); }
+    });
+});
+</script>
 </body>
 </html>
