@@ -234,6 +234,7 @@
         <div class="feature-card"><div class="feature-icon">🏢</div><h3 data-i18n="f4.title">Multi-cliente</h3><p data-i18n="f4.desc">Gerencie múltiplos clientes com valores por hora individuais. Cada cliente, sua própria régua.</p></div>
         <div class="feature-card"><div class="feature-icon">📅</div><h3 data-i18n="f5.title">Calendário integrado</h3><p data-i18n="f5.desc">Visualize atividades no calendário. Planeje e acompanhe a distribuição de horas da equipe.</p></div>
         <div class="feature-card"><div class="feature-icon">🎨</div><h3 data-i18n="f6.title">Personalizável sob demanda</h3><p data-i18n="f6.desc">Logo da empresa, tipos de atividade customizados e configurações por negócio. Seu sistema, sua cara.</p></div>
+        <div class="feature-card"><div class="feature-icon">📈</div><h3 data-i18n="f7.title">Dashboard com KPIs</h3><p data-i18n="f7.desc">Acompanhe horas do dia, do mês, registros e clientes ativos em tempo real. Visão gerencial na tela inicial.</p></div>
     </div>
 </section>
 
@@ -258,11 +259,11 @@
 
     <!-- tabs -->
     <div class="screenshots-tabs">
-        <button class="tab-btn active" onclick="goToSlide(0)" data-i18n="tab.timetracker">Time Tracker</button>
-        <button class="tab-btn" onclick="goToSlide(1)" data-i18n="tab.atividades">Atividades</button>
-        <button class="tab-btn" onclick="goToSlide(2)" data-i18n="tab.relatorio">Relatórios</button>
-        <button class="tab-btn" onclick="goToSlide(3)" data-i18n="tab.prefatura">Pré-Fatura</button>
-        <button class="tab-btn" onclick="goToSlide(4)" data-i18n="tab.resultados">Resultados</button>
+        <button class="tab-btn active" onclick="goToSlide(0)" data-i18n="tab.dashboard">Dashboard</button>
+        <button class="tab-btn" onclick="goToSlide(1)" data-i18n="tab.timetracker">Time Tracker</button>
+        <button class="tab-btn" onclick="goToSlide(2)" data-i18n="tab.atividades">Atividades</button>
+        <button class="tab-btn" onclick="goToSlide(3)" data-i18n="tab.relatorio">Relatórios</button>
+        <button class="tab-btn" onclick="goToSlide(4)" data-i18n="tab.prefatura">Pré-Fatura</button>
         <button class="tab-btn" onclick="goToSlide(5)" data-i18n="tab.calendario">Calendário</button>
     </div>
 
@@ -284,11 +285,11 @@
             </div>
             <!-- slides -->
             <div class="carousel-track" id="carouselTrack">
+                <div class="carousel-slide"><img src="./screenshots/numeroskpi.png" alt="Dashboard KPIs" /></div>
                 <div class="carousel-slide"><img src="./screenshots/timetracker.png" alt="Time Tracker" /></div>
                 <div class="carousel-slide"><img src="./screenshots/atividades.png" alt="Atividades" /></div>
                 <div class="carousel-slide"><img src="./screenshots/relatorio.png" alt="Relatórios" /></div>
                 <div class="carousel-slide"><img src="./screenshots/prefatura.png" alt="Pré-Fatura" /></div>
-                <div class="carousel-slide"><img src="./screenshots/resultados.png" alt="Resultados" /></div>
                 <div class="carousel-slide"><img src="./screenshots/calendario.png" alt="Calendário" /></div>
             </div>
         </div>
@@ -579,6 +580,7 @@ const i18n = {
         'f4.title':'Multi-cliente','f4.desc':'Gerencie múltiplos clientes com valores por hora individuais. Cada cliente, sua própria régua.',
         'f5.title':'Calendário integrado','f5.desc':'Visualize atividades no calendário. Planeje e acompanhe a distribuição de horas da equipe.',
         'f6.title':'Personalizável sob demanda','f6.desc':'Logo da empresa, tipos de atividade customizados e configurações por negócio. Seu sistema, sua cara.',
+        'f7.title':'Dashboard com KPIs','f7.desc':'Acompanhe horas do dia, do mês, registros e clientes ativos em tempo real. Visão gerencial na tela inicial.',
         'how.label':'Como funciona','how.title':'Em 3 passos você está operando',
         's1.title':'Crie sua conta','s1.desc':'Registre sua empresa em menos de 2 minutos. Sem cartão, sem burocracia.',
         's2.title':'Cadastre equipe e clientes','s2.desc':'Adicione seus colaboradores, clientes e defina os valores por hora de cada um.',
@@ -598,7 +600,7 @@ const i18n = {
         'footer.desc':'Gestão de tempo e recursos para pequenas e médias empresas. Simples, eficiente e personalizável.',
         'footer.product':'Produto','footer.contact':'Contato','footer.rights':'Todos os direitos reservados.','footer.made':'Feito com ❤️ no Brasil',
         'screenshots.label':'O sistema','screenshots.title':'Veja o ClockTrack em ação','screenshots.sub':'Interface limpa, intuitiva e pensada para o dia a dia do seu negócio.',
-        'tab.timetracker':'Time Tracker','tab.atividades':'Atividades','tab.relatorio':'Relatórios','tab.prefatura':'Pré-Fatura','tab.resultados':'Resultados','tab.calendario':'Calendário'
+        'tab.timetracker':'Time Tracker','tab.atividades':'Atividades','tab.relatorio':'Relatórios','tab.prefatura':'Pré-Fatura','tab.resultados':'Resultados','tab.calendario':'Calendário','tab.dashboard':'Dashboard'
     },
     en: {
         'nav.features':'Features','nav.pricing':'Pricing','nav.faq':'FAQ','nav.trial':'Free Trial',
@@ -614,6 +616,7 @@ const i18n = {
         'f4.title':'Multi-client','f4.desc':'Manage multiple clients with individual hourly rates. Each client, their own rules.',
         'f5.title':'Integrated calendar','f5.desc':'View activities on the calendar. Plan and track team hour distribution.',
         'f6.title':'Customizable on demand','f6.desc':'Company logo, custom activity types and per-business settings. Your system, your brand.',
+        'f7.title':'KPI Dashboard','f7.desc':'Track daily and monthly hours, records and active clients in real time. Management view on the home screen.',
         'how.label':'How it works','how.title':'Up and running in 3 steps',
         's1.title':'Create your account','s1.desc':'Register your company in under 2 minutes. No card, no hassle.',
         's2.title':'Add team & clients','s2.desc':'Add your team members, clients and set individual hourly rates.',
@@ -633,7 +636,7 @@ const i18n = {
         'footer.desc':'Time and resource management for small and medium businesses. Simple, efficient and customizable.',
         'footer.product':'Product','footer.contact':'Contact','footer.rights':'All rights reserved.','footer.made':'Made with ❤️ in Brazil',
         'screenshots.label':'The system','screenshots.title':'See ClockTrack in action','screenshots.sub':'Clean, intuitive interface designed for your daily business operations.',
-        'tab.timetracker':'Time Tracker','tab.atividades':'Activities','tab.relatorio':'Reports','tab.prefatura':'Pre-Invoice','tab.resultados':'Results','tab.calendario':'Calendar'
+        'tab.timetracker':'Time Tracker','tab.atividades':'Activities','tab.relatorio':'Reports','tab.prefatura':'Pre-Invoice','tab.resultados':'Results','tab.calendario':'Calendar','tab.dashboard':'Dashboard'
     }
 };
 
