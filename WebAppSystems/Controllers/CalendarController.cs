@@ -1,4 +1,4 @@
-Ôªøusing Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using WebAppSystems.Data;
 using WebAppSystems.Helper;
 using WebAppSystems.Services;
@@ -9,7 +9,6 @@ using WebAppSystems.Models.Enums;
 using DocumentFormat.OpenXml.Office2016.Excel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebAppSystems.Models.ViewModels;
-using WebAppSystems.Migrations;
 using static WebAppSystems.Helper.Sessao;
 
 namespace WebAppSystems.Controllers
@@ -77,8 +76,8 @@ namespace WebAppSystems.Controllers
             }
             catch (SessionExpiredException)
             {
-                // Redirecione para a p√°gina de login se a sess√£o expirou
-                TempData["MensagemAviso"] = "A sess√£o expirou. Por favor, fa√ßa login novamente.";
+                // Redirecione para a p·gina de login se a sess„o expirou
+                TempData["MensagemAviso"] = "A sess„o expirou. Por favor, faÁa login novamente.";
                 return RedirectToAction("Index", "Login");
             }
         }
@@ -92,7 +91,7 @@ namespace WebAppSystems.Controllers
                     .OrderByDescending(r => r.HoraInicial)
                     .ToListAsync();
 
-                // Formata√ß√£o dos registros no formato JSON esperado pelo FullCalendar
+                // FormataÁ„o dos registros no formato JSON esperado pelo FullCalendar
                 return Json(records.Select(r => new
                 {
                     title = r.Description,
@@ -113,7 +112,7 @@ namespace WebAppSystems.Controllers
         {
             if (record == null)
             {
-                return BadRequest(new { success = false, message = "Dados inv√°lidos ou nulos" });
+                return BadRequest(new { success = false, message = "Dados inv·lidos ou nulos" });
             }
 
             // Log para verificar o ID recebido
@@ -122,7 +121,7 @@ namespace WebAppSystems.Controllers
             Attorney usuario = _isessao.BuscarSessaoDoUsuario();
             var attorneyId = usuario.Id;
 
-            // Convers√£o de HoraInicial e HoraFinal de string para TimeSpan
+            // Convers„o de HoraInicial e HoraFinal de string para TimeSpan
             TimeSpan horaInicial = TimeSpan.Parse(record.HoraInicial);  // Espera formato "HH:mm"
             TimeSpan horaFinal = TimeSpan.Parse(record.HoraFinal);
 

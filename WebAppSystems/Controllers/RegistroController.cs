@@ -71,9 +71,10 @@ namespace WebAppSystems.Controllers
                     Phone = model.TelefoneEmpresa ?? "",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
-                    MaxUsers = 10,      // Plano inicial: 10 usuários
-                    MaxClients = 100,   // Plano inicial: 100 clientes
-                    MaxStorageMB = 2048 // Plano inicial: 2GB
+                    TrialEndsAt = DateTime.UtcNow.AddDays(14), // 14 dias de trial
+                    MaxUsers = 10,
+                    MaxClients = 100,
+                    MaxStorageMB = 2048
                 };
 
                 _context.Tenants.Add(tenant);

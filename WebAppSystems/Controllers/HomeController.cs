@@ -1,4 +1,4 @@
-Ôªøusing Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using WebAppSystems.Helper;
 using WebAppSystems.Models;
 using WebAppSystems.Services;
@@ -29,8 +29,8 @@ namespace WebAppSystems.Controllers
             }
             catch (SessionExpiredException)
             {
-                // Redirecione para a p√°gina de login se a sess√£o expirou
-                TempData["MensagemAviso"] = "A sess√£o expirou. Por favor, fa√ßa login novamente.";
+                // Redirecione para a p·gina de login se a sess„o expirou
+                TempData["MensagemAviso"] = "A sess„o expirou. Por favor, faÁa login novamente.";
                 return RedirectToAction("Index", "Login");
             }
         }
@@ -62,7 +62,7 @@ namespace WebAppSystems.Controllers
                 }
                 else
                 {
-                    return BadRequest("Tipo de gr√°fico inv√°lido.");
+                    return BadRequest("Tipo de gr·fico inv·lido.");
                 }
 
                 return Json(new
@@ -73,7 +73,7 @@ namespace WebAppSystems.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Ocorreu um erro ao gerar os dados do gr√°fico.");
+                return StatusCode(500, "Ocorreu um erro ao gerar os dados do gr·fico.");
             }
         }
 
@@ -92,7 +92,7 @@ namespace WebAppSystems.Controllers
             }
             catch (SessionExpiredException)
             {
-                TempData["MensagemAviso"] = "A sess√£o expirou. Por favor, fa√ßa login novamente.";
+                TempData["MensagemAviso"] = "A sess„o expirou. Por favor, faÁa login novamente.";
                 return RedirectToAction("Index", "Login");
             }
         }

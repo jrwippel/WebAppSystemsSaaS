@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json;
+using WebAppSystems.Data;
 using WebAppSystems.Models;
 
 namespace WebAppSystems.Filters
 {
     public class PaginaParaUsuarioLogado : ActionFilterAttribute
     {
-        public override void OnActionExecuted(ActionExecutedContext context)
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
             string sessaoUsuario = context.HttpContext.Session.GetString("sessaoUsuarioLogado");
 
@@ -21,15 +22,37 @@ namespace WebAppSystems.Filters
                     tempData["MensagemAviso"] = "A sessão expirou. Por favor, faça login novamente.";
 
                 context.Result = new RedirectToRouteResult(new RouteValueDictionary { { "controller", "Login" }, { "action", "Index" } });
+                return;
             }
-            else
+
+            var attorney = JsonConvert.DeserializeObject<Attorney>(sessaoUsuario);
+            if (attorney == null)
             {
-                Attorney attorney = JsonConvert.DeserializeObject<Attorney>(sessaoUsuario);
-                if (attorney == null)
+                context.Result = new RedirectToRouteResult(new RouteValueDictionary { { "controller", "Login" }, { "action", "Index" } });
+                return;
+            }
+
+            // Verifica se a assinatura/trial do tenant está ativa
+            var db = context.HttpContext.RequestServices.GetService<WebAppSystemsContext>();
+            if (db != null)
+            {
+                var tenant = db.Tenants.Find(attorney.TenantId);
+                if (tenant != null && tenant.IsBlocked)
                 {
-                    context.Result = new RedirectToRouteResult(new RouteValueDictionary { { "controller", "Login" }, { "action", "Index" } });
+                    context.Result = new RedirectToRouteResult(new RouteValueDictionary
+                    {
+                        { "controller", "Assinatura" },
+                        { "action", "Expirado" }
+                    });
+                    return;
                 }
             }
+
+            base.OnActionExecuting(context);
+        }
+
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
             base.OnActionExecuted(context);
         }
     }

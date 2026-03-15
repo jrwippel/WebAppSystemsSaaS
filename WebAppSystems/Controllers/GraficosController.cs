@@ -1,4 +1,4 @@
-Ôªøusing Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using WebAppSystems.Services;
 using static WebAppSystems.Helper.Sessao;
 
@@ -22,8 +22,8 @@ namespace WebAppSystems.Controllers
             }
             catch (SessionExpiredException)
             {
-                // Redirecione para a p√°gina de login se a sess√£o expirou
-                TempData["MensagemAviso"] = "A sess√£o expirou. Por favor, fa√ßa login novamente.";
+                // Redirecione para a p·gina de login se a sess„o expirou
+                TempData["MensagemAviso"] = "A sess„o expirou. Por favor, faÁa login novamente.";
                 return RedirectToAction("Index", "Login");
             }
         }

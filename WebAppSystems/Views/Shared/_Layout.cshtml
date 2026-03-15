@@ -5,6 +5,7 @@
 @inject WebAppSystemsContext _layoutContext
 @{
     bool alwaysOnTop = false;
+    int? diasRestantesTrial = null;
     string sessao = Context.Session.GetString("sessaoUsuarioLogado");
     if (!string.IsNullOrEmpty(sessao))
     {
@@ -17,6 +18,15 @@
                 .Select(a => new { a.UseCronometroAlwaysOnTop })
                 .FirstOrDefault();
             alwaysOnTop = usuarioDB?.UseCronometroAlwaysOnTop ?? false;
+
+            // Verifica dias restantes do trial
+            var tenant = _layoutContext.Tenants.Find(usuarioSessao.TenantId);
+            if (tenant != null && tenant.TrialEndsAt.HasValue && tenant.SubscriptionExpiresAt == null)
+            {
+                var dias = (int)(tenant.TrialEndsAt.Value - DateTime.UtcNow).TotalDays;
+                if (dias >= 0 && dias <= 7)
+                    diasRestantesTrial = dias;
+            }
         }
     }
 }
@@ -140,6 +150,20 @@
             </div>
         </nav>
     </header>
+
+    @if (diasRestantesTrial.HasValue)
+    {
+        var cor = diasRestantesTrial.Value <= 2 ? "#dc3545" : (diasRestantesTrial.Value <= 5 ? "#fd7e14" : "#ffc107");
+        var textoCor = diasRestantesTrial.Value <= 5 ? "white" : "#856404";
+        var msg = diasRestantesTrial.Value == 0 ? "Seu período de teste expira hoje!" : $"Seu período de teste expira em {diasRestantesTrial.Value} dia{(diasRestantesTrial.Value > 1 ? "s" : "")}!";
+        <div style="background:@cor; color:@textoCor; text-align:center; padding:8px 16px; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:12px;">
+            <i class="bi bi-clock-history"></i>
+            <span>@msg Para continuar usando, entre em contato:</span>
+            <a href="mailto:jrwsolucoesti@hotmail.com" style="color:@textoCor; text-decoration:underline;">jrwsolucoesti@hotmail.com</a>
+            <span>|</span>
+            <a href="https://wa.me/5547999346159" target="_blank" style="color:@textoCor; text-decoration:underline;"><i class="bi bi-whatsapp"></i> +55 47 99934-6159</a>
+        </div>
+    }
 
     <div class="container">
         @*@await Component.InvokeAsync("LicenseNotification") *@

@@ -22,6 +22,45 @@ namespace WebAppSystems.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("WebAppSystems.Models.ActivityType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ActivityTypes");
+                });
+
             modelBuilder.Entity("WebAppSystems.Models.Attorney", b =>
                 {
                     b.Property<int>("Id")
@@ -46,6 +85,9 @@ namespace WebAppSystems.Migrations
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -77,9 +119,6 @@ namespace WebAppSystems.Migrations
 
                     b.Property<bool>("UseCronometroAlwaysOnTop")
                         .HasColumnType("bit");
-
-                    b.Property<bool>("MustChangePassword")
-                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
 
@@ -239,6 +278,9 @@ namespace WebAppSystems.Migrations
                     b.Property<string>("Summary")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UploadDate")
                         .HasColumnType("datetime2");
 
@@ -250,6 +292,8 @@ namespace WebAppSystems.Migrations
                     b.HasIndex("AssignedToAttorneyId");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UploadedByAttorneyId");
 
@@ -273,12 +317,17 @@ namespace WebAppSystems.Migrations
                     b.Property<decimal>("ComissaoSocio")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("ValorMensalBruto")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Mensalista");
                 });
@@ -302,10 +351,15 @@ namespace WebAppSystems.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Width")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Parametros");
                 });
@@ -327,11 +381,16 @@ namespace WebAppSystems.Migrations
                     b.Property<decimal>("Percentual")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("PercentualArea");
                 });
@@ -343,6 +402,9 @@ namespace WebAppSystems.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ActivityTypeId")
+                        .HasColumnType("int");
 
                     b.Property<int>("AttorneyId")
                         .HasColumnType("int");
@@ -367,9 +429,6 @@ namespace WebAppSystems.Migrations
                     b.Property<TimeSpan>("HoraInicial")
                         .HasColumnType("time");
 
-                    b.Property<int>("RecordType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Solicitante")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -378,6 +437,8 @@ namespace WebAppSystems.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ActivityTypeId");
 
                     b.HasIndex("AttorneyId");
 
@@ -436,6 +497,9 @@ namespace WebAppSystems.Migrations
                     b.Property<DateTime?>("SubscriptionExpiresAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("TrialEndsAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Subdomain")
@@ -458,6 +522,9 @@ namespace WebAppSystems.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<double>("Valor")
                         .HasColumnType("float");
 
@@ -467,7 +534,20 @@ namespace WebAppSystems.Migrations
 
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("ValorCliente");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.ActivityType", b =>
+                {
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.Attorney", b =>
@@ -521,6 +601,12 @@ namespace WebAppSystems.Migrations
                         .WithMany()
                         .HasForeignKey("ClientId");
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("WebAppSystems.Models.Attorney", "UploadedBy")
                         .WithMany()
                         .HasForeignKey("UploadedByAttorneyId")
@@ -530,6 +616,8 @@ namespace WebAppSystems.Migrations
                     b.Navigation("AssignedTo");
 
                     b.Navigation("Client");
+
+                    b.Navigation("Tenant");
 
                     b.Navigation("UploadedBy");
                 });
@@ -542,7 +630,26 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Client");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.Parametros", b =>
+                {
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.PercentualArea", b =>
@@ -559,13 +666,27 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Client");
 
                     b.Navigation("Department");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.ProcessRecord", b =>
                 {
+                    b.HasOne("WebAppSystems.Models.ActivityType", "ActivityType")
+                        .WithMany("ProcessRecords")
+                        .HasForeignKey("ActivityTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("WebAppSystems.Models.Attorney", "Attorney")
                         .WithMany("ProcessRecords")
                         .HasForeignKey("AttorneyId")
@@ -590,6 +711,8 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("ActivityType");
+
                     b.Navigation("Attorney");
 
                     b.Navigation("Client");
@@ -613,9 +736,22 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Attorney");
 
                     b.Navigation("Client");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.ActivityType", b =>
+                {
+                    b.Navigation("ProcessRecords");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.Attorney", b =>

@@ -12,8 +12,8 @@ using WebAppSystems.Data;
 namespace WebAppSystems.Migrations
 {
     [DbContext(typeof(WebAppSystemsContext))]
-    [Migration("20250204231234_AlterTabçeClienteInativo")]
-    partial class AlterTabçeClienteInativo
+    [Migration("20260315020410_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,45 @@ namespace WebAppSystems.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("WebAppSystems.Models.ActivityType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ActivityTypes");
+                });
 
             modelBuilder.Entity("WebAppSystems.Models.Attorney", b =>
                 {
@@ -42,9 +81,15 @@ namespace WebAppSystems.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Inativo")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -65,6 +110,9 @@ namespace WebAppSystems.Migrations
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
 
@@ -77,6 +125,8 @@ namespace WebAppSystems.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Attorney");
                 });
@@ -118,7 +168,12 @@ namespace WebAppSystems.Migrations
                     b.Property<string>("Telephone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Client");
                 });
@@ -135,9 +190,116 @@ namespace WebAppSystems.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("Department");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.DocumentAnalysis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("ActionType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("AnalysisDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AnalysisStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("AssignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("AssignedToAttorneyId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("CauseValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Complexity")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Deadlines")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("EstimatedHours")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("LegalArea")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("LegalBasis")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MainTopics")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Parties")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RecommendedAttorneys")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UploadDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UploadedByAttorneyId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedToAttorneyId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UploadedByAttorneyId");
+
+                    b.ToTable("DocumentAnalysis");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.Mensalista", b =>
@@ -157,12 +319,17 @@ namespace WebAppSystems.Migrations
                     b.Property<decimal>("ComissaoSocio")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("ValorMensalBruto")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Mensalista");
                 });
@@ -186,10 +353,15 @@ namespace WebAppSystems.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Width")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Parametros");
                 });
@@ -211,11 +383,16 @@ namespace WebAppSystems.Migrations
                     b.Property<decimal>("Percentual")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("PercentualArea");
                 });
@@ -227,6 +404,9 @@ namespace WebAppSystems.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ActivityTypeId")
+                        .HasColumnType("int");
 
                     b.Property<int>("AttorneyId")
                         .HasColumnType("int");
@@ -251,14 +431,16 @@ namespace WebAppSystems.Migrations
                     b.Property<TimeSpan>("HoraInicial")
                         .HasColumnType("time");
 
-                    b.Property<int>("RecordType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Solicitante")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ActivityTypeId");
 
                     b.HasIndex("AttorneyId");
 
@@ -266,7 +448,66 @@ namespace WebAppSystems.Migrations
 
                     b.HasIndex("DepartmentId");
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("ProcessRecord");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.Tenant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Document")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxClients")
+                        .HasColumnType("int");
+
+                    b.Property<long>("MaxStorageMB")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("MaxUsers")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subdomain")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("SubscriptionExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("TrialEndsAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Subdomain")
+                        .IsUnique();
+
+                    b.ToTable("Tenants");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.ValorCliente", b =>
@@ -283,6 +524,9 @@ namespace WebAppSystems.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<double>("Valor")
                         .HasColumnType("float");
 
@@ -292,7 +536,20 @@ namespace WebAppSystems.Migrations
 
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("TenantId");
+
                     b.ToTable("ValorCliente");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.ActivityType", b =>
+                {
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.Attorney", b =>
@@ -303,7 +560,68 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany("Attorneys")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Department");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.Client", b =>
+                {
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany("Clients")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.Department", b =>
+                {
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany("Departments")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.DocumentAnalysis", b =>
+                {
+                    b.HasOne("WebAppSystems.Models.Attorney", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToAttorneyId");
+
+                    b.HasOne("WebAppSystems.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId");
+
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebAppSystems.Models.Attorney", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedByAttorneyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Tenant");
+
+                    b.Navigation("UploadedBy");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.Mensalista", b =>
@@ -314,7 +632,26 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Client");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.Parametros", b =>
+                {
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.PercentualArea", b =>
@@ -331,13 +668,27 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Client");
 
                     b.Navigation("Department");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.ProcessRecord", b =>
                 {
+                    b.HasOne("WebAppSystems.Models.ActivityType", "ActivityType")
+                        .WithMany("ProcessRecords")
+                        .HasForeignKey("ActivityTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("WebAppSystems.Models.Attorney", "Attorney")
                         .WithMany("ProcessRecords")
                         .HasForeignKey("AttorneyId")
@@ -356,11 +707,21 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany("ProcessRecords")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ActivityType");
+
                     b.Navigation("Attorney");
 
                     b.Navigation("Client");
 
                     b.Navigation("Department");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.ValorCliente", b =>
@@ -377,9 +738,22 @@ namespace WebAppSystems.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebAppSystems.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Attorney");
 
                     b.Navigation("Client");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.ActivityType", b =>
+                {
+                    b.Navigation("ProcessRecords");
                 });
 
             modelBuilder.Entity("WebAppSystems.Models.Attorney", b =>
@@ -395,6 +769,17 @@ namespace WebAppSystems.Migrations
             modelBuilder.Entity("WebAppSystems.Models.Department", b =>
                 {
                     b.Navigation("Attorneys");
+
+                    b.Navigation("ProcessRecords");
+                });
+
+            modelBuilder.Entity("WebAppSystems.Models.Tenant", b =>
+                {
+                    b.Navigation("Attorneys");
+
+                    b.Navigation("Clients");
+
+                    b.Navigation("Departments");
 
                     b.Navigation("ProcessRecords");
                 });

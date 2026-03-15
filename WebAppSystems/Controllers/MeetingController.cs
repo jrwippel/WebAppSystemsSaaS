@@ -1,4 +1,4 @@
-Ôªøusing Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.CognitiveServices.Speech;
 using System.IO;
@@ -36,7 +36,7 @@ public class MeetingController : Controller
         var config = SpeechConfig.FromSubscription("BwI6nZ1nb0q3qwTHASYNohHlNWkcpkmEHoHEsN7Pl2ywORIVZCvpJQQJ99ALACYeBjFXJ3w3AAAYACOGW561", "eastus");
 
 
-        // Defina o idioma para portugu√™s (Brasil)
+        // Defina o idioma para portuguÍs (Brasil)
         config.SpeechRecognitionLanguage = "pt-BR";
 
         var stopRecognition = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -96,13 +96,13 @@ public class MeetingController : Controller
         return transcribedText; // Retorna o texto transcrito
     }
 
-    // M√©todo para chamar a API do OpenAI e gerar o resumo
+    // MÈtodo para chamar a API do OpenAI e gerar o resumo
     public async Task<string> GenerateSummaryFromAzure(string transcribedText)
     {
         var apiKey = "FkNXNwXBOS7Re9TozmdtxJ5K2VCf8QwLMFO3QLBg3KmlOHm33eOYJQQJ99ALACYeBjFXJ3w3AAAEACOG6aG3";
         var endpoint = "https://generatesummaryfromopenai.cognitiveservices.azure.com/language/analyze-text/jobs?api-version=2023-04-01";
 
-        // Montar o corpo da requisi√ß√£o para a primeira API
+        // Montar o corpo da requisiÁ„o para a primeira API
         var requestBody = new
         {
             displayName = "Text Abstractive Summarization Task Example",
@@ -130,7 +130,7 @@ public class MeetingController : Controller
 
         using var httpClient = new HttpClient();
 
-        // Configurar a primeira requisi√ß√£o
+        // Configurar a primeira requisiÁ„o
         var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
         var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint)
         {
@@ -140,7 +140,7 @@ public class MeetingController : Controller
 
         try
         {
-            // Enviar a primeira requisi√ß√£o
+            // Enviar a primeira requisiÁ„o
             var response = await httpClient.SendAsync(requestMessage);
 
             if (!response.IsSuccessStatusCode)
@@ -150,16 +150,16 @@ public class MeetingController : Controller
                 return "Erro ao enviar o texto para a API.";
             }
 
-            // Obter o cabe√ßalho operation-location
+            // Obter o cabeÁalho operation-location
             if (!response.Headers.TryGetValues("operation-location", out var operationLocationValues))
             {
-                return "Erro: Cabe√ßalho 'operation-location' n√£o encontrado na resposta.";
+                return "Erro: CabeÁalho 'operation-location' n„o encontrado na resposta.";
             }
 
             var operationLocation = operationLocationValues.FirstOrDefault();
             if (string.IsNullOrEmpty(operationLocation))
             {
-                return "Erro: URL do Job n√£o retornada pela API.";
+                return "Erro: URL do Job n„o retornada pela API.";
             }
 
             // Verificar o status do job e obter o resumo
@@ -174,7 +174,7 @@ public class MeetingController : Controller
                 if (!statusResponse.IsSuccessStatusCode)
                 {
                     var errorStatusContent = await statusResponse.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Erro na verifica√ß√£o do status: {statusResponse.StatusCode}, {errorStatusContent}");
+                    Console.WriteLine($"Erro na verificaÁ„o do status: {statusResponse.StatusCode}, {errorStatusContent}");
                     return "Erro ao verificar o status do resumo.";
                 }
 
@@ -214,20 +214,20 @@ public class MeetingController : Controller
                                 }
                                 else
                                 {
-                                    return "Erro: Estrutura de 'summaries' ausente ou inv√°lida.";
+                                    return "Erro: Estrutura de 'summaries' ausente ou inv·lida.";
                                 }
                             }
                             else
                             {
-                                return "Erro: Estrutura de 'results.documents' ausente ou inv√°lida.";
+                                return "Erro: Estrutura de 'results.documents' ausente ou inv·lida.";
                             }
                         }
                         else
                         {
-                            return "Erro: Estrutura de 'tasks.items' ausente ou inv√°lida.";
+                            return "Erro: Estrutura de 'tasks.items' ausente ou inv·lida.";
                         }
 
-                        break; // Sa√≠da do loop se o resumo foi obtido
+                        break; // SaÌda do loop se o resumo foi obtido
                     }
                     catch (Exception ex)
                     {
@@ -241,12 +241,12 @@ public class MeetingController : Controller
                 await Task.Delay(5000);
             }
 
-            return summary ?? "Erro: N√£o foi poss√≠vel obter o resumo.";
+            return summary ?? "Erro: N„o foi possÌvel obter o resumo.";
         }
         catch (HttpRequestException ex)
         {
-            Console.WriteLine($"Erro na requisi√ß√£o: {ex.Message}");
-            return "Erro na requisi√ß√£o HTTP.";
+            Console.WriteLine($"Erro na requisiÁ„o: {ex.Message}");
+            return "Erro na requisiÁ„o HTTP.";
         }
         catch (Exception ex)
         {
@@ -260,11 +260,11 @@ public class MeetingController : Controller
     {
         try
         {
-            // Obter o arquivo de √°udio enviado
+            // Obter o arquivo de ·udio enviado
             var audioFile = Request.Form.Files.FirstOrDefault();
             if (audioFile == null || audioFile.Length == 0)
             {
-                return BadRequest("Arquivo de √°udio inv√°lido.");
+                return BadRequest("Arquivo de ·udio inv·lido.");
             }
 
             // Salvar temporariamente o arquivo
@@ -274,13 +274,13 @@ public class MeetingController : Controller
                 await audioFile.CopyToAsync(fileStream);
             }
 
-            // Transcrever o √°udio
+            // Transcrever o ·udio
             var transcribedText = await RecognitionWithPushAudioStreamAsync();
 
             // Gerar o resumo
             var summary = await GenerateSummaryFromAzure(transcribedText);
 
-            // Excluir o arquivo tempor√°rio
+            // Excluir o arquivo tempor·rio
             System.IO.File.Delete(tempFilePath);
 
             return Json(new { success = true, summary });
@@ -295,7 +295,7 @@ public class MeetingController : Controller
 
 
 
-    // Uso na a√ß√£o do controller:
+    // Uso na aÁ„o do controller:
     [HttpPost]  
     public async Task<IActionResult> GenerateSummary1(IFormFile audioFile)
     {
@@ -303,10 +303,10 @@ public class MeetingController : Controller
         {
             if (audioFile == null || audioFile.Length == 0)
             {
-                return BadRequest("Por favor, envie um arquivo de √°udio v√°lido.");
+                return BadRequest("Por favor, envie um arquivo de ·udio v·lido.");
             }
 
-            // Salvar arquivo tempor√°rio
+            // Salvar arquivo tempor·rio
             var filePath = Path.Combine(Path.GetTempPath(), audioFile.FileName);
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -319,7 +319,7 @@ public class MeetingController : Controller
             // Chama a API do OpenAI para gerar o resumo
             var summary = await GenerateSummaryFromAzure(transcribedText);
 
-            // Remover arquivo tempor√°rio
+            // Remover arquivo tempor·rio
             System.IO.File.Delete(filePath);
 
             // Retornar o resumo como texto
@@ -337,12 +337,12 @@ public class MeetingController : Controller
     {
         if (uploadedFile == null || uploadedFile.Length == 0)
         {
-            return BadRequest("Nenhum arquivo foi enviado ou o arquivo est√° vazio.");
+            return BadRequest("Nenhum arquivo foi enviado ou o arquivo est· vazio.");
         }
 
         try
         {
-            // L√™ o conte√∫do do arquivo
+            // LÍ o conte˙do do arquivo
             using var stream = new MemoryStream();
             await uploadedFile.CopyToAsync(stream);
             var fileContent = Encoding.UTF8.GetString(stream.ToArray());
@@ -378,7 +378,7 @@ public class MeetingController : Controller
             var response = await client.PostAsync(endpoint, content);
             response.EnsureSuccessStatusCode();
 
-            // L√™ a resposta da API
+            // LÍ a resposta da API
             var responseContent = await response.Content.ReadAsStringAsync();
 
             // Retorna o resumo para a tela

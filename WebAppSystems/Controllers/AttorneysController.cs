@@ -1,4 +1,4 @@
-Ôªøusing Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics;
@@ -13,7 +13,8 @@ using static WebAppSystems.Helper.Sessao;
 
 namespace WebAppSystems.Controllers
 {
-    [PaginaRestritaSomenteAdmin]
+    [PaginaParaUsuarioLogado]
+[PaginaRestritaSomenteAdmin]
     public class AttorneysController : Controller
     {
         private readonly AttorneyService _attorneyService;
@@ -41,8 +42,8 @@ namespace WebAppSystems.Controllers
             }
             catch (SessionExpiredException)
             {
-                // Redirecione para a p√°gina de login se a sess√£o expirou
-                TempData["MensagemAviso"] = "A sess√£o expirou. Por favor, fa√ßa login novamente.";
+                // Redirecione para a p·gina de login se a sess„o expirou
+                TempData["MensagemAviso"] = "A sess„o expirou. Por favor, faÁa login novamente.";
                 return RedirectToAction("Index", "Login");
             }
         }
@@ -66,20 +67,20 @@ namespace WebAppSystems.Controllers
             ViewBag.LoggedUserId = usuario.Id;
             ViewBag.CurrentUserPerfil = usuario.Perfil;
 
-            // Valida√ß√£o: somente Admin pode criar outro usu√°rio com perfil de Admin
+            // ValidaÁ„o: somente Admin pode criar outro usu·rio com perfil de Admin
             if (usuario.Perfil != ProfileEnum.Admin && attorney.Perfil == ProfileEnum.Admin)
             {
-                ModelState.AddModelError(string.Empty, "Voc√™ n√£o tem permiss√£o para criar um usu√°rio com perfil de Administrador.");
+                ModelState.AddModelError(string.Empty, "VocÍ n„o tem permiss„o para criar um usu·rio com perfil de Administrador.");
                 var departments = await _departmentService.FindAllAsync();
                 var viewModel = new AttorneyFormViewModel { Attorney = attorney, Departments = departments };
                 return View(viewModel);
             }
 
-            // Valida√ß√£o: verificar se o email j√° existe (email deve ser √∫nico no sistema)
+            // ValidaÁ„o: verificar se o email j· existe (email deve ser ˙nico no sistema)
             var emailExiste = await _attorneyService.EmailExistsAsync(attorney.Email);
             if (emailExiste)
             {
-                ModelState.AddModelError("Attorney.Email", "Este email j√° est√° em uso. Por favor, use outro email.");
+                ModelState.AddModelError("Attorney.Email", "Este email j· est· em uso. Por favor, use outro email.");
                 var departments = await _departmentService.FindAllAsync();
                 var viewModel = new AttorneyFormViewModel { Attorney = attorney, Departments = departments };
                 return View(viewModel);
@@ -160,10 +161,10 @@ namespace WebAppSystems.Controllers
             ViewBag.LoggedUserId = usuario.Id;
             ViewBag.CurrentUserPerfil = usuario.Perfil;
 
-            // Valida√ß√£o: somente Admin pode criar outro usu√°rio com perfil de Admin
+            // ValidaÁ„o: somente Admin pode criar outro usu·rio com perfil de Admin
             if (usuario.Perfil != ProfileEnum.Admin && attorney.Perfil == ProfileEnum.Admin)
             {
-                ModelState.AddModelError(string.Empty, "Voc√™ n√£o tem permiss√£o para alterar um usu√°rio com perfil de Administrador.");
+                ModelState.AddModelError(string.Empty, "VocÍ n„o tem permiss„o para alterar um usu·rio com perfil de Administrador.");
                 var departments = await _departmentService.FindAllAsync();
                 var viewModel = new AttorneyFormViewModel { Attorney = attorney, Departments = departments };
                 return View(viewModel);
@@ -174,11 +175,11 @@ namespace WebAppSystems.Controllers
                 return RedirectToAction(nameof(Error), new { message = "Id not mismatch" });
             }
 
-            // Valida√ß√£o: verificar se o email j√° existe (excluindo o pr√≥prio usu√°rio)
+            // ValidaÁ„o: verificar se o email j· existe (excluindo o prÛprio usu·rio)
             var emailExiste = await _attorneyService.EmailExistsAsync(attorney.Email, attorney.Id);
             if (emailExiste)
             {
-                ModelState.AddModelError("Attorney.Email", "Este email j√° est√° em uso. Por favor, use outro email.");
+                ModelState.AddModelError("Attorney.Email", "Este email j· est· em uso. Por favor, use outro email.");
                 var departments = await _departmentService.FindAllAsync();
                 var viewModel = new AttorneyFormViewModel { Attorney = attorney, Departments = departments };
                 return View(viewModel);
@@ -188,13 +189,13 @@ namespace WebAppSystems.Controllers
             {                
                 await _attorneyService.UpdateAsync(attorney);
                 
-                // Se editou o pr√≥prio usu√°rio, atualiza a sess√£o
+                // Se editou o prÛprio usu·rio, atualiza a sess„o
                 if (usuario.Id == attorney.Id)
                 {
                     var atualizado = _attorneyService.ListarPorId(attorney.Id);
                     if (atualizado != null)
                     {
-                        atualizado.Department = null; // evita loop circular na serializa√ß√£o
+                        atualizado.Department = null; // evita loop circular na serializaÁ„o
                         _isessao.CriarSessaoDoUsuario(atualizado);
                     }
                 }

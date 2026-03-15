@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -94,12 +94,12 @@ namespace WebAppSystems.Controllers
         public async Task<IActionResult> Create(Mensalista mensalista)
         {
 
-            // Verificar se o cliente j√° est√° registrado como um Mensalista
+            // Verificar se o cliente j· est· registrado como um Mensalista
             var existsAsMensalista = await _context.Mensalista.AnyAsync(m => m.ClientId == mensalista.ClientId);
 
             if (existsAsMensalista)
             {
-                ModelState.AddModelError("", "Este cliente j√° est√° cadastrado como um Mensalista.");
+                ModelState.AddModelError("", "Este cliente j· est· cadastrado como um Mensalista.");
                 await ConfigureViewData(mensalista.ClientId);
                 return View(mensalista);
             }
@@ -112,7 +112,7 @@ namespace WebAppSystems.Controllers
             _context.Add(mensalista);
             await _context.SaveChangesAsync();  // Salve o Mensalista primeiro
 
-            await _context.SaveChangesAsync();  // Salve todas as associa√ß√µes MensalistaDepartment
+            await _context.SaveChangesAsync();  // Salve todas as associaÁıes MensalistaDepartment
 
             return RedirectToAction(nameof(Index));
 
@@ -123,9 +123,9 @@ namespace WebAppSystems.Controllers
         private decimal ConvertToDecimalWithDotSeparator(string valueWithCommaSeparator)
         {
             if (string.IsNullOrWhiteSpace(valueWithCommaSeparator))
-                throw new FormatException("O valor recebido √© nulo ou vazio.");
+                throw new FormatException("O valor recebido È nulo ou vazio.");
 
-            // Remove espa√ßos extras e caracteres indesejados
+            // Remove espaÁos extras e caracteres indesejados
             string sanitizedValue = valueWithCommaSeparator.Trim().Replace("R$", "").Replace(" ", "").Replace(",", ".");
 
             if (decimal.TryParse(sanitizedValue, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result))

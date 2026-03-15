@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,14 +33,14 @@ namespace WebAppSystems.Controllers
                 ViewBag.CurrentUserPerfil = usuario.Perfil;
                 
                 var parametros = await _context.Parametros.ToListAsync();
-                bool canCreate = !parametros.Any(); // Permitir criar somente se nÃ£o houver nenhum parÃ¢metro
+                bool canCreate = !parametros.Any(); // Permitir criar somente se não houver nenhum parâmetro
                 ViewBag.CanCreate = canCreate;
                 return View(parametros);
             }
             catch (SessionExpiredException)
             {
-                // Redirecione para a pÃ¡gina de login se a sessÃ£o expirou
-                TempData["MensagemAviso"] = "A sessÃ£o expirou. Por favor, faÃ§a login novamente.";
+                // Redirecione para a página de login se a sessão expirou
+                TempData["MensagemAviso"] = "A sessão expirou. Por favor, faça login novamente.";
                 return RedirectToAction("Index", "Login");
             }
         }
@@ -84,7 +84,7 @@ namespace WebAppSystems.Controllers
                         parametros.LogoMimeType = logo.ContentType;
                     }
 
-                    // Salvar as configuraÃ§Ãµes no banco de dados
+                    // Salvar as configurações no banco de dados
                     _context.Add(parametros);
                     await _context.SaveChangesAsync();
 
@@ -140,7 +140,7 @@ namespace WebAppSystems.Controllers
                     }
                     else
                     {
-                        // Mantenha os dados do logo atual se um novo logo nÃ£o for carregado
+                        // Mantenha os dados do logo atual se um novo logo não for carregado
                         var existingParametros = await _context.Parametros.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
                         if (existingParametros != null)
                         {

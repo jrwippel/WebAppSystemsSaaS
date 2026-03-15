@@ -30,7 +30,13 @@ namespace WebAppSystems.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public DateTime? SubscriptionExpiresAt { get; set; }
+        public DateTime? TrialEndsAt { get; set; }          // fim do período de trial
+
+        public DateTime? SubscriptionExpiresAt { get; set; } // fim da assinatura paga
+
+        public bool IsTrialExpired => TrialEndsAt.HasValue && DateTime.UtcNow > TrialEndsAt.Value && SubscriptionExpiresAt == null;
+        public bool IsSubscriptionExpired => SubscriptionExpiresAt.HasValue && DateTime.UtcNow > SubscriptionExpiresAt.Value;
+        public bool IsBlocked => !IsActive || IsTrialExpired || IsSubscriptionExpired;
 
         // Limites do plano
         public int MaxUsers { get; set; } = 5;
