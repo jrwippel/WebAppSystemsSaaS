@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -148,7 +148,7 @@ namespace WebAppSystems.Migrations
                         column: x => x.ClientId,
                         principalTable: "Client",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Mensalista_Tenants_TenantId",
                         column: x => x.TenantId,
@@ -187,7 +187,7 @@ namespace WebAppSystems.Migrations
                         column: x => x.DepartmentId,
                         principalTable: "Department",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Attorney_Tenants_TenantId",
                         column: x => x.TenantId,
@@ -215,13 +215,13 @@ namespace WebAppSystems.Migrations
                         column: x => x.ClientId,
                         principalTable: "Client",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_PercentualArea_Department_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Department",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_PercentualArea_Tenants_TenantId",
                         column: x => x.TenantId,
@@ -274,7 +274,7 @@ namespace WebAppSystems.Migrations
                         column: x => x.UploadedByAttorneyId,
                         principalTable: "Attorney",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_DocumentAnalysis_Client_ClientId",
                         column: x => x.ClientId,
@@ -319,19 +319,19 @@ namespace WebAppSystems.Migrations
                         column: x => x.AttorneyId,
                         principalTable: "Attorney",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ProcessRecord_Client_ClientId",
                         column: x => x.ClientId,
                         principalTable: "Client",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ProcessRecord_Department_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Department",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ProcessRecord_Tenants_TenantId",
                         column: x => x.TenantId,
@@ -359,13 +359,13 @@ namespace WebAppSystems.Migrations
                         column: x => x.AttorneyId,
                         principalTable: "Attorney",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ValorCliente_Client_ClientId",
                         column: x => x.ClientId,
                         principalTable: "Client",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ValorCliente_Tenants_TenantId",
                         column: x => x.TenantId,

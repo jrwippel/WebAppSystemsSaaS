@@ -131,7 +131,15 @@ namespace WebAppSystems
             }
 
             // Seed data
-            app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedingService>().Seed();
+            try
+            {
+                app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedingService>().Seed();
+            }
+            catch (Exception ex)
+            {
+                var logger = app.Services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while seeding the database.");
+            }
 
             app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
