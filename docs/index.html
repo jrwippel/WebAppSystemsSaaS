@@ -85,13 +85,11 @@
         .section-title { font-size: clamp(28px, 4vw, 42px); font-weight: 800; margin-bottom: 16px; }
         .section-sub { font-size: 18px; color: var(--muted); max-width: 560px; line-height: 1.7; }
         .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 48px; }
-        .feature-card { background: white; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all .3s; }
+        .feature-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 28px; transition: all .3s; }
         .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(102,126,234,.12); border-color: var(--primary); }
-        .feature-card-img { width: 100%; height: 160px; object-fit: cover; object-position: top; display: block; border-bottom: 1px solid var(--border); }
-        .feature-card-body { padding: 20px; }
-        .feature-icon { width: 40px; height: 40px; background: linear-gradient(135deg,rgba(102,126,234,.15),rgba(118,75,162,.15)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; }
-        .feature-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-        .feature-card p { font-size: 13px; color: var(--muted); line-height: 1.6; margin: 0; }
+        .feature-icon { width: 48px; height: 48px; background: linear-gradient(135deg,rgba(102,126,234,.15),rgba(118,75,162,.15)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+        .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
         /* HOW IT WORKS */
         .how-bg { background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 100%); }
@@ -213,13 +211,13 @@
         <p class="section-sub" style="margin:0 auto" data-i18n="features.sub">Simples de usar, poderoso quando precisa. Feito para quem quer resultado, não complexidade.</p>
     </div>
     <div class="features-grid">
-        <div class="feature-card"><img class="feature-card-img" src="./screenshots/timetracker.png" alt="Time Tracker" /><div class="feature-card-body"><div class="feature-icon">⏱️</div><h3 data-i18n="f1.title">Time Tracker em tempo real</h3><p data-i18n="f1.desc">Registre horas com início e fim, descrição e tipo de atividade. Tudo salvo automaticamente.</p></div></div>
-        <div class="feature-card"><img class="feature-card-img" src="./screenshots/relatorio.png" alt="Relatórios" /><div class="feature-card-body"><div class="feature-icon">📊</div><h3 data-i18n="f2.title">Relatórios e Pré-Fatura</h3><p data-i18n="f2.desc">Gere relatórios por cliente, período e usuário. Exporte Pré-Fatura em PDF com logo da sua empresa.</p></div></div>
-        <div class="feature-card"><img class="feature-card-img" src="./screenshots/atividades.png" alt="Gestão de equipe" /><div class="feature-card-body"><div class="feature-icon">👥</div><h3 data-i18n="f3.title">Gestão de equipe</h3><p data-i18n="f3.desc">Cadastre usuários com perfis diferentes. Controle quem vê o quê com permissões por nível.</p></div></div>
-        <div class="feature-card"><img class="feature-card-img" src="./screenshots/prefatura.png" alt="Pré-Fatura" /><div class="feature-card-body"><div class="feature-icon">🏢</div><h3 data-i18n="f4.title">Multi-cliente</h3><p data-i18n="f4.desc">Gerencie múltiplos clientes com valores por hora individuais. Cada cliente, sua própria régua.</p></div></div>
-        <div class="feature-card"><img class="feature-card-img" src="./screenshots/calendario.png" alt="Calendário" /><div class="feature-card-body"><div class="feature-icon">📅</div><h3 data-i18n="f5.title">Calendário integrado</h3><p data-i18n="f5.desc">Visualize atividades no calendário. Planeje e acompanhe a distribuição de horas da equipe.</p></div></div>
-        <div class="feature-card"><img class="feature-card-img" src="./screenshots/numeroskpi.png" alt="Dashboard KPIs" /><div class="feature-card-body"><div class="feature-icon">📈</div><h3 data-i18n="f7.title">Dashboard com KPIs</h3><p data-i18n="f7.desc">Acompanhe horas do dia, do mês, registros e clientes ativos em tempo real. Visão gerencial na tela inicial.</p></div></div>
-        <div class="feature-card"><img class="feature-card-img" src="./screenshots/resultados.png" alt="Personalizável" /><div class="feature-card-body"><div class="feature-icon">🎨</div><h3 data-i18n="f6.title">Personalizável sob demanda</h3><p data-i18n="f6.desc">Logo da empresa, tipos de atividade customizados e configurações por negócio. Seu sistema, sua cara.</p></div></div>
+        <div class="feature-card"><div class="feature-icon">⏱️</div><h3 data-i18n="f1.title">Time Tracker em tempo real</h3><p data-i18n="f1.desc">Registre horas com início e fim, descrição e tipo de atividade. Tudo salvo automaticamente.</p></div>
+        <div class="feature-card"><div class="feature-icon">📊</div><h3 data-i18n="f2.title">Relatórios e Pré-Fatura</h3><p data-i18n="f2.desc">Gere relatórios por cliente, período e usuário. Exporte Pré-Fatura em PDF com logo da sua empresa.</p></div>
+        <div class="feature-card"><div class="feature-icon">👥</div><h3 data-i18n="f3.title">Gestão de equipe</h3><p data-i18n="f3.desc">Cadastre usuários com perfis diferentes. Controle quem vê o quê com permissões por nível.</p></div>
+        <div class="feature-card"><div class="feature-icon">🏢</div><h3 data-i18n="f4.title">Multi-cliente</h3><p data-i18n="f4.desc">Gerencie múltiplos clientes com valores por hora individuais. Cada cliente, sua própria régua.</p></div>
+        <div class="feature-card"><div class="feature-icon">📅</div><h3 data-i18n="f5.title">Calendário integrado</h3><p data-i18n="f5.desc">Visualize atividades no calendário. Planeje e acompanhe a distribuição de horas da equipe.</p></div>
+        <div class="feature-card"><div class="feature-icon">🎨</div><h3 data-i18n="f6.title">Personalizável sob demanda</h3><p data-i18n="f6.desc">Logo da empresa, tipos de atividade customizados e configurações por negócio. Seu sistema, sua cara.</p></div>
+        <div class="feature-card"><div class="feature-icon">📈</div><h3 data-i18n="f7.title">Dashboard com KPIs</h3><p data-i18n="f7.desc">Acompanhe horas do dia, do mês, registros e clientes ativos em tempo real. Visão gerencial na tela inicial.</p></div>
     </div>
 </section>
 
