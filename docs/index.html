@@ -243,11 +243,12 @@
 
     <!-- tabs -->
     <div class="screenshots-tabs">
-        <button class="tab-btn active" onclick="goToSlide(0)" data-i18n="tab.timetracker">Time Tracker</button>
-        <button class="tab-btn" onclick="goToSlide(1)" data-i18n="tab.atividades">Atividades</button>
-        <button class="tab-btn" onclick="goToSlide(2)" data-i18n="tab.relatorio">Relatórios</button>
-        <button class="tab-btn" onclick="goToSlide(3)" data-i18n="tab.prefatura">Pré-Fatura</button>
-        <button class="tab-btn" onclick="goToSlide(4)" data-i18n="tab.calendario">Calendário</button>
+        <button class="tab-btn active" onclick="goToSlide(0)" data-i18n="tab.home">Home</button>
+        <button class="tab-btn" onclick="goToSlide(1)" data-i18n="tab.timetracker">Time Tracker</button>
+        <button class="tab-btn" onclick="goToSlide(2)" data-i18n="tab.atividades">Atividades</button>
+        <button class="tab-btn" onclick="goToSlide(3)" data-i18n="tab.relatorio">Relatórios</button>
+        <button class="tab-btn" onclick="goToSlide(4)" data-i18n="tab.prefatura">Pré-Fatura</button>
+        <button class="tab-btn" onclick="goToSlide(5)" data-i18n="tab.calendario">Calendário</button>
     </div>
 
     <!-- browser mockup -->
@@ -268,6 +269,7 @@
             </div>
             <!-- slides -->
             <div class="carousel-track" id="carouselTrack">
+                <div class="carousel-slide"><img src="./screenshots/home.png" alt="Home" /></div>
                 <div class="carousel-slide"><img src="./screenshots/timetracker.png" alt="Time Tracker" /></div>
                 <div class="carousel-slide"><img src="./screenshots/atividades.png" alt="Atividades" /></div>
                 <div class="carousel-slide"><img src="./screenshots/relatorio.png" alt="Relatórios" /></div>
@@ -288,6 +290,7 @@
         <span class="cdot" onclick="goToSlide(2)"></span>
         <span class="cdot" onclick="goToSlide(3)"></span>
         <span class="cdot" onclick="goToSlide(4)"></span>
+        <span class="cdot" onclick="goToSlide(5)"></span>
     </div>
 </section>
 
@@ -419,7 +422,7 @@
 <script>
 (function(){
     var current = 0;
-    var total = 5;
+    var total = 6;
     var autoTimer;
 
     function updateCarousel(idx) {
