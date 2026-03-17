@@ -105,7 +105,8 @@ namespace ClockTrack.Controllers
                     login: model.Login
                 )
                 {
-                    TenantId = tenant.Id
+                    TenantId = tenant.Id,
+                    UseCronometroAlwaysOnTop = true
                 };
 
                 _context.Attorney.Add(admin);

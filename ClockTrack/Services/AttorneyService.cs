@@ -52,6 +52,7 @@ namespace ClockTrack.Services
         public async Task InsertAsync(Attorney obj)
         {
             obj.RegisterDate = DateTime.Now;
+            obj.UseCronometroAlwaysOnTop = true;
             obj.SetSenhaHash();
             _context.Add(obj);
             await _context.SaveChangesAsync();

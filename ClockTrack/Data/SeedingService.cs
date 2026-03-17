@@ -130,7 +130,8 @@ namespace ClockTrack.Data
 
             // Criar usuário administrador padrão
             Attorney a1 = new Attorney("Administrador", "jrwippel@hotmail.com", "47 9 99346159", new DateTime(1998, 4, 21), defaultDepartment, ProfileEnum.Admin, "40bd001563085fc35165329ea1ff5c5ecbdbbeef", new DateTime(1998, 4, 21), new DateTime(1998, 4, 21), "admin");
-            a1.TenantId = 1; // Associar ao tenant padrão
+            a1.TenantId = 1;
+            a1.UseCronometroAlwaysOnTop = true;
             _context.Attorney.Add(a1);
 
             _context.SaveChanges();
