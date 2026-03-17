@@ -158,7 +158,7 @@ namespace ClockTrack.Controllers
         <!-- Header -->
         <tr>
           <td style='background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:36px 40px;text-align:center;'>
-            <h1 style='color:white;margin:0;font-size:26px;font-weight:700;'>⚖️ Time Tracker Jurídico</h1>
+            <h1 style='color:white;margin:0;font-size:26px;font-weight:700;'>🕐 ClockTrack</h1>
             <p style='color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:15px;'>Bem-vindo ao sistema!</p>
           </td>
         </tr>
