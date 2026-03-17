@@ -1,0 +1,63 @@
+@using ClockTrack.Services
+@{
+    ViewData["Title"] = "Planos e Preços";
+    var planos = ViewBag.Planos as Dictionary<string, PlanoInfo>;
+}
+
+<div class="page-header">
+    <div class="page-header-icon"><i class="bi bi-credit-card"></i></div>
+    <div>
+        <h1>Planos e Preços</h1>
+        <p>Escolha o plano ideal para sua equipe</p>
+    </div>
+</div>
+
+<div class="row justify-content-center g-4 mt-2">
+    @foreach (var kv in planos)
+    {
+        var key = kv.Key;
+        var p = kv.Value;
+        var destaque = key == "pro";
+        <div class="col-md-4">
+            <div class="card h-100 @(destaque ? "border-primary shadow-lg" : "")" style="border-radius:16px; position:relative;">
+                @if (destaque)
+                {
+                    <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:4px 18px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;">
+                        Mais popular
+                    </div>
+                }
+                <div class="card-body p-4 d-flex flex-column">
+                    <h5 class="fw-bold text-uppercase text-muted mb-1" style="font-size:13px;letter-spacing:1px;">@p.Nome</h5>
+                    <div class="mb-1">
+                        <span style="font-size:42px;font-weight:800;">R$ @p.Preco.ToString("N0")</span>
+                        <span class="text-muted">/mês</span>
+                    </div>
+                    <p class="text-muted mb-3" style="font-size:14px;">@p.Descricao</p>
+                    <ul class="list-unstyled mb-4 flex-grow-1" style="font-size:14px;">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Até @(p.MaxUsers >= 999 ? "ilimitados" : p.MaxUsers.ToString()) usuários</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Time Tracker ilimitado</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Relatórios em PDF</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Clientes ilimitados</li>
+                        @if (key != "starter")
+                        {
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Pré-Fatura com logo</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-primary me-2"></i>Suporte prioritário</li>
+                        }
+                    </ul>
+                    <form asp-action="Assinar" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="plano" value="@key" />
+                        <button type="submit" class="btn w-100 fw-bold @(destaque ? "btn-primary" : "btn-outline-primary")" style="border-radius:10px;padding:12px;">
+                            Assinar agora
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (TempData["Erro"] != null)
+{
+    <div class="alert alert-danger mt-4">@TempData["Erro"]</div>
+}

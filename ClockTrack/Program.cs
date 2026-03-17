@@ -6,11 +6,11 @@ using System.Text;
 using ClockTrack.Data;
 using ClockTrack.Helper;
 using ClockTrack.Services;
+using ClockTrack.Services.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using OfficeOpenXml;
-using ClockTrack.Services.Exceptions;
 
 namespace ClockTrack
 {
@@ -50,6 +50,7 @@ namespace ClockTrack
             builder.Services.AddScoped<ValorClienteService>();
             builder.Services.AddScoped<ParametroService>();
             builder.Services.AddScoped<ActivityTypeService>();
+            builder.Services.AddHttpClient<MercadoPagoService>();
 
             builder.Services.AddScoped<ISpeechToTextService, SpeechToTextService>();
             builder.Services.AddScoped<ISummaryService, SummaryService>();

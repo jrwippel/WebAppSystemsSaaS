@@ -292,6 +292,13 @@
                 <i class="bi bi-gear"></i>
                 <span data-i18n="menu.configuracoes">Configurações</span>
             </a>
+            @if (isAdmin)
+            {
+                <a class="dropdown-item" asp-controller="Assinatura" asp-action="Planos">
+                    <i class="bi bi-credit-card"></i>
+                    <span>Assinatura</span>
+                </a>
+            }
             <a class="dropdown-item" asp-controller="Home" asp-action="About">
                 <i class="bi bi-info-circle"></i>
                 <span data-i18n="menu.about">Sobre</span>

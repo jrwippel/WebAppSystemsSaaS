@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Pagamento não realizado";
+}
+<div class="text-center py-5">
+    <div style="font-size:64px;">❌</div>
+    <h2 class="fw-bold mt-3">Pagamento não realizado</h2>
+    <p class="text-muted">Houve um problema com seu pagamento. Tente novamente ou use outro método.</p>
+    <a href="@Url.Action("Planos", "Assinatura")" class="btn btn-primary mt-3" style="border-radius:10px;padding:12px 32px;">
+        Tentar novamente
+    </a>
+</div>

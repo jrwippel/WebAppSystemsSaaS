@@ -38,6 +38,10 @@ namespace ClockTrack.Models
         public bool IsSubscriptionExpired => SubscriptionExpiresAt.HasValue && DateTime.UtcNow > SubscriptionExpiresAt.Value;
         public bool IsBlocked => !IsActive || IsTrialExpired || IsSubscriptionExpired;
 
+        // Plano de assinatura
+        public string? PlanoAtual { get; set; }           // "starter", "pro", "enterprise"
+        public string? MercadoPagoSubscriptionId { get; set; } // ID da assinatura no MP
+
         // Limites do plano
         public int MaxUsers { get; set; } = 5;
         public int MaxClients { get; set; } = 50;
