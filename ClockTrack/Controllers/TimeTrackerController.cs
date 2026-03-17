@@ -511,6 +511,59 @@ namespace ClockTrack.Controllers
             public string EndTime { get; set; }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> QuickCreateClient([FromBody] QuickCreateRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Name))
+                return BadRequest("Name is required.");
+
+            var client = new Client { Name = request.Name.Trim() };
+            _context.Client.Add(client);
+            await _context.SaveChangesAsync();
+            return Ok(new { id = client.Id, name = client.Name });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickCreateDepartment([FromBody] QuickCreateRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Name))
+                return BadRequest("Name is required.");
+
+            var dept = new Department(request.Name.Trim());
+            _context.Department.Add(dept);
+            await _context.SaveChangesAsync();
+            return Ok(new { id = dept.Id, name = dept.Name });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> QuickCreateActivityType([FromBody] QuickCreateActivityTypeRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Name))
+                return BadRequest("Name is required.");
+
+            var activityType = new ActivityType
+            {
+                Name = request.Name.Trim(),
+                Color = string.IsNullOrWhiteSpace(request.Color) ? "#667eea" : request.Color,
+                IsActive = true,
+                DisplayOrder = 99
+            };
+            _context.ActivityTypes.Add(activityType);
+            await _context.SaveChangesAsync();
+            return Ok(new { id = activityType.Id, name = activityType.Name, color = activityType.Color });
+        }
+
+        public class QuickCreateRequest
+        {
+            public string Name { get; set; }
+        }
+
+        public class QuickCreateActivityTypeRequest
+        {
+            public string Name { get; set; }
+            public string Color { get; set; }
+        }
+
         // Action para retornar o solicitante baseado no cliente
         [HttpGet]
         public async Task<IActionResult> GetSolicitanteByClientId(int clientId)
