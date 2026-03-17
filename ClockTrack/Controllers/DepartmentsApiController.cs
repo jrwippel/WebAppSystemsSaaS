@@ -28,5 +28,22 @@ public class DepartmentsApiController : ControllerBase
         return await _departmentsService.GetAllDepartmentsAsync();
     }
 
+    [HttpPost]
+    [Route("QuickCreate")]
+    public async Task<IActionResult> QuickCreate([FromBody] QuickCreateDeptRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Name))
+            return BadRequest("Name is required.");
 
+        var dept = new Department(request.Name.Trim());
+        _context.Department.Add(dept);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { id = dept.Id, name = dept.Name });
+    }
+}
+
+public class QuickCreateDeptRequest
+{
+    public string Name { get; set; }
 }

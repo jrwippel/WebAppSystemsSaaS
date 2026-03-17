@@ -43,5 +43,22 @@ public class ClientsApiController : ControllerBase
         return File(client.ImageData, client.ImageMimeType);
     }
 
+    [HttpPost]
+    [Route("QuickCreate")]
+    public async Task<IActionResult> QuickCreate([FromBody] QuickCreateNameRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Name))
+            return BadRequest("Name is required.");
 
+        var client = new Client { Name = request.Name.Trim() };
+        _context.Client.Add(client);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { id = client.Id, name = client.Name });
+    }
+}
+
+public class QuickCreateNameRequest
+{
+    public string Name { get; set; }
 }

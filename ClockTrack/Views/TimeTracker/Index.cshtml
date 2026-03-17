@@ -23,15 +23,24 @@
         <div class="form-row">
             <div class="form-field">
                 <label data-i18n="timetracker.type">Type</label>
-                <select asp-for="ProcessRecord.ActivityTypeId" asp-items="Model.ActivityTypesOptions" class="form-control"></select>
+                <div class="input-group-quick">
+                    <select asp-for="ProcessRecord.ActivityTypeId" asp-items="Model.ActivityTypesOptions" class="form-control" id="activityTypeSelect"></select>
+                    <button type="button" class="btn-quick-add" onclick="openQuickModal('activityType')" title="Add new type">+</button>
+                </div>
             </div>
             <div class="form-field">
                 <label data-i18n="timetracker.client">Client</label>
-                <select asp-for="ProcessRecord.ClientId" asp-items="Model.ClientsOptions" class="form-control"></select>
+                <div class="input-group-quick">
+                    <select asp-for="ProcessRecord.ClientId" asp-items="Model.ClientsOptions" class="form-control" id="clientSelect"></select>
+                    <button type="button" class="btn-quick-add" onclick="openQuickModal('client')" title="Add new client">+</button>
+                </div>
             </div>
             <div class="form-field">
                 <label data-i18n="timetracker.area">Area</label>
-                <select asp-for="ProcessRecord.DepartmentId" asp-items="Model.DepartmentsOptions" class="form-control"></select>
+                <div class="input-group-quick">
+                    <select asp-for="ProcessRecord.DepartmentId" asp-items="Model.DepartmentsOptions" class="form-control" id="departmentSelect"></select>
+                    <button type="button" class="btn-quick-add" onclick="openQuickModal('department')" title="Add new area">+</button>
+                </div>
             </div>
             <div class="form-field">
                 <label data-i18n="timetracker.requester">Requester</label>
@@ -86,6 +95,30 @@
 </div>
 
 <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+<!-- Quick Create Modals -->
+<div id="quickModal" class="quick-modal-overlay" style="display:none;" onclick="closeQuickModal(event)">
+    <div class="quick-modal-box">
+        <div class="quick-modal-header">
+            <span id="quickModalTitle">Add</span>
+            <button type="button" class="quick-modal-close" onclick="closeQuickModal()">&times;</button>
+        </div>
+        <div class="quick-modal-body">
+            <div id="quickFieldName" class="quick-field">
+                <label>Name</label>
+                <input type="text" id="quickInputName" class="form-control" placeholder="Enter name..." />
+            </div>
+            <div id="quickFieldColor" class="quick-field" style="display:none;">
+                <label>Color</label>
+                <input type="color" id="quickInputColor" value="#667eea" class="form-control" style="height:42px;padding:4px 8px;" />
+            </div>
+        </div>
+        <div class="quick-modal-footer">
+            <button type="button" class="btn-quick-cancel" onclick="closeQuickModal()">Cancel</button>
+            <button type="button" class="btn-quick-save" id="quickSaveBtn" onclick="saveQuickCreate()">Save</button>
+        </div>
+    </div>
+</div>
 
 @section Styles {
     <style>
@@ -460,9 +493,132 @@
                 justify-content: center;
             }
         }
+
+        /* Quick Create */
+        .input-group-quick {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .input-group-quick .form-control {
+            flex: 1;
+        }
+
+        .btn-quick-add {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .btn-quick-add:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .quick-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-modal-box {
+            background: white;
+            border-radius: 14px;
+            width: 360px;
+            max-width: 95vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .quick-modal-header {
+            padding: 18px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quick-modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .quick-modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .quick-field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .quick-modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-quick-cancel {
+            padding: 9px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-quick-save {
+            padding: 9px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-quick-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 }
-
 @section Scripts {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script>
@@ -895,6 +1051,103 @@
                     .then(response => response.ok ? console.log('Keep-alive OK') : console.warn('Erro no keep-alive'))
                     .catch(error => console.error('Erro na requisição de keep-alive:', error));
             }, 300000);
+        }
+
+        // ---- Quick Create ----
+        let quickModalType = null;
+
+        const quickModalConfig = {
+            activityType: {
+                title: 'New Activity Type',
+                url: '/api/ActivityTypesApi/QuickCreate',
+                selectId: 'activityTypeSelect',
+                hasColor: true
+            },
+            client: {
+                title: 'New Client',
+                url: '/api/ClientsApi/QuickCreate',
+                selectId: 'clientSelect',
+                hasColor: false
+            },
+            department: {
+                title: 'New Area',
+                url: '/api/DepartmentsApi/QuickCreate',
+                selectId: 'departmentSelect',
+                hasColor: false
+            }
+        };
+
+        function openQuickModal(type) {
+            quickModalType = type;
+            const config = quickModalConfig[type];
+            document.getElementById('quickModalTitle').textContent = config.title;
+            document.getElementById('quickInputName').value = '';
+            document.getElementById('quickInputColor').value = '#667eea';
+            document.getElementById('quickFieldColor').style.display = config.hasColor ? 'block' : 'none';
+            document.getElementById('quickModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('quickInputName').focus(), 50);
+        }
+
+        function closeQuickModal(event) {
+            if (event && event.target !== document.getElementById('quickModal')) return;
+            document.getElementById('quickModal').style.display = 'none';
+            quickModalType = null;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeQuickModal();
+            if (e.key === 'Enter' && quickModalType) saveQuickCreate();
+        });
+
+        async function saveQuickCreate() {
+            const config = quickModalConfig[quickModalType];
+            const name = document.getElementById('quickInputName').value.trim();
+            const color = document.getElementById('quickInputColor').value;
+
+            if (!name) {
+                document.getElementById('quickInputName').focus();
+                return;
+            }
+
+            const saveBtn = document.getElementById('quickSaveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                const body = config.hasColor ? { name, color } : { name };
+                const response = await fetch(config.url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    const item = await response.json();
+                    const select = document.getElementById(config.selectId);
+                    const option = new Option(item.name, item.id);
+                    select.add(option);
+                    select.value = item.id;
+
+                    // Update activityTypeMap if needed
+                    if (quickModalType === 'activityType') {
+                        activityTypeMap[item.id] = item.name;
+                    }
+
+                    // Trigger change event for validation
+                    select.dispatchEvent(new Event('change'));
+
+                    document.getElementById('quickModal').style.display = 'none';
+                    quickModalType = null;
+                } else {
+                    const err = await response.text();
+                    alert('Error: ' + err);
+                }
+            } catch (e) {
+                alert('Request failed. Please try again.');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save';
+            }
         }
     </script>
 }
