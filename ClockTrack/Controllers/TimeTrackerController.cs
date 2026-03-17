@@ -544,6 +544,7 @@ namespace ClockTrack.Controllers
             var activityType = new ActivityType
             {
                 Name = request.Name.Trim(),
+                Description = request.Name.Trim(),
                 Color = string.IsNullOrWhiteSpace(request.Color) ? "#667eea" : request.Color,
                 IsActive = true,
                 DisplayOrder = 99
