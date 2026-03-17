@@ -88,10 +88,11 @@ namespace ClockTrack.Services
                 obj.Password = existingAttorney.Password;
                 obj.RegisterDate = existingAttorney.RegisterDate;
                 obj.TenantId = existingAttorney.TenantId;
+                obj.Department = null; // evita conflito de tracking na navigation property
                 _context.Update(obj);
                 await _context.SaveChangesAsync();
             }
-            catch (DbConcurrencyException ex)
+            catch (DbUpdateConcurrencyException ex)
             {
                 throw new DbConcurrencyException(ex.Message);
             }

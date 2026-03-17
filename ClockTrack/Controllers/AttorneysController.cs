@@ -218,9 +218,17 @@ namespace ClockTrack.Controllers
                 }
                 
                 return RedirectToAction(nameof(Index));
-            }catch (NotFoundException ex)
+            }
+            catch (NotFoundException ex)
             {
                 return RedirectToAction(nameof(Error), new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Erro ao salvar: " + ex.Message);
+                var departments = await _departmentService.FindAllAsync();
+                var viewModel = new AttorneyFormViewModel { Attorney = attorney, Departments = departments };
+                return View(viewModel);
             }
         }
 
