@@ -39,6 +39,7 @@ namespace ClockTrack.Controllers
             ModelState.Remove("TenantId");
             ModelState.Remove("Tenant");
             ModelState.Remove("ProcessRecords");
+            ModelState.Remove("Description");
 
             if (ModelState.IsValid)
             {

@@ -4,161 +4,106 @@
     ViewData["Title"] = "Novo Tipo de Atividade";
 }
 
-<div class="container-fluid px-4">
-    <!-- Header com gradiente -->
-    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div class="card-body text-white py-4">
-            <h2 class="mb-2">
-                <i class="fas fa-plus-circle me-2"></i>Novo Tipo de Atividade
-            </h2>
-            <p class="mb-0 opacity-90">Crie um novo tipo de atividade personalizado</p>
+<div class="activitytype-form-container">
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon"><i class="bi bi-plus-circle"></i></div>
+            <div class="header-text">
+                <h1 class="page-title">Novo Tipo de Atividade</h1>
+                <p class="page-subtitle">Crie um novo tipo para categorizar seus registros</p>
+            </div>
         </div>
     </div>
 
-    <!-- Formulário -->
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <form asp-action="Create" method="post">
-                        <div asp-validation-summary="All" class="alert alert-danger" id="validationSummary" style="display:none;"></div>
+    <div class="form-card">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-                        <!-- Informações Básicas -->
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">
-                                <i class="fas fa-info-circle me-2"></i>Informações Básicas
-                            </h5>
-                            
-                            <div class="mb-3">
-                                <label asp-for="Name" class="form-label fw-bold">Nome do Tipo</label>
-                                <input asp-for="Name" class="form-control form-control-lg" placeholder="Ex: Consultivo, Reunião, Desenvolvimento" />
-                                <span asp-validation-for="Name" class="text-danger small"></span>
-                            </div>
+            <input type="hidden" asp-for="DisplayOrder" value="99" />
+            <input type="hidden" asp-for="Description" value="" />
+            <input type="hidden" asp-for="IsActive" value="true" />
 
-                            <div class="mb-3">
-                                <label asp-for="Description" class="form-label fw-bold">Descrição</label>
-                                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Descreva quando este tipo deve ser usado"></textarea>
-                                <span asp-validation-for="Description" class="text-danger small"></span>
-                            </div>
-                        </div>
-
-                        <!-- Aparência -->
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">
-                                <i class="fas fa-palette me-2"></i>Aparência
-                            </h5>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label asp-for="Color" class="form-label fw-bold">Cor</label>
-                                    <div class="input-group">
-                                        <input type="color" id="colorPicker" class="form-control form-control-color" value="#667eea" title="Escolha uma cor" />
-                                        <input asp-for="Color" type="text" class="form-control" placeholder="#667eea" />
-                                    </div>
-                                    <span asp-validation-for="Color" class="text-danger small"></span>
-                                    <small class="text-muted">Cor usada em gráficos e relatórios</small>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label asp-for="DisplayOrder" class="form-label fw-bold">Ordem de Exibição</label>
-                                    <input asp-for="DisplayOrder" type="number" class="form-control" value="1" min="1" />
-                                    <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
-                                    <small class="text-muted">Ordem na lista de seleção</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="mb-4">
-                            <div class="form-check form-switch">
-                                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
-                                <label asp-for="IsActive" class="form-check-label fw-bold">Tipo Ativo</label>
-                            </div>
-                            <small class="text-muted">Tipos inativos não aparecem na seleção de novos registros</small>
-                        </div>
-
-                        <!-- Botões -->
-                        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-2"></i>Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Salvar Tipo
-                            </button>
-                        </div>
-                    </form>
+            <div class="form-section">
+                <div class="form-group">
+                    <label asp-for="Name"><i class="bi bi-tag"></i> Nome</label>
+                    <input asp-for="Name" class="form-control" placeholder="Ex: Consultivo, Reunião, Desenvolvimento" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
-            </div>
-        </div>
 
-        <!-- Painel de Ajuda -->
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm bg-light">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3">
-                        <i class="fas fa-lightbulb text-warning me-2"></i>Dicas
-                    </h6>
-                    <ul class="small mb-0">
-                        <li class="mb-2">Escolha nomes claros e objetivos</li>
-                        <li class="mb-2">Use cores diferentes para facilitar identificação</li>
-                        <li class="mb-2">A ordem define como aparecem nas listas</li>
-                        <li class="mb-2">Você pode desativar tipos sem excluí-los</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card border-0 shadow-sm mt-3">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3">
-                        <i class="fas fa-palette text-primary me-2"></i>Sugestões de Cores
-                    </h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #4A90E2; border-radius: 6px; cursor: pointer;" title="#4A90E2"></div>
-                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #E24A4A; border-radius: 6px; cursor: pointer;" title="#E24A4A"></div>
-                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #50C878; border-radius: 6px; cursor: pointer;" title="#50C878"></div>
-                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #FFA500; border-radius: 6px; cursor: pointer;" title="#FFA500"></div>
-                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #9B59B6; border-radius: 6px; cursor: pointer;" title="#9B59B6"></div>
-                        <div class="color-suggestion" style="width: 40px; height: 40px; background: #1ABC9C; border-radius: 6px; cursor: pointer;" title="#1ABC9C"></div>
+                <div class="form-group">
+                    <label><i class="bi bi-palette"></i> Cor</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="colorPicker" value="#667eea" class="color-native" />
+                        <input asp-for="Color" type="text" class="form-control" placeholder="#667eea" />
+                    </div>
+                    <span asp-validation-for="Color" class="text-danger"></span>
+                    <div class="color-suggestions">
+                        <span class="color-dot" style="background:#667eea" data-color="#667eea"></span>
+                        <span class="color-dot" style="background:#4A90E2" data-color="#4A90E2"></span>
+                        <span class="color-dot" style="background:#E24A4A" data-color="#E24A4A"></span>
+                        <span class="color-dot" style="background:#50C878" data-color="#50C878"></span>
+                        <span class="color-dot" style="background:#FFA500" data-color="#FFA500"></span>
+                        <span class="color-dot" style="background:#9B59B6" data-color="#9B59B6"></span>
+                        <span class="color-dot" style="background:#1ABC9C" data-color="#1ABC9C"></span>
+                        <span class="color-dot" style="background:#E74C3C" data-color="#E74C3C"></span>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i> Salvar
+                </button>
+                <a asp-action="Index" class="btn-cancel">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        // Mostrar validation summary se tiver erros
-        const vs = document.getElementById('validationSummary');
-        if (vs && vs.innerText.trim() !== '') {
-            vs.style.display = 'block';
-        }
-
-        // Sincronizar color picker com input text
         const colorPicker = document.getElementById('colorPicker');
-        const colorText = document.querySelector('input[type="text"][name="Color"]');
-
-        colorPicker.addEventListener('input', (e) => {
-            colorText.value = e.target.value.toUpperCase();
-        });
-
-        colorText.addEventListener('input', (e) => {
-            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
-                colorPicker.value = e.target.value;
-            }
-        });
-
-        // Inicializar color picker com valor atual
+        const colorText = document.querySelector('input[name="Color"]');
         if (colorText.value) colorPicker.value = colorText.value;
-
-        // Sugestões de cores
-        document.querySelectorAll('.color-suggestion').forEach(el => {
-            el.addEventListener('click', function() {
-                const color = this.getAttribute('title');
-                document.querySelector('input[type="color"]').value = color;
-                document.querySelector('input[type="text"][name="Color"]').value = color;
+        colorPicker.addEventListener('input', e => colorText.value = e.target.value.toUpperCase());
+        colorText.addEventListener('input', e => { if (/^#[0-9A-F]{6}$/i.test(e.target.value)) colorPicker.value = e.target.value; });
+        document.querySelectorAll('.color-dot').forEach(el => {
+            el.addEventListener('click', function () {
+                const c = this.dataset.color;
+                colorPicker.value = c; colorText.value = c;
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+                this.classList.add('selected');
             });
         });
     </script>
 }
+
+<style>
+    .activitytype-form-container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px 28px; margin-bottom: 24px; box-shadow: 0 6px 25px rgba(102,126,234,0.25); display: flex; align-items: center; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; }
+    .page-title { font-size: 22px; font-weight: 700; color: white; margin: 0 0 4px 0; }
+    .page-subtitle { font-size: 13px; color: rgba(255,255,255,0.85); margin: 0; }
+    .form-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
+    .form-section { display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 14px; font-weight: 600; color: #4a5568; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .form-group label i { color: #667eea; }
+    .form-control { padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.3s; }
+    .form-control:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+    .color-picker-group { display: flex; gap: 10px; align-items: center; }
+    .color-native { width: 48px; height: 44px; padding: 2px 4px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; flex-shrink: 0; }
+    .color-suggestions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+    .color-dot:hover, .color-dot.selected { border-color: #2d3748; transform: scale(1.15); }
+    .text-danger { font-size: 12px; color: #e53e3e; margin-top: 4px; }
+    .form-actions { display: flex; gap: 12px; padding-top: 24px; border-top: 2px solid #e2e8f0; }
+    .btn-submit { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+    .btn-cancel { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: #f7fafc; color: #4a5568; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.3s; }
+    .btn-cancel:hover { background: #e2e8f0; color: #2d3748; }
+</style>
