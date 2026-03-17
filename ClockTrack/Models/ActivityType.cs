@@ -17,7 +17,7 @@ namespace ClockTrack.Models
         
         [StringLength(500, ErrorMessage = "A descrição deve ter no máximo 500 caracteres")]
         [Display(Name = "Descrição")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         
         [Display(Name = "Cor (Hex)")]
         [StringLength(7, ErrorMessage = "Cor deve estar no formato #RRGGBB")]
