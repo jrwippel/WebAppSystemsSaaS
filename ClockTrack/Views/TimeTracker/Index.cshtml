@@ -25,21 +25,21 @@
                 <label data-i18n="timetracker.type">Type</label>
                 <div class="input-group-quick">
                     <select asp-for="ProcessRecord.ActivityTypeId" asp-items="Model.ActivityTypesOptions" class="form-control" id="activityTypeSelect"></select>
-                    <button type="button" class="btn-quick-add" onclick="openQuickModal('activityType')" title="Add new type">+</button>
+                    <button type="button" class="btn-quick-add" onclick="openQuickModal('activityType')" title="Adicionar novo tipo">+</button>
                 </div>
             </div>
             <div class="form-field">
                 <label data-i18n="timetracker.client">Client</label>
                 <div class="input-group-quick">
                     <select asp-for="ProcessRecord.ClientId" asp-items="Model.ClientsOptions" class="form-control" id="clientSelect"></select>
-                    <button type="button" class="btn-quick-add" onclick="openQuickModal('client')" title="Add new client">+</button>
+                    <button type="button" class="btn-quick-add" onclick="openQuickModal('client')" title="Adicionar novo cliente">+</button>
                 </div>
             </div>
             <div class="form-field">
                 <label data-i18n="timetracker.area">Area</label>
                 <div class="input-group-quick">
                     <select asp-for="ProcessRecord.DepartmentId" asp-items="Model.DepartmentsOptions" class="form-control" id="departmentSelect"></select>
-                    <button type="button" class="btn-quick-add" onclick="openQuickModal('department')" title="Add new area">+</button>
+                    <button type="button" class="btn-quick-add" onclick="openQuickModal('department')" title="Adicionar nova area">+</button>
                 </div>
             </div>
             <div class="form-field">
@@ -105,17 +105,17 @@
         </div>
         <div class="quick-modal-body">
             <div id="quickFieldName" class="quick-field">
-                <label>Name</label>
-                <input type="text" id="quickInputName" class="form-control" placeholder="Enter name..." />
+                <label>Nome</label>
+                <input type="text" id="quickInputName" class="form-control" placeholder="Digite o nome..." />
             </div>
             <div id="quickFieldColor" class="quick-field" style="display:none;">
-                <label>Color</label>
+                <label>Cor</label>
                 <input type="color" id="quickInputColor" value="#667eea" class="form-control" style="height:42px;padding:4px 8px;" />
             </div>
         </div>
         <div class="quick-modal-footer">
-            <button type="button" class="btn-quick-cancel" onclick="closeQuickModal()">Cancel</button>
-            <button type="button" class="btn-quick-save" id="quickSaveBtn" onclick="saveQuickCreate()">Save</button>
+            <button type="button" class="btn-quick-cancel" onclick="closeQuickModal()">Cancelar</button>
+            <button type="button" class="btn-quick-save" id="quickSaveBtn" onclick="saveQuickCreate()">Salvar</button>
         </div>
     </div>
 </div>
@@ -1058,19 +1058,19 @@
 
         const quickModalConfig = {
             activityType: {
-                title: 'New Activity Type',
+                title: 'Novo Tipo de Atividade',
                 url: '/TimeTracker/QuickCreateActivityType',
                 selectId: 'activityTypeSelect',
                 hasColor: true
             },
             client: {
-                title: 'New Client',
+                title: 'Novo Cliente',
                 url: '/TimeTracker/QuickCreateClient',
                 selectId: 'clientSelect',
                 hasColor: false
             },
             department: {
-                title: 'New Area',
+                title: 'Nova Area',
                 url: '/TimeTracker/QuickCreateDepartment',
                 selectId: 'departmentSelect',
                 hasColor: false
@@ -1111,7 +1111,7 @@
 
             const saveBtn = document.getElementById('quickSaveBtn');
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Saving...';
+            saveBtn.textContent = 'Salvando...';
 
             try {
                 const body = config.hasColor ? { name, color } : { name };
@@ -1140,13 +1140,13 @@
                     quickModalType = null;
                 } else {
                     const err = await response.text();
-                    alert('Error: ' + err);
+                    alert('Erro: ' + err);
                 }
             } catch (e) {
-                alert('Request failed. Please try again.');
+                alert('Falha na requisicao. Tente novamente.');
             } finally {
                 saveBtn.disabled = false;
-                saveBtn.textContent = 'Save';
+                saveBtn.textContent = 'Salvar';
             }
         }
     </script>

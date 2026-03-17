@@ -1,4 +1,4 @@
-ï»¿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
@@ -33,7 +33,7 @@ namespace ClockTrack.Controllers
         [HttpPost]
         public async Task<IActionResult> StartTimer([FromBody] StartTimerRequest request)
         {
-            // Verificaï¿½ï¿½o dos dados de entrada
+            // Verifica??o dos dados de entrada
             if (request == null || string.IsNullOrWhiteSpace(request.Description) || request.ClientId <= 0 || request.DepartmentId <= 0)
             {
                 return BadRequest("Todos os campos da tela devem ser preenchidos");
@@ -41,21 +41,21 @@ namespace ClockTrack.Controllers
 
             if (request.ActivityTypeId <= 0)
             {
-                return BadRequest("Tipo de atividade invÃ¡lido");
+                return BadRequest("Tipo de atividade inválido");
             }
 
-            // Verifica se a sessï¿½o do usuï¿½rio estï¿½ ativa
+            // Verifica se a sess?o do usu?rio est? ativa
             Attorney usuario = _isessao.BuscarSessaoDoUsuario();
             if (usuario == null)
             {
-                // Retorna uma mensagem informando que a sessï¿½o expirou
-                return Unauthorized("Sessï¿½o expirada. Por favor, faï¿½a login novamente.");
+                // Retorna uma mensagem informando que a sess?o expirou
+                return Unauthorized("Sess?o expirada. Por favor, fa?a login novamente.");
             }
 
-            // Obtï¿½m o ID do usuï¿½rio a partir da sessï¿½o
+            // Obt?m o ID do usu?rio a partir da sess?o
             var attorneyId = usuario.Id;
 
-            // Verifica se jï¿½ existe um timer em execuï¿½ï¿½o para este usuï¿½rio
+            // Verifica se j? existe um timer em execu??o para este usu?rio
             var activeTimer = await _context.ProcessRecord
                 .Where(pr => pr.AttorneyId == attorneyId &&
                              (pr.HoraFinal == null || pr.HoraFinal == TimeSpan.Zero))
@@ -63,14 +63,14 @@ namespace ClockTrack.Controllers
 
             if (activeTimer != null)
             {
-                return BadRequest("Jï¿½ existe um timer em execuï¿½ï¿½o. Pare o timer atual antes de iniciar um novo.");
+                return BadRequest("J? existe um timer em execu??o. Pare o timer atual antes de iniciar um novo.");
             }
 
-            // Configura o horï¿½rio usando o fuso horï¿½rio de Brasï¿½lia
+            // Configura o hor?rio usando o fuso hor?rio de Bras?lia
             var brasiliaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
             var nowInBrasilia = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brasiliaTimeZone);
 
-            // Cria o registro de processo com as informaï¿½ï¿½es fornecidas
+            // Cria o registro de processo com as informa??es fornecidas
             var processRecord = new ProcessRecord
             {
                 AttorneyId = attorneyId,
@@ -116,17 +116,17 @@ namespace ClockTrack.Controllers
             var horaFinalAtual = new TimeSpan(nowInBrasilia.Hour, nowInBrasilia.Minute, nowInBrasilia.Second);
             var dataAtual = nowInBrasilia.Date;
 
-            // Verifica se o timer passou da meia-noite (data atual diferente da data de inï¿½cio)
+            // Verifica se o timer passou da meia-noite (data atual diferente da data de in?cio)
             if (dataAtual > processRecord.Date)
             {
                 // Calcula quantos dias se passaram
                 var diasPassados = (dataAtual - processRecord.Date).Days;
 
-                // Fecha o registro do primeiro dia atï¿½ 23:59:59
+                // Fecha o registro do primeiro dia at? 23:59:59
                 processRecord.HoraFinal = new TimeSpan(23, 59, 59);
                 await _context.SaveChangesAsync();
 
-                // Cria registros para os dias intermediï¿½rios (se houver)
+                // Cria registros para os dias intermedi?rios (se houver)
                 for (int i = 1; i < diasPassados; i++)
                 {
                     var diaIntermediario = processRecord.Date.AddDays(i);
@@ -138,14 +138,14 @@ namespace ClockTrack.Controllers
                         Date = diaIntermediario,
                         HoraInicial = new TimeSpan(0, 0, 0),
                         HoraFinal = new TimeSpan(23, 59, 59),
-                        Description = processRecord.Description + " (continuaÃ§Ã£o)",
+                        Description = processRecord.Description + " (continuação)",
                         ActivityTypeId = processRecord.ActivityTypeId,
                         Solicitante = processRecord.Solicitante
                     };
                     _context.ProcessRecord.Add(registroIntermediario);
                 }
 
-                // Cria registro para o dia atual desde 00:00:00 atï¿½ a hora atual
+                // Cria registro para o dia atual desde 00:00:00 at? a hora atual
                 var registroFinal = new ProcessRecord
                 {
                     AttorneyId = processRecord.AttorneyId,
@@ -154,7 +154,7 @@ namespace ClockTrack.Controllers
                     Date = dataAtual,
                     HoraInicial = new TimeSpan(0, 0, 0),
                     HoraFinal = horaFinalAtual,
-                    Description = processRecord.Description + " (continuaÃ§Ã£o)",
+                    Description = processRecord.Description + " (continuação)",
                     ActivityTypeId = processRecord.ActivityTypeId,
                     Solicitante = processRecord.Solicitante
                 };
@@ -171,17 +171,17 @@ namespace ClockTrack.Controllers
             return Ok();
         }
 
-        // Mï¿½TODO DE TESTE - Simula timer que passou da meia-noite
+        // M?TODO DE TESTE - Simula timer que passou da meia-noite
         [HttpPost]
         public async Task<IActionResult> TestMidnightScenario([FromBody] TestMidnightRequest request)
         {
             Attorney usuario = _isessao.BuscarSessaoDoUsuario();
             if (usuario == null)
             {
-                return Unauthorized("Sessï¿½o expirada.");
+                return Unauthorized("Sess?o expirada.");
             }
 
-            // Cria um registro simulando que comeï¿½ou ontem ï¿½s 18:00
+            // Cria um registro simulando que come?ou ontem ?s 18:00
             var ontem = DateTime.Now.Date.AddDays(-1);
             var processRecord = new ProcessRecord
             {
@@ -191,7 +191,7 @@ namespace ClockTrack.Controllers
                 Date = ontem,
                 HoraInicial = new TimeSpan(18, 0, 0), // 18:00
                 HoraFinal = new TimeSpan(0, 0, 0), // Ainda rodando
-                Description = request.Description + " (TESTE - Iniciado ontem Ã s 18:00)",
+                Description = request.Description + " (TESTE - Iniciado ontem às 18:00)",
                 ActivityTypeId = request.ActivityTypeId,
                 Solicitante = request.Solicitante
             };
@@ -199,17 +199,17 @@ namespace ClockTrack.Controllers
             _context.ProcessRecord.Add(processRecord);
             await _context.SaveChangesAsync();
 
-            // Agora simula o stop hoje ï¿½s 08:00
+            // Agora simula o stop hoje ?s 08:00
             var brasiliaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
             var nowInBrasilia = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brasiliaTimeZone);
             var horaFinalSimulada = new TimeSpan(8, 0, 0); // Simula 08:00
             var dataAtual = DateTime.Now.Date;
 
-            // Fecha o registro de ontem atï¿½ 23:59:59
+            // Fecha o registro de ontem at? 23:59:59
             processRecord.HoraFinal = new TimeSpan(23, 59, 59);
             await _context.SaveChangesAsync();
 
-            // Cria registro para hoje desde 00:00:00 atï¿½ 08:00:00
+            // Cria registro para hoje desde 00:00:00 at? 08:00:00
             var registroHoje = new ProcessRecord
             {
                 AttorneyId = processRecord.AttorneyId,
@@ -218,7 +218,7 @@ namespace ClockTrack.Controllers
                 Date = dataAtual,
                 HoraInicial = new TimeSpan(0, 0, 0),
                 HoraFinal = horaFinalSimulada,
-                Description = processRecord.Description + " (continuaÃ§Ã£o - parado hoje Ã s 08:00)",
+                Description = processRecord.Description + " (continuação - parado hoje às 08:00)",
                 ActivityTypeId = processRecord.ActivityTypeId,
                 Solicitante = processRecord.Solicitante
             };
@@ -257,16 +257,16 @@ namespace ClockTrack.Controllers
                 .Prepend(new SelectListItem { Value = "0", Text = "Selecione o Cliente" })
                 .ToList();
 
-            // Carregar as opï¿½ï¿½es de departamentos e prï¿½-selecionar a ï¿½rea do usuï¿½rio
+            // Carregar as op??es de departamentos e pr?-selecionar a ?rea do usu?rio
             var departmentsOptions = departments
                 .OrderBy(d => d.Name)
                 .Select(d => new SelectListItem
                 {
                     Value = d.Id.ToString(),
                     Text = d.Name,
-                    Selected = d.Id == usuario.DepartmentId // Marcar a ï¿½rea do usuï¿½rio como selecionada
+                    Selected = d.Id == usuario.DepartmentId // Marcar a ?rea do usu?rio como selecionada
                 })
-                .Prepend(new SelectListItem { Value = "0", Text = "Selecione a ï¿½rea" })
+                .Prepend(new SelectListItem { Value = "0", Text = "Selecione a Area" })
                 .ToList();
 
             var activityTypes = await _context.ActivityTypes
@@ -361,7 +361,7 @@ namespace ClockTrack.Controllers
                 .Include(r => r.Client)
                 .ToListAsync();
 
-            // Filtrar por data de hoje apï¿½s carregar do banco
+            // Filtrar por data de hoje ap?s carregar do banco
             var todayRecords = records               
                 .OrderByDescending(r => r.Id) // Ordenar por ID (mais recente primeiro)
                 .ToList();
@@ -438,7 +438,7 @@ namespace ClockTrack.Controllers
         {
             var record = await _context.ProcessRecord
                 .Include(r => r.Client) // Inclui o cliente no retorno
-                .Include(r => r.Department) // Inclui o departamento, se necessï¿½rio
+                .Include(r => r.Department) // Inclui o departamento, se necess?rio
                 .FirstOrDefaultAsync(r => r.Id == recordId);
 
             if (record == null)
@@ -492,7 +492,7 @@ namespace ClockTrack.Controllers
                 HoraFinal = TimeSpan.Parse(request.EndTime.Split(' ')[1]),
                 Description = request.Description,
                 Solicitante = request.Solicitante,
-                ActivityTypeId = 1, // Usar o primeiro tipo de atividade como padrÃ£o
+                ActivityTypeId = 1, // Usar o primeiro tipo de atividade como padrão
             };
 
             _context.ProcessRecord.Add(processRecord);
@@ -587,7 +587,7 @@ namespace ClockTrack.Controllers
         //[Route("keep-alive")]
         public IActionResult KeepAlive()
         {
-            // Resposta 200 OK para manter a aplicaï¿½ï¿½o ativa no Azure
+            // Resposta 200 OK para manter a aplica??o ativa no Azure
             return Ok();
         }
         */
