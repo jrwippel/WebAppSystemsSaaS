@@ -407,3 +407,7 @@ FodyWeavers.xsd
 appsettings.json
 appsettings.*.json
 
+
+# Visual Studio publish/deploy metadata (gerado automaticamente)
+ClockTrack/Properties/ServiceDependencies/
+ClockTrack/Properties/serviceDependencies*.json
