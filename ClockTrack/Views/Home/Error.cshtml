@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Página não encontrada";
+    int statusCode = ViewBag.StatusCode ?? 404;
+}
+
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px;">
+    <div style="background: white; border-radius: 16px; padding: 48px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); max-width: 480px; width: 100%;">
+        <div style="font-size: 80px; margin-bottom: 16px;">
+            @if (statusCode == 404)
+            {
+                <span>🔍</span>
+            }
+            else if (statusCode == 403)
+            {
+                <span>🔒</span>
+            }
+            else
+            {
+                <span>⚠️</span>
+            }
+        </div>
+
+        <h1 style="font-size: 64px; font-weight: 800; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 8px 0;">
+            @statusCode
+        </h1>
+
+        <h2 style="font-size: 22px; font-weight: 600; color: #2d3748; margin: 0 0 12px 0;">
+            @if (statusCode == 404)
+            {
+                <text>Página não encontrada</text>
+            }
+            else if (statusCode == 403)
+            {
+                <text>Acesso negado</text>
+            }
+            else
+            {
+                <text>Algo deu errado</text>
+            }
+        </h2>
+
+        <p style="color: #718096; font-size: 15px; margin: 0 0 32px 0;">
+            @if (statusCode == 404)
+            {
+                <text>O recurso que você tentou acessar não existe ou não pertence à sua conta.</text>
+            }
+            else if (statusCode == 403)
+            {
+                <text>Você não tem permissão para acessar este recurso.</text>
+            }
+            else
+            {
+                <text>Ocorreu um erro inesperado. Tente novamente.</text>
+            }
+        </p>
+
+        <a href="/Home/Index" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; transition: all 0.3s;">
+            <i class="bi bi-house"></i> Voltar ao início
+        </a>
+    </div>
+</div>

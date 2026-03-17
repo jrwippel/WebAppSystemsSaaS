@@ -1,0 +1,1033 @@
+﻿@using Newtonsoft.Json
+@using ClockTrack.Models
+@using ClockTrack.Data
+@using Microsoft.EntityFrameworkCore
+@inject ClockTrackContext _layoutContext
+@{
+    bool alwaysOnTop = false;
+    int? diasRestantesTrial = null;
+    string sessao = Context.Session.GetString("sessaoUsuarioLogado");
+    if (!string.IsNullOrEmpty(sessao))
+    {
+        var usuarioSessao = JsonConvert.DeserializeObject<Attorney>(sessao);
+        if (usuarioSessao != null)
+        {
+            // Lê direto do banco para sempre ter o valor mais atual
+            var usuarioDB = _layoutContext.Attorney.IgnoreQueryFilters()
+                .Where(a => a.Id == usuarioSessao.Id)
+                .Select(a => new { a.UseCronometroAlwaysOnTop })
+                .FirstOrDefault();
+            alwaysOnTop = usuarioDB?.UseCronometroAlwaysOnTop ?? false;
+
+            // Verifica dias restantes do trial
+            var tenant = _layoutContext.Tenants.Find(usuarioSessao.TenantId);
+            if (tenant != null && tenant.TrialEndsAt.HasValue && tenant.SubscriptionExpiresAt == null)
+            {
+                var dias = (int)(tenant.TrialEndsAt.Value - DateTime.UtcNow).TotalDays;
+                if (dias >= 0 && dias <= 7)
+                    diasRestantesTrial = dias;
+            }
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ClockTrack</title>
+    @RenderSection("Styles", required: false)
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-flaty.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ClockTrack.styles.css" asp-append-version="true" />
+    <link href="https://cdn.datatables.net/v/dt/dt-1.13.4/datatables.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/favicon.svg?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/favicon.svg?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="~/favicon.svg?v=3">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    
+    <style>
+        /* Floating Timer Widget */
+        .floating-timer {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 999999 !important;
+            animation: slideIn 0.3s ease-out;
+            pointer-events: auto !important;
+        }
+
+        .floating-timer-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border-radius: 50px !important;
+            padding: 12px 20px !important;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            border: 3px solid rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .floating-timer-icon {
+            width: 36px !important;
+            height: 36px !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: white !important;
+            font-size: 18px !important;
+            animation: pulse 2s infinite;
+        }
+
+        .floating-timer-time {
+            font-size: 20px !important;
+            font-weight: 700 !important;
+            color: white !important;
+            font-family: 'Courier New', monospace !important;
+            letter-spacing: 1px !important;
+            min-width: 90px !important;
+        }
+
+        .floating-timer-stop {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            border: none !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #f5576c !important;
+            cursor: pointer !important;
+            transition: all 0.3s !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 16px !important;
+        }
+
+        .floating-timer-stop:hover {
+            background: white !important;
+            transform: scale(1.1) !important;
+        }
+
+        @@keyframes slideIn {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+    </style>
+</head>
+
+
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+            @await Component.InvokeAsync("Menu")
+        </nav>
+    </header>
+
+    @if (diasRestantesTrial.HasValue)
+    {
+        var cor = diasRestantesTrial.Value <= 2 ? "#dc3545" : (diasRestantesTrial.Value <= 5 ? "#fd7e14" : "#ffc107");
+        var textoCor = diasRestantesTrial.Value <= 5 ? "white" : "#856404";
+        var msg = diasRestantesTrial.Value == 0 ? "Seu período de teste expira hoje!" : $"Seu período de teste expira em {diasRestantesTrial.Value} dia{(diasRestantesTrial.Value > 1 ? "s" : "")}!";
+        <div style="background:@cor; color:@textoCor; text-align:center; padding:8px 16px; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:12px;">
+            <i class="bi bi-clock-history"></i>
+            <span>@msg Para continuar usando, entre em contato:</span>
+            <a href="mailto:jrwsolucoesti@hotmail.com" style="color:@textoCor; text-decoration:underline;">jrwsolucoesti@hotmail.com</a>
+            <span>|</span>
+            <a href="https://wa.me/5547999346159" target="_blank" style="color:@textoCor; text-decoration:underline;"><i class="bi bi-whatsapp"></i> +55 47 99934-6159</a>
+        </div>
+    }
+
+    <div class="container">
+        @*@await Component.InvokeAsync("LicenseNotification") *@
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Timer Widget Flutuante Global -->
+    <div id="floatingTimer" class="floating-timer" style="display: none;">
+        <div class="floating-timer-content">
+            <div class="floating-timer-icon">
+                <i class="bi bi-stopwatch-fill"></i>
+            </div>
+            <div class="floating-timer-time">00:00:00</div>
+            <button class="floating-timer-stop" onclick="stopFloatingTimer()">
+                <i class="bi bi-stop-fill"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Page Loading Overlay -->
+    <div id="pageLoadingOverlay" style="display:none;">
+        <div class="loading-card">
+            <div class="loading-clock">
+                <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="30" cy="30" r="28" fill="none" stroke="#667eea" stroke-width="3"/>
+                    <circle cx="30" cy="30" r="2.5" fill="#667eea"/>
+                    <!-- hour hand -->
+                    <line id="hourHand" x1="30" y1="30" x2="30" y2="16" stroke="#667eea" stroke-width="3" stroke-linecap="round"/>
+                    <!-- minute hand -->
+                    <line id="minuteHand" x1="30" y1="30" x2="30" y2="10" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+                    <!-- tick marks -->
+                    <line x1="30" y1="4" x2="30" y2="8" stroke="#667eea" stroke-width="2"/>
+                    <line x1="30" y1="52" x2="30" y2="56" stroke="#667eea" stroke-width="2"/>
+                    <line x1="4" y1="30" x2="8" y2="30" stroke="#667eea" stroke-width="2"/>
+                    <line x1="52" y1="30" x2="56" y2="30" stroke="#667eea" stroke-width="2"/>
+                </svg>
+            </div>
+            <p class="loading-text">Aguarde...</p>
+            <p class="loading-sub">Um momento, por favor</p>
+        </div>
+    </div>
+
+    <style>
+        #pageLoadingOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(3px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px 40px;
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(102, 126, 234, 0.15);
+        }
+        .loading-clock {
+            width: 64px;
+            height: 64px;
+        }
+        .loading-clock svg {
+            width: 100%;
+            height: 100%;
+        }
+        .loading-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0;
+        }
+        .loading-sub {
+            font-size: 13px;
+            color: #a0aec0;
+            margin: 0;
+        }
+    </style>
+
+    <script>
+        (function () {
+            var overlay = document.getElementById('pageLoadingOverlay');
+            var minuteHand = document.getElementById('minuteHand');
+            var hourHand = document.getElementById('hourHand');
+            var animFrame;
+            var startTime;
+            var showTimer;
+            var DELAY = 350; // ms antes de mostrar o loader
+
+            function animateClock(ts) {
+                if (!startTime) startTime = ts;
+                var elapsed = ts - startTime;
+                var minDeg = (elapsed / 2000) * 360;
+                var hourDeg = (elapsed / 24000) * 360;
+                minuteHand.setAttribute('transform', 'rotate(' + minDeg + ', 30, 30)');
+                hourHand.setAttribute('transform', 'rotate(' + hourDeg + ', 30, 30)');
+                animFrame = requestAnimationFrame(animateClock);
+            }
+
+            function scheduleLoader() {
+                // Só mostra se demorar mais de DELAY ms
+                showTimer = setTimeout(function () {
+                    overlay.style.display = 'flex';
+                    startTime = null;
+                    animFrame = requestAnimationFrame(animateClock);
+                }, DELAY);
+            }
+
+            function hideLoader() {
+                clearTimeout(showTimer);
+                overlay.style.display = 'none';
+                cancelAnimationFrame(animFrame);
+                startTime = null;
+            }
+
+            window.addEventListener('pageshow', hideLoader);
+            window.addEventListener('load', hideLoader);
+
+            // Rastrear o botão que disparou o submit
+            var lastSubmitButton = null;
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('button[type="submit"], input[type="submit"]');
+                if (btn) lastSubmitButton = btn;
+            }, true);
+
+            // Intercept link clicks
+            document.addEventListener('click', function (e) {
+                var el = e.target.closest('a');
+                if (!el) return;
+                var href = el.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('javascript') || href.startsWith('mailto')) return;
+                if (el.getAttribute('target') === '_blank') return;
+                if (el.hasAttribute('download')) return;
+                if (el.getAttribute('onclick')) return;
+                scheduleLoader();
+            });
+
+            // Downloads conhecidos — não mostrar loader
+            var downloadActions = ['DownloadReport', 'DownloadPdfReport', 'GerarPreFatura'];
+
+            // Intercept form submits
+            document.addEventListener('submit', function (e) {
+                if (e.target.tagName !== 'FORM') return;
+
+                // Verificar se o botão tem formaction de download
+                var formaction = lastSubmitButton ? lastSubmitButton.getAttribute('formaction') : null;
+                if (formaction) {
+                    var isDownload = downloadActions.some(function(a) { return formaction.indexOf(a) !== -1; });
+                    if (isDownload) { lastSubmitButton = null; return; }
+                }
+
+                scheduleLoader();
+                lastSubmitButton = null;
+            });
+        })();
+    </script>  
+     
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/v/dt/dt-1.13.4/datatables.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('Service Worker registrado:', reg))
+                .catch(err => console.log('Erro ao registrar Service Worker:', err));
+        }
+    </script>
+
+    <!-- Sistema de Tradução Global -->
+    <script>
+        const translations = {
+            pt: {
+                // Menu
+                'menu.home': 'Home',
+                'menu.timetracker': 'Time Tracker',
+                // Time Tracker Page
+                'timetracker.description': 'Descrição',
+                'timetracker.description.placeholder': 'No que você está trabalhando?',
+                'timetracker.type': 'Tipo',
+                'timetracker.client': 'Cliente',
+                'timetracker.area': 'Área',
+                'timetracker.requester': 'Solicitante',
+                'timetracker.requester.placeholder': 'Nome do solicitante',
+                'timetracker.today': 'Registros de Hoje',
+                'timetracker.search': 'Pesquisar...',
+                'timetracker.table.date': 'Data',
+                'timetracker.table.start': 'Início',
+                'timetracker.table.end': 'Fim',
+                'timetracker.table.duration': 'Duração',
+                'timetracker.table.description': 'Descrição',
+                'timetracker.table.client': 'Cliente',
+                'timetracker.table.requester': 'Solicitante',
+                'timetracker.table.type': 'Tipo',
+                'menu.valores': 'Valores',
+                'menu.usuarios': 'Usuários',
+                'menu.clientes': 'Clientes',
+                'menu.area': 'Área',
+                'menu.activitytypes': 'Tipos',
+                'menu.mensalistas': 'Mensalistas',
+                'menu.resultados': 'Resultados',
+                'menu.percentuais': 'Percentuais',
+                'menu.relatorios': 'Relatórios',
+                'menu.atividades': 'Atividades',
+                'menu.calendario': 'Calendário',
+                'menu.senha': 'Senha',
+                'menu.configuracoes': 'Configurações',
+                'menu.sair': 'Sair',
+                'menu.about': 'Sobre',
+                'menu.hourstoday': 'Hoje:',
+                'menu.workspace': 'workspace',
+                // Password Page
+                'password.title': 'Alterar Senha',
+                'password.subtitle': 'Atualize sua senha de acesso',
+                'password.current': 'Senha Atual',
+                'password.new': 'Nova Senha',
+                'password.confirm': 'Confirmar Nova Senha',
+                // Settings Page
+                'settings.title': 'Configurações',
+                'settings.subtitle': 'Gerencie as configurações do sistema',
+                'settings.dimensions': 'Dimensões',
+                'settings.noimage': 'Sem imagem',
+                'settings.empty': 'Nenhuma configuração encontrada',
+                'settings.empty.desc': 'Adicione uma nova configuração para começar',
+                // Home/Dashboard
+                'home.title': 'Analytics Dashboard',
+                'home.subtitle': 'Acompanhe e analise seus dados de tempo',
+                'home.tab.client': 'Por Cliente',
+                'home.tab.type': 'Por Tipo',
+                'home.tab.area': 'Por Área',
+                'home.tab.timeline': 'Evolução',
+                'home.timeline.day': 'Diário',
+                'home.timeline.week': 'Semanal',
+                'home.timeline.month': 'Mensal',
+                'home.chart.client.overview': 'Horas por Cliente - Visão Geral',
+                'home.chart.client.ranking': 'Horas por Cliente - Ranking Detalhado',
+                'home.chart.type': 'Distribuição de Horas por Tipo',
+                'home.chart.area': 'Distribuição de Horas por Área',
+                'home.chart.bar': 'Gráfico de Barras',
+                'home.chart.horizontal': 'Horizontal',
+                'home.chart.pie': 'Gráfico de Pizza',
+                'home.kpi.total': 'Total de Horas',
+                'home.kpi.clients': 'Clientes Ativos',
+                'home.kpi.average': 'Média por Cliente',
+                'home.kpi.top': 'Top Cliente',
+                'home.chart.client.title': 'Horas por Cliente',
+                'home.chart.client.desc': 'Top clientes ranqueados por horas',
+                'home.chart.type.title': 'Por Tipo',
+                'home.chart.type.desc': 'Distribuição por tipo de registro',
+                'home.chart.area.title': 'Por Área',
+                'home.chart.area.desc': 'Distribuição por departamento',
+                // Relatórios
+                'reports.title': 'Relatório de Horas',
+                'reports.filter.startdate': 'Data Inicial',
+                'reports.filter.enddate': 'Data Final',
+                'reports.filter.client': 'Cliente(s)',
+                'reports.filter.client.placeholder': 'Digite para adicionar...',
+                'reports.filter.user': 'Usuário',
+                'reports.filter.user.all': 'Todos',
+                'reports.filter.type': 'Tipo',
+                'reports.filter.type.all': 'Todos',
+                'reports.filter.area': 'Área',
+                'reports.filter.area.all': 'Todas',
+                'reports.btn.view': 'Visualizar',
+                'reports.btn.excel': 'Gerar Excel',
+                'reports.btn.pdf': 'Pré-Fatura',
+                'reports.info.title': 'Selecione os filtros e clique em "Visualizar"',
+                'reports.info.desc': 'Configure os parâmetros acima para gerar o relatório de horas trabalhadas',
+                'reports.total': 'Total de Horas',
+                'reports.table.date': 'Data',
+                'reports.table.user': 'Usuário',
+                'reports.table.area': 'Área',
+                'reports.table.hours': 'Horas',
+                'reports.table.client': 'Cliente',
+                'reports.table.requester': 'Solicitante',
+                'reports.table.type': 'Tipo',
+                'reports.empty.title': 'Nenhum registro encontrado',
+                'reports.empty.desc': 'Ajuste os filtros e tente novamente',
+                'reports.pagination.showing': 'Mostrando',
+                'reports.pagination.of': 'de',
+                'reports.pagination.records': 'registros',
+                'reports.pagination.page': 'Página',
+                'reports.pagination.itemsperpage': 'Itens por página:',
+                // About Page Features
+                'features.reports.title': 'Relatórios Avançados',
+                'features.reports.desc': 'Exportação em Excel e PDF com dados precisos',
+                'features.automation.title': 'Automação Inteligente',
+                'features.automation.desc': 'Processos automatizados para economizar tempo',
+                // Activity Create Page
+                'activity.create.title': 'Registro de Atividades',
+                'activity.create.subtitle': 'Preencha os dados para registrar uma nova atividade',
+                'activity.section.basic': 'Informações Básicas',
+                'activity.section.time': 'Horários',
+                'activity.section.client': 'Cliente e Área',
+                'activity.section.description': 'Descrição da Atividade',
+                'activity.field.type': 'Tipo de Registro',
+                'activity.field.date': 'Data',
+                'activity.field.starttime': 'Hora Inicial',
+                'activity.field.endtime': 'Hora Final',
+                'activity.field.user': 'Usuário',
+                'activity.field.department': 'Área',
+                'activity.field.client': 'Cliente',
+                'activity.field.requester': 'Solicitante',
+                'activity.field.description': 'Descreva a atividade realizada',
+                'activity.duration': 'Duração:',
+                'activity.btn.newclient': 'Novo Cliente',
+                // Activity Edit Page
+                'activity.edit.title': 'Editar Atividade',
+                'activity.edit.subtitle': 'Atualize as informações da atividade',
+                'common.update': 'Atualizar',
+                // Activity Details Page
+                'activity.details.title': 'Detalhes da Atividade',
+                'activity.details.subtitle': 'Visualize todas as informações da atividade',
+                'activity.field.time': 'Horário',
+                // Activity Delete Page
+                'activity.delete.title': 'Excluir Atividade',
+                'activity.delete.subtitle': 'Confirme a exclusão da atividade',
+                'activity.delete.warning': 'Tem certeza que deseja excluir esta atividade?',
+                'activity.delete.message': 'Esta ação não pode ser desfeita. Todos os dados desta atividade serão permanentemente removidos.',
+                'activity.delete.summary': 'Resumo da Atividade',
+                // Comum
+                'common.select': 'Selecionar',
+                'common.save': 'Salvar',
+                'common.cancel': 'Cancelar',
+                'common.edit': 'Editar',
+                'common.delete': 'Excluir',
+                'common.add': 'Adicionar',
+                'common.new': 'Novo',
+                'common.actions': 'Ações',
+                'common.yes': 'Sim',
+                'common.no': 'Não',
+                'common.close': 'Fechar',
+                'common.back': 'Voltar'
+            },
+            en: {
+                // Menu
+                'menu.home': 'Home',
+                'menu.timetracker': 'Time Tracker',
+                // Time Tracker Page
+                'timetracker.description': 'Description',
+                'timetracker.description.placeholder': 'What are you working on?',
+                'timetracker.type': 'Type',
+                'timetracker.client': 'Client',
+                'timetracker.area': 'Department',
+                'timetracker.requester': 'Requester',
+                'timetracker.requester.placeholder': 'Requester name',
+                'timetracker.today': 'Today\'s Records',
+                'timetracker.search': 'Search...',
+                'timetracker.table.date': 'Date',
+                'timetracker.table.start': 'Start',
+                'timetracker.table.end': 'End',
+                'timetracker.table.duration': 'Duration',
+                'timetracker.table.description': 'Description',
+                'timetracker.table.client': 'Client',
+                'timetracker.table.requester': 'Requester',
+                'timetracker.table.type': 'Type',
+                'menu.valores': 'Rates',
+                'menu.usuarios': 'Users',
+                'menu.clientes': 'Clients',
+                'menu.area': 'Department',
+                'menu.activitytypes': 'Types',
+                'menu.mensalistas': 'Monthly',
+                'menu.resultados': 'Results',
+                'menu.percentuais': 'Percentages',
+                'menu.relatorios': 'Reports',
+                'menu.atividades': 'Activities',
+                'menu.calendario': 'Calendar',
+                'menu.senha': 'Password',
+                'menu.configuracoes': 'Settings',
+                'menu.sair': 'Logout',
+                'menu.about': 'About',
+                'menu.hourstoday': 'Today:',
+                'menu.workspace': 'workspace',
+                // Password Page
+                'password.title': 'Change Password',
+                'password.subtitle': 'Update your access password',
+                'password.current': 'Current Password',
+                'password.new': 'New Password',
+                'password.confirm': 'Confirm New Password',
+                // Settings Page
+                'settings.title': 'Settings',
+                'settings.subtitle': 'Manage system settings',
+                'settings.dimensions': 'Dimensions',
+                'settings.noimage': 'No image',
+                'settings.empty': 'No settings found',
+                'settings.empty.desc': 'Add a new setting to get started',
+                // Home/Dashboard
+                'home.title': 'Analytics Dashboard',
+                'home.subtitle': 'Track and analyze your time data',
+                'home.tab.client': 'By Client',
+                'home.tab.type': 'By Type',
+                'home.tab.area': 'By Area',
+                'home.tab.timeline': 'Timeline',
+                'home.timeline.day': 'Daily',
+                'home.timeline.week': 'Weekly',
+                'home.timeline.month': 'Monthly',
+                'home.chart.client.overview': 'Hours by Client - Overview',
+                'home.chart.client.ranking': 'Hours by Client - Detailed Ranking',
+                'home.chart.type': 'Hours Distribution by Type',
+                'home.chart.area': 'Hours Distribution by Area',
+                'home.chart.bar': 'Bar Chart',
+                'home.chart.horizontal': 'Horizontal',
+                'home.chart.pie': 'Pie Chart',
+                'home.kpi.total': 'Total Hours',
+                'home.kpi.clients': 'Active Clients',
+                'home.kpi.average': 'Avg per Client',
+                'home.kpi.top': 'Top Client',
+                'home.chart.client.title': 'Hours by Client',
+                'home.chart.client.desc': 'Top clients ranked by hours',
+                'home.chart.type.title': 'By Type',
+                'home.chart.type.desc': 'Distribution by record type',
+                'home.chart.area.title': 'By Area',
+                'home.chart.area.desc': 'Distribution by department',
+                // Reports
+                'reports.title': 'Hours Report',
+                'reports.filter.startdate': 'Start Date',
+                'reports.filter.enddate': 'End Date',
+                'reports.filter.client': 'Client(s)',
+                'reports.filter.client.placeholder': 'Type to add...',
+                'reports.filter.user': 'User',
+                'reports.filter.user.all': 'All',
+                'reports.filter.type': 'Type',
+                'reports.filter.type.all': 'All',
+                'reports.filter.area': 'Department',
+                'reports.filter.area.all': 'All',
+                'reports.btn.view': 'View',
+                'reports.btn.excel': 'Generate Excel',
+                'reports.btn.pdf': 'Generate PDF',
+                'reports.info.title': 'Select filters and click "View"',
+                'reports.info.desc': 'Configure the parameters above to generate the hours report',
+                'reports.total': 'Total Hours',
+                'reports.table.date': 'Date',
+                'reports.table.user': 'User',
+                'reports.table.area': 'Department',
+                'reports.table.hours': 'Hours',
+                'reports.table.client': 'Client',
+                'reports.table.requester': 'Requester',
+                'reports.table.type': 'Type',
+                'reports.empty.title': 'No records found',
+                'reports.empty.desc': 'Adjust filters and try again',
+                'reports.pagination.showing': 'Showing',
+                'reports.pagination.of': 'of',
+                'reports.pagination.records': 'records',
+                'reports.pagination.page': 'Page',
+                'reports.pagination.itemsperpage': 'Items per page:',
+                // About Page Features
+                'features.reports.title': 'Advanced Reports',
+                'features.reports.desc': 'Export to Excel and PDF with accurate data',
+                'features.automation.title': 'Smart Automation',
+                'features.automation.desc': 'Automated processes to save time',
+                // Activity Create Page
+                'activity.create.title': 'Activity Registration',
+                'activity.create.subtitle': 'Fill in the data to register a new activity',
+                'activity.section.basic': 'Basic Information',
+                'activity.section.time': 'Schedule',
+                'activity.section.client': 'Client and Department',
+                'activity.section.description': 'Activity Description',
+                'activity.field.type': 'Record Type',
+                'activity.field.date': 'Date',
+                'activity.field.starttime': 'Start Time',
+                'activity.field.endtime': 'End Time',
+                'activity.field.user': 'User',
+                'activity.field.department': 'Department',
+                'activity.field.client': 'Client',
+                'activity.field.requester': 'Requester',
+                'activity.field.description': 'Describe the activity performed',
+                'activity.duration': 'Duration:',
+                'activity.btn.newclient': 'New Client',
+                // Activity Edit Page
+                'activity.edit.title': 'Edit Activity',
+                'activity.edit.subtitle': 'Update activity information',
+                'common.update': 'Update',
+                // Activity Details Page
+                'activity.details.title': 'Activity Details',
+                'activity.details.subtitle': 'View all activity information',
+                'activity.field.time': 'Time',
+                // Activity Delete Page
+                'activity.delete.title': 'Delete Activity',
+                'activity.delete.subtitle': 'Confirm activity deletion',
+                'activity.delete.warning': 'Are you sure you want to delete this activity?',
+                'activity.delete.message': 'This action cannot be undone. All data from this activity will be permanently removed.',
+                'activity.delete.summary': 'Activity Summary',
+                // Common
+                'common.select': 'Select',
+                'common.save': 'Save',
+                'common.cancel': 'Cancel',
+                'common.edit': 'Edit',
+                'common.delete': 'Delete',
+                'common.add': 'Add',
+                'common.new': 'New',
+                'common.actions': 'Actions',
+                'common.yes': 'Yes',
+                'common.no': 'No',
+                'common.close': 'Close',
+                'common.back': 'Back'
+            },
+            es: {
+                // Menu
+                'menu.home': 'Inicio',
+                'menu.timetracker': 'Time Tracker',
+                // Time Tracker Page
+                'timetracker.description': 'Descripción',
+                'timetracker.description.placeholder': '¿En qué estás trabajando?',
+                'timetracker.type': 'Tipo',
+                'timetracker.client': 'Cliente',
+                'timetracker.area': 'Área',
+                'timetracker.requester': 'Solicitante',
+                'timetracker.requester.placeholder': 'Nombre del solicitante',
+                'timetracker.today': 'Registros de Hoy',
+                'timetracker.search': 'Buscar...',
+                'timetracker.table.date': 'Fecha',
+                'timetracker.table.start': 'Inicio',
+                'timetracker.table.end': 'Fin',
+                'timetracker.table.duration': 'Duración',
+                'timetracker.table.description': 'Descripción',
+                'timetracker.table.client': 'Cliente',
+                'timetracker.table.requester': 'Solicitante',
+                'timetracker.table.type': 'Tipo',
+                'menu.valores': 'Tarifas',
+                'menu.usuarios': 'Usuarios',
+                'menu.clientes': 'Clientes',
+                'menu.area': 'Departamento',
+                'menu.activitytypes': 'Tipos',
+                'menu.mensalistas': 'Mensuales',
+                'menu.resultados': 'Resultados',
+                'menu.percentuais': 'Porcentajes',
+                'menu.relatorios': 'Informes',
+                'menu.atividades': 'Actividades',
+                'menu.calendario': 'Calendario',
+                'menu.senha': 'Contraseña',
+                'menu.configuracoes': 'Configuración',
+                'menu.sair': 'Salir',
+                'menu.about': 'Acerca de',
+                'menu.hourstoday': 'Hoy:',
+                'menu.workspace': 'espacio de trabajo',
+                // Password Page
+                'password.title': 'Cambiar Contraseña',
+                'password.subtitle': 'Actualice su contraseña de acceso',
+                'password.current': 'Contraseña Actual',
+                'password.new': 'Nueva Contraseña',
+                'password.confirm': 'Confirmar Nueva Contraseña',
+                // Settings Page
+                'settings.title': 'Configuración',
+                'settings.subtitle': 'Administrar configuración del sistema',
+                'settings.dimensions': 'Dimensiones',
+                'settings.noimage': 'Sin imagen',
+                'settings.empty': 'No se encontraron configuraciones',
+                'settings.empty.desc': 'Agregue una nueva configuración para comenzar',
+                // Home/Dashboard
+                'home.title': 'Panel de Análisis',
+                'home.subtitle': 'Seguimiento y análisis de datos de tiempo',
+                'home.tab.client': 'Por Cliente',
+                'home.tab.type': 'Por Tipo',
+                'home.tab.area': 'Por Área',
+                'home.tab.timeline': 'Evolución',
+                'home.timeline.day': 'Diario',
+                'home.timeline.week': 'Semanal',
+                'home.timeline.month': 'Mensual',
+                'home.chart.client.overview': 'Horas por Cliente - Resumen',
+                'home.chart.client.ranking': 'Horas por Cliente - Ranking Detallado',
+                'home.chart.type': 'Distribución de Horas por Tipo',
+                'home.chart.area': 'Distribución de Horas por Área',
+                'home.chart.bar': 'Gráfico de Barras',
+                'home.chart.horizontal': 'Horizontal',
+                'home.chart.pie': 'Gráfico Circular',
+                'home.kpi.total': 'Total de Horas',
+                'home.kpi.clients': 'Clientes Activos',
+                'home.kpi.average': 'Promedio por Cliente',
+                'home.kpi.top': 'Top Cliente',
+                'home.chart.client.title': 'Horas por Cliente',
+                'home.chart.client.desc': 'Top clientes clasificados por horas',
+                'home.chart.type.title': 'Por Tipo',
+                'home.chart.type.desc': 'Distribución por tipo de registro',
+                'home.chart.area.title': 'Por Área',
+                'home.chart.area.desc': 'Distribución por departamento',
+                // Reports
+                'reports.title': 'Informe de Horas',
+                'reports.filter.startdate': 'Fecha Inicial',
+                'reports.filter.enddate': 'Fecha Final',
+                'reports.filter.client': 'Cliente(s)',
+                'reports.filter.client.placeholder': 'Escriba para agregar...',
+                'reports.filter.user': 'Usuario',
+                'reports.filter.user.all': 'Todos',
+                'reports.filter.type': 'Tipo',
+                'reports.filter.type.all': 'Todos',
+                'reports.filter.area': 'Área',
+                'reports.filter.area.all': 'Todas',
+                'reports.btn.view': 'Visualizar',
+                'reports.btn.excel': 'Generar Excel',
+                'reports.btn.pdf': 'Generar PDF',
+                'reports.info.title': 'Seleccione los filtros y haga clic en "Visualizar"',
+                'reports.info.desc': 'Configure los parámetros anteriores para generar el informe de horas trabajadas',
+                'reports.total': 'Total de Horas',
+                'reports.table.date': 'Fecha',
+                'reports.table.user': 'Usuario',
+                'reports.table.area': 'Área',
+                'reports.table.hours': 'Horas',
+                'reports.table.client': 'Cliente',
+                'reports.table.requester': 'Solicitante',
+                'reports.table.type': 'Tipo',
+                'reports.empty.title': 'No se encontraron registros',
+                'reports.empty.desc': 'Ajuste los filtros e intente nuevamente',
+                'reports.pagination.showing': 'Mostrando',
+                'reports.pagination.of': 'de',
+                'reports.pagination.records': 'registros',
+                'reports.pagination.page': 'Página',
+                'reports.pagination.itemsperpage': 'Elementos por página:',
+                // About Page Features
+                'features.reports.title': 'Informes Avanzados',
+                'features.reports.desc': 'Exportación a Excel y PDF con datos precisos',
+                'features.automation.title': 'Automatización Inteligente',
+                'features.automation.desc': 'Procesos automatizados para ahorrar tiempo',
+                // Activity Create Page
+                'activity.create.title': 'Registro de Actividades',
+                'activity.create.subtitle': 'Complete los datos para registrar una nueva actividad',
+                'activity.section.basic': 'Información Básica',
+                'activity.section.time': 'Horarios',
+                'activity.section.client': 'Cliente y Área',
+                'activity.section.description': 'Descripción de la Actividad',
+                'activity.field.type': 'Tipo de Registro',
+                'activity.field.date': 'Fecha',
+                'activity.field.starttime': 'Hora Inicial',
+                'activity.field.endtime': 'Hora Final',
+                'activity.field.user': 'Usuario',
+                'activity.field.department': 'Área',
+                'activity.field.client': 'Cliente',
+                'activity.field.requester': 'Solicitante',
+                'activity.field.description': 'Describa la actividad realizada',
+                'activity.duration': 'Duración:',
+                'activity.btn.newclient': 'Nuevo Cliente',
+                // Activity Edit Page
+                'activity.edit.title': 'Editar Actividad',
+                'activity.edit.subtitle': 'Actualice la información de la actividad',
+                'common.update': 'Actualizar',
+                // Activity Details Page
+                'activity.details.title': 'Detalles de la Actividad',
+                'activity.details.subtitle': 'Visualice toda la información de la actividad',
+                'activity.field.time': 'Horario',
+                // Activity Delete Page
+                'activity.delete.title': 'Eliminar Actividad',
+                'activity.delete.subtitle': 'Confirme la eliminación de la actividad',
+                'activity.delete.warning': '¿Está seguro de que desea eliminar esta actividad?',
+                'activity.delete.message': 'Esta acción no se puede deshacer. Todos los datos de esta actividad se eliminarán permanentemente.',
+                'activity.delete.summary': 'Resumen de la Actividad',
+                // Common
+                'common.select': 'Seleccionar',
+                'common.save': 'Guardar',
+                'common.cancel': 'Cancelar',
+                'common.edit': 'Editar',
+                'common.delete': 'Eliminar',
+                'common.add': 'Agregar',
+                'common.new': 'Nuevo',
+                'common.actions': 'Acciones',
+                'common.yes': 'Sí',
+                'common.no': 'No',
+                'common.close': 'Cerrar',
+                'common.back': 'Volver'
+            }
+        };
+
+        // Idioma atual
+        let currentLang = localStorage.getItem('systemLang') || 'pt';
+
+        // Função para trocar idioma
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('systemLang', lang);
+
+            // Atualizar todos os elementos com data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // Atualizar placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+
+            // Atualizar botões ativos
+            document.querySelectorAll('.flag-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Inicializar quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar idioma salvo
+            changeLanguage(currentLang);
+
+            // Adicionar listeners aos botões de bandeira
+            document.querySelectorAll('.flag-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    changeLanguage(lang);
+                });
+            });
+        });
+    </script>
+
+    <!-- Floating Timer Global Script -->
+    <script>
+        let floatingTimerInterval = null;
+        let floatingStartTime = null;
+        const alwaysOnTop = @(alwaysOnTop ? "true" : "false");
+
+        // Check for active timer on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            let loggedUserId = '@ViewBag.LoggedUserId';
+            
+            // Fallback: try to get from data attribute if ViewBag is empty
+            if (!loggedUserId || loggedUserId === '') {
+                const userIdElement = document.querySelector('[data-user-id]');
+                if (userIdElement) {
+                    loggedUserId = userIdElement.getAttribute('data-user-id');
+                }
+            }
+            
+            if (loggedUserId && loggedUserId !== '') {
+                try {
+                    const response = await fetch(`/TimeTracker/GetActiveTimer?attorneyId=${loggedUserId}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data && data.horaInicial) {
+                            const dateStr = data.date.split('T')[0];
+                            const [year, month, day] = dateStr.split('-').map(Number);
+                            const [hours, minutes, seconds] = data.horaInicial.split(':').map(Number);
+                            floatingStartTime = new Date(year, month - 1, day, hours, minutes, seconds, 0);
+                            
+                            showFloatingTimer();
+                            floatingTimerInterval = setInterval(updateFloatingTimer, 1000);
+                        } else {
+                            if (floatingTimerInterval) { clearInterval(floatingTimerInterval); floatingTimerInterval = null; }
+                            floatingStartTime = null;
+                            hideFloatingTimer();
+                        }
+                    } else {
+                        if (floatingTimerInterval) { clearInterval(floatingTimerInterval); floatingTimerInterval = null; }
+                        floatingStartTime = null;
+                        hideFloatingTimer();
+                    }
+                } catch (error) {
+                    if (floatingTimerInterval) { clearInterval(floatingTimerInterval); floatingTimerInterval = null; }
+                    floatingStartTime = null;
+                    hideFloatingTimer();
+                }
+            }
+        });
+
+        function showFloatingTimer() {
+            if (!alwaysOnTop) return; // só mostra se o usuário habilitou
+            const timer = document.getElementById('floatingTimer');
+            if (timer) timer.style.display = 'block';
+        }
+
+        function hideFloatingTimer() {
+            const timer = document.getElementById('floatingTimer');
+            if (timer) timer.style.display = 'none';
+        }
+
+        function updateFloatingTimer() {
+            if (!floatingStartTime) return;
+
+            const now = new Date();
+            const elapsed = Math.floor((now - floatingStartTime) / 1000);
+            const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+            const seconds = String(elapsed % 60).padStart(2, '0');
+
+            const timerDisplay = document.querySelector('.floating-timer-time');
+            if (timerDisplay) {
+                timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+        }
+
+        async function stopFloatingTimer() {
+            // Get the processRecordId from the active timer
+            const loggedUserId = '@ViewBag.LoggedUserId';
+            if (!loggedUserId) {
+                window.location.href = '/TimeTracker/Index';
+                return;
+            }
+
+            try {
+                // Get active timer info
+                const response = await fetch(`/TimeTracker/GetActiveTimer?attorneyId=${loggedUserId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.processRecordId) {
+                        // Stop the timer
+                        const stopResponse = await fetch('/TimeTracker/StopTimer', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                processRecordId: data.processRecordId,
+                                description: data.description
+                            })
+                        });
+
+                        if (stopResponse.ok) {
+                            // Stop the floating timer
+                            if (window.stopFloatingTimerGlobal) {
+                                window.stopFloatingTimerGlobal();
+                            }
+                            // Reload current page to update hours
+                            window.location.reload();
+                        } else {
+                            console.error('Erro ao parar o cronômetro');
+                            window.location.href = '/TimeTracker/Index';
+                        }
+                    } else {
+                        window.location.href = '/TimeTracker/Index';
+                    }
+                } else {
+                    window.location.href = '/TimeTracker/Index';
+                }
+            } catch (error) {
+                console.error('Erro ao parar cronômetro:', error);
+                window.location.href = '/TimeTracker/Index';
+            }
+        }
+
+        // Expose functions globally for TimeTracker page
+        window.startFloatingTimer = function(startTime) {
+            floatingStartTime = startTime;
+            showFloatingTimer();
+            if (floatingTimerInterval) {
+                clearInterval(floatingTimerInterval);
+            }
+            floatingTimerInterval = setInterval(updateFloatingTimer, 1000);
+        };
+
+        window.stopFloatingTimerGlobal = function() {
+            if (floatingTimerInterval) {
+                clearInterval(floatingTimerInterval);
+                floatingTimerInterval = null;
+            }
+            floatingStartTime = null;
+            hideFloatingTimer();
+        };
+    </script>
+</body>
+</html>
+

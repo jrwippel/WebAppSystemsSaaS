@@ -1,0 +1,7 @@
+﻿namespace ClockTrack.Helper
+{
+    public interface IEmail
+    {
+        Task<bool> EnviarAsync(string email, string assunto, string mensagem, string anexoPath = null, string htmlBody = null);
+    }
+}

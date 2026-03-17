@@ -1,0 +1,348 @@
+@model RegistroTenantModel
+@{
+    Layout = "_LayoutDeslogado";
+    ViewData["Title"] = "Criar Conta";
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta - Time Tracker</title>
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css?v=2" rel="stylesheet">
+    <link href="/lib/bootstrap-icons/font/bootstrap-icons.css?v=2" rel="stylesheet">
+    <link href="/css/custom-styles.css?v=2" rel="stylesheet">
+    <style>
+        .registro-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .registro-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        .registro-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .registro-header h2 {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .section-title {
+            color: #667eea;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 25px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 12px 15px;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .subdomain-group {
+            position: relative;
+        }
+        .subdomain-feedback {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            font-size: 0.9rem;
+        }
+        .subdomain-feedback.disponivel {
+            color: #28a745;
+        }
+        .subdomain-feedback.indisponivel {
+            color: #dc3545;
+        }
+        .btn-registro {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .btn-registro:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .login-link a {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .info-box i {
+            color: #667eea;
+            margin-right: 10px;
+        }
+        .password-toggle {
+            position: relative;
+        }
+        .password-toggle input {
+            padding-right: 45px;
+        }
+        .password-toggle-icon {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            cursor: pointer;
+            color: #666;
+            font-size: 1.2rem;
+            user-select: none;
+        }
+        .password-toggle-icon:hover {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="registro-page">
+        <div class="registro-card">
+            <div class="registro-header">
+                <div class="icon-wrapper" style="font-size: 3rem; color: #667eea;">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <h2>Criar Sua Conta</h2>
+                <p>Comece a usar o Time Tracker gratuitamente</p>
+            </div>
+
+            @if (TempData["MensagemErro"] != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @TempData["MensagemErro"]
+                </div>
+            }
+
+            <div class="info-box">
+                <i class="bi bi-gift"></i>
+                <strong>Teste Gratuito por 14 dias:</strong> acesso completo ao sistema, sem necessidade de cartão de crédito
+            </div>
+
+            <form asp-controller="Registro" asp-action="Criar" method="post">
+                
+                <!-- Dados da Empresa -->
+                <div class="section-title">
+                    <i class="bi bi-building"></i> Dados da Empresa
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="NomeEmpresa">Nome da Empresa *</label>
+                            <input type="text" asp-for="NomeEmpresa" class="form-control" placeholder="Minha Empresa Ltda" />
+                            <span asp-validation-for="NomeEmpresa" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group subdomain-group">
+                            <label asp-for="Subdomain">Subdomínio * <small>(será seu identificador único)</small></label>
+                            <input type="text" asp-for="Subdomain" class="form-control" id="subdomain" placeholder="minhaempresa" />
+                            <span class="subdomain-feedback" id="subdomainFeedback"></span>
+                            <span asp-validation-for="Subdomain" class="text-danger"></span>
+                            <small class="form-text text-muted">Apenas letras minúsculas, números e hífens</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="EmailEmpresa">Email da Empresa *</label>
+                            <input type="email" asp-for="EmailEmpresa" class="form-control" placeholder="contato@empresa.com" />
+                            <span asp-validation-for="EmailEmpresa" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="TelefoneEmpresa">Telefone</label>
+                            <input type="text" asp-for="TelefoneEmpresa" class="form-control" placeholder="(00) 00000-0000" />
+                            <span asp-validation-for="TelefoneEmpresa" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Document">CNPJ/CPF</label>
+                    <input type="text" asp-for="Document" class="form-control" placeholder="00.000.000/0000-00" />
+                    <span asp-validation-for="Document" class="text-danger"></span>
+                </div>
+
+                <!-- Dados do Administrador -->
+                <div class="section-title">
+                    <i class="bi bi-person-badge"></i> Dados do Administrador
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="NomeAdmin">Nome Completo *</label>
+                            <input type="text" asp-for="NomeAdmin" class="form-control" placeholder="João Silva" />
+                            <span asp-validation-for="NomeAdmin" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="EmailAdmin">Email *</label>
+                            <input type="email" asp-for="EmailAdmin" class="form-control" placeholder="joao@empresa.com" />
+                            <span asp-validation-for="EmailAdmin" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Login">Login *</label>
+                            <input type="text" asp-for="Login" class="form-control" placeholder="joao.silva" />
+                            <span asp-validation-for="Login" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="TelefoneAdmin">Telefone</label>
+                            <input type="text" asp-for="TelefoneAdmin" class="form-control" placeholder="(00) 00000-0000" />
+                            <span asp-validation-for="TelefoneAdmin" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group password-toggle">
+                            <label asp-for="Senha">Senha * <small>(mínimo 6 caracteres)</small></label>
+                            <input type="password" asp-for="Senha" class="form-control" id="senha" placeholder="••••••" />
+                            <i class="bi bi-eye password-toggle-icon" id="toggleSenha"></i>
+                            <span asp-validation-for="Senha" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group password-toggle">
+                            <label asp-for="ConfirmarSenha">Confirmar Senha *</label>
+                            <input type="password" asp-for="ConfirmarSenha" class="form-control" id="confirmarSenha" placeholder="••••••" />
+                            <i class="bi bi-eye password-toggle-icon" id="toggleConfirmarSenha"></i>
+                            <span asp-validation-for="ConfirmarSenha" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-registro">
+                    <i class="bi bi-check-circle"></i> Criar Minha Conta
+                </button>
+            </form>
+
+            <div class="login-link">
+                Já tem uma conta? <a asp-controller="Login" asp-action="Index">Fazer Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    
+    <script>
+        // Verificar disponibilidade do subdomínio
+        let timeoutId;
+        $('#subdomain').on('input', function() {
+            clearTimeout(timeoutId);
+            const subdomain = $(this).val().toLowerCase();
+            const feedback = $('#subdomainFeedback');
+            
+            if (subdomain.length < 3) {
+                feedback.html('').removeClass('disponivel indisponivel');
+                return;
+            }
+
+            feedback.html('<i class="bi bi-hourglass-split"></i>').removeClass('disponivel indisponivel');
+
+            timeoutId = setTimeout(function() {
+                $.get('/Registro/VerificarSubdominio', { subdomain: subdomain }, function(data) {
+                    if (data.disponivel) {
+                        feedback.html('<i class="bi bi-check-circle"></i> Disponível')
+                                .removeClass('indisponivel')
+                                .addClass('disponivel');
+                    } else {
+                        feedback.html('<i class="bi bi-x-circle"></i> Indisponível')
+                                .removeClass('disponivel')
+                                .addClass('indisponivel');
+                    }
+                });
+            }, 500);
+        });
+
+        // Toggle mostrar/ocultar senha
+        $('#toggleSenha').on('click', function() {
+            const senhaInput = $('#senha');
+            const icon = $(this);
+            
+            if (senhaInput.attr('type') === 'password') {
+                senhaInput.attr('type', 'text');
+                icon.removeClass('bi-eye').addClass('bi-eye-slash');
+            } else {
+                senhaInput.attr('type', 'password');
+                icon.removeClass('bi-eye-slash').addClass('bi-eye');
+            }
+        });
+
+        $('#toggleConfirmarSenha').on('click', function() {
+            const confirmarSenhaInput = $('#confirmarSenha');
+            const icon = $(this);
+            
+            if (confirmarSenhaInput.attr('type') === 'password') {
+                confirmarSenhaInput.attr('type', 'text');
+                icon.removeClass('bi-eye').addClass('bi-eye-slash');
+            } else {
+                confirmarSenhaInput.attr('type', 'password');
+                icon.removeClass('bi-eye-slash').addClass('bi-eye');
+            }
+        });
+    </script>
+</body>
+</html>

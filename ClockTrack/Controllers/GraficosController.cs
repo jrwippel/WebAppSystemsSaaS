@@ -1,0 +1,31 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using ClockTrack.Services;
+using static ClockTrack.Helper.Sessao;
+
+namespace ClockTrack.Controllers
+{
+    public class GraficosController : Controller
+    {
+
+        private readonly ProcessRecordsService _processRecordsService;
+
+        public GraficosController(ProcessRecordsService processRecordsService)
+        {
+            _processRecordsService = processRecordsService;
+        }
+        public IActionResult Index()
+        {
+            try
+            {
+                var chartData = _processRecordsService.GetChartData();
+                return View(chartData);
+            }
+            catch (SessionExpiredException)
+            {
+                // Redirecione para a p�gina de login se a sess�o expirou
+                TempData["MensagemAviso"] = "A sess�o expirou. Por favor, fa�a login novamente.";
+                return RedirectToAction("Index", "Login");
+            }
+        }
+    }
+}

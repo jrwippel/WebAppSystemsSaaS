@@ -1,0 +1,191 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using ClockTrack.Data;
+using ClockTrack.Helper;
+using ClockTrack.Services;
+using Microsoft.EntityFrameworkCore;
+using ClockTrack.Models;
+using Org.BouncyCastle.Asn1.Ocsp;
+using ClockTrack.Models.Enums;
+using DocumentFormat.OpenXml.Office2016.Excel;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using ClockTrack.Models.ViewModels;
+using static ClockTrack.Helper.Sessao;
+
+namespace ClockTrack.Controllers
+{
+    public class CalendarController : Controller
+    {
+
+       
+            private readonly ClockTrackContext _context;
+            private readonly ProcessRecordsService _processRecordsService;
+            private readonly ISessao _isessao;
+            private readonly ClientService _clientService;
+            private readonly DepartmentService _departmentService;
+            
+            public CalendarController(ClockTrackContext context, ProcessRecordsService processRecordsService, ISessao isessao, ClientService clientService, DepartmentService departmentService)
+            {
+                _context = context;
+                _processRecordsService = processRecordsService;
+                _isessao = isessao;
+                _clientService = clientService;
+                _departmentService = departmentService;
+            }
+        public async Task<IActionResult> Index()
+        {
+            try
+            {
+                Attorney usuario = _isessao.BuscarSessaoDoUsuario();
+                ViewBag.LoggedUserId = usuario.Id;
+
+                var clients = await _clientService.FindAllAsync();
+                var departments = await _departmentService.FindAllAsync();
+
+                var clientsOptions = clients
+                    .Where(c => !c.ClienteInativo)
+                    .OrderBy(c => c.Name)
+                    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+                    .ToList();
+
+                var departmentsOptions = departments
+                    .OrderBy(c => c.Name)
+                    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+                    .ToList();
+
+                var activityTypes = await _context.ActivityTypes
+                    .Where(at => at.IsActive)
+                    .OrderBy(at => at.DisplayOrder)
+                    .ToListAsync();
+
+                var activityTypeOptions = activityTypes
+                    .Select(at => new SelectListItem
+                    {
+                        Value = at.Id.ToString(),
+                        Text = at.Name
+                    })
+                    .ToList();
+
+                var viewModel = new ProcessRecordViewModel
+                {
+                    ClientsOptions = clientsOptions,
+                    DepartmentsOptions = departmentsOptions,
+                    ActivityTypesOptions = activityTypeOptions
+                };
+
+                return View(viewModel);
+            }
+            catch (SessionExpiredException)
+            {
+                // Redirecione para a p�gina de login se a sess�o expirou
+                TempData["MensagemAviso"] = "A sess�o expirou. Por favor, fa�a login novamente.";
+                return RedirectToAction("Index", "Login");
+            }
+        }
+
+        [HttpGet]
+            public async Task<IActionResult> GetUserRecords(int attorneyId)
+            {
+                var records = await _context.ProcessRecord
+                    .Where(r => r.AttorneyId == attorneyId && r.HoraFinal != null && r.HoraFinal != TimeSpan.Zero)
+                    .Include(r => r.Client)
+                    .OrderByDescending(r => r.HoraInicial)
+                    .ToListAsync();
+
+                // Formata��o dos registros no formato JSON esperado pelo FullCalendar
+                return Json(records.Select(r => new
+                {
+                    title = r.Description,
+                    start = r.Date.Add(r.HoraInicial),
+                    end = r.Date.Add(r.HoraFinal),
+                    clientName = r.Client.Name,
+                    processId = r.Id,
+                    solicitante = r.Solicitante,
+                    departmentId = r.DepartmentId,
+                    clientId = r.ClientId,
+                    activityTypeId = r.ActivityTypeId
+                    
+                }));
+            }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveProcessRecord([FromBody] StartTimerRequest record)
+        {
+            if (record == null)
+            {
+                return BadRequest(new { success = false, message = "Dados inv�lidos ou nulos" });
+            }
+
+            // Log para verificar o ID recebido
+            Console.WriteLine("ID recebido: " + record.Id);
+
+            Attorney usuario = _isessao.BuscarSessaoDoUsuario();
+            var attorneyId = usuario.Id;
+
+            // Convers�o de HoraInicial e HoraFinal de string para TimeSpan
+            TimeSpan horaInicial = TimeSpan.Parse(record.HoraInicial);  // Espera formato "HH:mm"
+            TimeSpan horaFinal = TimeSpan.Parse(record.HoraFinal);
+
+            var processRecord = new ProcessRecord
+            {
+                Date = record.Date,
+                HoraInicial = horaInicial,
+                HoraFinal = horaFinal,
+                Description = record.Description,
+                ActivityTypeId = record.ActivityTypeId,
+                AttorneyId = attorneyId,
+                ClientId = record.ClientId,                
+                DepartmentId = record.DepartmentId,
+                Solicitante = record.Solicitante,
+                
+                
+            };
+
+            if (record.Id == 0)
+            {
+                _context.ProcessRecord.Add(processRecord);
+            }
+            else
+            {
+                var existingRecord = await _context.ProcessRecord.FindAsync(record.Id);
+                if (existingRecord != null)
+                {
+                    existingRecord.Description = record.Description;
+                    existingRecord.Date = record.Date;
+                    existingRecord.HoraInicial = horaInicial;
+                    existingRecord.HoraFinal = horaFinal;
+                    existingRecord.ClientId = record.ClientId;
+                    existingRecord.DepartmentId = record.DepartmentId;
+                    existingRecord.Solicitante = record.Solicitante;
+                    existingRecord.ActivityTypeId = record.ActivityTypeId;
+
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { success = true });
+        }
+
+
+
+
+        public class StartTimerRequest
+        {
+            public int Id { get; set; }
+            public int ClientId { get; set; }
+            public string Description { get; set; }
+            public int DepartmentId { get; set; }
+            public string Solicitante { get; set; }
+            public int ActivityTypeId { get; set; }
+
+            public DateTime Date { get; set; }
+
+            public string HoraInicial { get; set; }
+            public string HoraFinal { get; set; }
+        }
+
+
+
+
+
+    }
+}

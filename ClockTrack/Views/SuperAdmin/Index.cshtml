@@ -1,0 +1,119 @@
+﻿@model IEnumerable<ClockTrack.Models.Tenant>
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <title>Super Admin — Tenants</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body { background:#f4f6fb; font-family:-apple-system,sans-serif; }
+        .header { background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:20px 32px; display:flex; align-items:center; justify-content:space-between; }
+        .header h1 { margin:0; font-size:20px; font-weight:700; }
+        .container-main { padding:32px; }
+        .card { border-radius:12px; border:none; box-shadow:0 2px 12px rgba(0,0,0,0.07); }
+        .badge-ativo { background:#d4edda; color:#155724; }
+        .badge-trial { background:#fff3cd; color:#856404; }
+        .badge-expirado { background:#f8d7da; color:#721c24; }
+        .badge-bloqueado { background:#e2e3e5; color:#383d41; }
+        .stat-card { background:white; border-radius:12px; padding:20px 24px; box-shadow:0 2px 12px rgba(0,0,0,0.07); }
+        .stat-num { font-size:28px; font-weight:700; color:#667eea; }
+        .stat-label { font-size:13px; color:#718096; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1><i class="bi bi-shield-check"></i> Super Admin — Gestão de Tenants</h1>
+    <a href="/SuperAdmin/Logout" class="btn btn-sm btn-light"><i class="bi bi-box-arrow-right"></i> Sair</a>
+</div>
+<div class="container-main">
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"><i class="bi bi-check-circle"></i> @TempData["Sucesso"] <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="stat-card"><div class="stat-num">@Model.Count()</div><div class="stat-label">Total de tenants</div></div></div>
+        <div class="col-md-3"><div class="stat-card"><div class="stat-num" style="color:#28a745">@Model.Count(t => t.IsActive && !t.IsBlocked)</div><div class="stat-label">Ativos</div></div></div>
+        <div class="col-md-3"><div class="stat-card"><div class="stat-num" style="color:#ffc107">@Model.Count(t => t.TrialEndsAt.HasValue && t.SubscriptionExpiresAt == null && !t.IsBlocked)</div><div class="stat-label">Em trial</div></div></div>
+        <div class="col-md-3"><div class="stat-card"><div class="stat-num" style="color:#dc3545">@Model.Count(t => t.IsBlocked)</div><div class="stat-label">Bloqueados</div></div></div>
+    </div>
+    <!-- Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead style="background:#f8f9fa;">
+                    <tr>
+                        <th class="ps-4">Empresa</th>
+                        <th>Subdomínio</th>
+                        <th>Email</th>
+                        <th>Criado em</th>
+                        <th>Trial até</th>
+                        <th>Assinatura até</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var t in Model)
+                {
+                    var diasTrial = t.TrialEndsAt.HasValue ? (int)(t.TrialEndsAt.Value - DateTime.UtcNow).TotalDays : (int?)null;
+                    <tr>
+                        <td class="ps-4 fw-semibold">@t.Name</td>
+                        <td><code>@t.Subdomain</code></td>
+                        <td>@t.Email</td>
+                        <td>@t.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>@(t.TrialEndsAt.HasValue ? t.TrialEndsAt.Value.ToString("dd/MM/yyyy") : "—")</td>
+                        <td>@(t.SubscriptionExpiresAt.HasValue ? t.SubscriptionExpiresAt.Value.ToString("dd/MM/yyyy") : "—")</td>
+                        <td>
+                            @if (!t.IsActive)
+                            { <span class="badge badge-bloqueado px-2 py-1">Bloqueado</span> }
+                            else if (t.IsSubscriptionExpired)
+                            { <span class="badge badge-expirado px-2 py-1">Assinatura expirada</span> }
+                            else if (t.IsTrialExpired)
+                            { <span class="badge badge-expirado px-2 py-1">Trial expirado</span> }
+                            else if (t.SubscriptionExpiresAt.HasValue)
+                            { <span class="badge badge-ativo px-2 py-1">Assinante</span> }
+                            else if (diasTrial.HasValue)
+                            { <span class="badge badge-trial px-2 py-1">Trial (@diasTrial dias)</span> }
+                            else
+                            { <span class="badge badge-ativo px-2 py-1">Ativo</span> }
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex gap-1 justify-content-end align-items-center">
+                                <!-- Alterar limite de usuários -->
+                                <form method="post" action="/SuperAdmin/AlterarLimites" class="d-flex gap-1 align-items-center">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <input type="number" name="maxUsers" value="@t.MaxUsers" min="1" max="999" style="width:60px;" class="form-control form-control-sm" title="Máx. usuários" />
+                                    <button class="btn btn-sm btn-secondary" title="Salvar limite"><i class="bi bi-people"></i></button>
+                                </form>
+                                <form method="post" action="/SuperAdmin/EstenderTrial">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <input type="hidden" name="dias" value="14" />
+                                    <button class="btn btn-sm btn-warning" title="Estender trial 14 dias"><i class="bi bi-clock-history"></i></button>
+                                </form>
+                                <form method="post" action="/SuperAdmin/Ativar">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <button class="btn btn-sm btn-success" title="Ativar assinatura 30 dias"><i class="bi bi-check-circle"></i></button>
+                                </form>
+                                <form method="post" action="/SuperAdmin/Bloquear">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <button class="btn btn-sm btn-danger" title="Bloquear" onclick="return confirm('Bloquear @t.Name?')"><i class="bi bi-slash-circle"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

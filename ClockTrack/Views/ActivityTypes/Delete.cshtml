@@ -1,0 +1,111 @@
+﻿@model ClockTrack.Models.ActivityType
+
+@{
+    ViewData["Title"] = "Excluir Tipo de Atividade";
+    var isInUse = ViewBag.IsInUse ?? false;
+}
+
+<div class="container-fluid px-4">
+    <!-- Header com gradiente -->
+    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+        <div class="card-body text-white py-4">
+            <h2 class="mb-2">
+                <i class="fas fa-exclamation-triangle me-2"></i>Excluir Tipo de Atividade
+            </h2>
+            <p class="mb-0 opacity-90">Confirme a exclusão do tipo de atividade</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    @if (isInUse)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Atenção!</strong> Este tipo de atividade está sendo usado em registros existentes. 
+                            Ele será desativado em vez de excluído permanentemente.
+                        </div>
+                    }
+
+                    <h5 class="mb-4">Tem certeza que deseja @(isInUse ? "desativar" : "excluir") este tipo de atividade?</h5>
+
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2 text-center">
+                                    <div style="width: 60px; height: 60px; background-color: @Model.Color; border-radius: 10px; border: 3px solid #e0e0e0; margin: 0 auto;"></div>
+                                </div>
+                                <div class="col-md-10">
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-3">Nome:</dt>
+                                        <dd class="col-sm-9">@Model.Name</dd>
+
+                                        <dt class="col-sm-3">Descrição:</dt>
+                                        <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Description) ? "-" : Model.Description)</dd>
+
+                                        <dt class="col-sm-3">Cor:</dt>
+                                        <dd class="col-sm-9">@Model.Color</dd>
+
+                                        <dt class="col-sm-3">Ordem:</dt>
+                                        <dd class="col-sm-9">@Model.DisplayOrder</dd>
+
+                                        <dt class="col-sm-3">Status:</dt>
+                                        <dd class="col-sm-9">
+                                            @if (Model.IsActive)
+                                            {
+                                                <span class="badge bg-success">Ativo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Inativo</span>
+                                            }
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>@(isInUse ? "Desativar" : "Excluir") Tipo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm border-warning">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3 text-warning">
+                        <i class="fas fa-info-circle me-2"></i>Importante
+                    </h6>
+                    <ul class="small mb-0">
+                        @if (isInUse)
+                        {
+                            <li class="mb-2">O tipo será desativado, não excluído</li>
+                            <li class="mb-2">Registros existentes não serão afetados</li>
+                            <li class="mb-2">Não aparecerá mais na seleção de novos registros</li>
+                            <li class="mb-2">Você pode reativá-lo depois se necessário</li>
+                        }
+                        else
+                        {
+                            <li class="mb-2">Esta ação não pode ser desfeita</li>
+                            <li class="mb-2">O tipo será removido permanentemente</li>
+                            <li class="mb-2">Certifique-se de que não há registros usando este tipo</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

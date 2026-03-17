@@ -1,0 +1,900 @@
+﻿@model ClockTrack.Models.ViewModels.ProcessRecordViewModel
+
+<div class="timetracker-container">
+    <!-- Timer Card -->
+    <div class="timer-card">
+        <div class="timer-display">
+            <span id="timeDisplay">00:00:00</span>
+        </div>
+        <button id="startStopButton" onclick="toggleTimer()" class="btn-timer" disabled>
+            <i class="fa fa-play"></i>
+        </button>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-row">
+            <div class="form-field">
+                <label data-i18n="timetracker.description">Description</label>
+                <input type="text" class="form-control" id="description" data-i18n-placeholder="timetracker.description.placeholder" placeholder="What are you working on?" oninput="checkDescription()" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-field">
+                <label data-i18n="timetracker.type">Type</label>
+                <select asp-for="ProcessRecord.ActivityTypeId" asp-items="Model.ActivityTypesOptions" class="form-control"></select>
+            </div>
+            <div class="form-field">
+                <label data-i18n="timetracker.client">Client</label>
+                <select asp-for="ProcessRecord.ClientId" asp-items="Model.ClientsOptions" class="form-control"></select>
+            </div>
+            <div class="form-field">
+                <label data-i18n="timetracker.area">Area</label>
+                <select asp-for="ProcessRecord.DepartmentId" asp-items="Model.DepartmentsOptions" class="form-control"></select>
+            </div>
+            <div class="form-field">
+                <label data-i18n="timetracker.requester">Requester</label>
+                <input type="text" asp-for="Solicitante" class="form-control" id="solicitante" data-i18n-placeholder="timetracker.requester.placeholder" placeholder="Requester name" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Records Card -->
+    <div class="records-card">
+        <div class="records-header">
+            <h3><i class="bi bi-clock-history"></i> <span data-i18n="timetracker.records">All Records</span></h3>
+            <input type="text" id="searchInput" data-i18n-placeholder="timetracker.search" placeholder="Search..." class="search-input" />
+        </div>
+
+        <div class="table-container">
+            <table class="table" id="recordsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;" data-i18n="timetracker.table.date">Date</th>
+                        <th style="width: 70px;" data-i18n="timetracker.table.start">Start</th>
+                        <th style="width: 70px;" data-i18n="timetracker.table.end">End</th>
+                        <th style="width: 100px;" data-i18n="timetracker.table.duration">Duration</th>
+                        <th style="max-width: 250px;" data-i18n="timetracker.table.description">Description</th>
+                        <th style="width: 150px;" data-i18n="timetracker.table.client">Client</th>
+                        <th style="width: 120px;" data-i18n="timetracker.table.requester">Requester</th>
+                        <th style="width: 120px;" data-i18n="timetracker.table.type">Type</th>
+                        <th style="width: 60px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginação -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                <span id="paginationInfo"></span>
+            </div>
+            <div class="pagination-controls">
+                <button id="prevPage" class="btn-pagination" onclick="changePage(-1)">
+                    <i class="fa fa-chevron-left"></i> Previous
+                </button>
+                <span id="pageNumbers" class="page-numbers"></span>
+                <button id="nextPage" class="btn-pagination" onclick="changePage(1)">
+                    Next <i class="fa fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+@section Styles {
+    <style>
+        .timetracker-container {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .timer-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 24px 40px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+        }
+
+        .timer-display {
+            flex: 1;
+        }
+
+        #timeDisplay {
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
+        }
+
+        .btn-timer {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: #667eea;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .btn-timer:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-timer:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-timer.running {
+            background: #f5576c;
+            color: white;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .records-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .records-header {
+            padding: 20px 24px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .records-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a202c;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .records-header h3 i {
+            color: #667eea;
+        }
+
+        .search-input {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            margin: 0;
+            table-layout: fixed;
+        }
+
+        .table thead {
+            background: #f7fafc;
+        }
+
+        .table th {
+            padding: 16px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table td {
+            padding: 18px 12px;
+            font-size: 14px;
+            color: #2d3748;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+            line-height: 1.5;
+        }
+
+        .table tbody tr:hover {
+            background: #f7fafc;
+            transition: background 0.2s;
+        }
+
+        .table tbody tr {
+            min-height: 60px;
+        }
+
+        .description-cell {
+            max-width: 250px;
+            white-space: nowrap !important;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+
+        .pagination-container {
+            padding: 20px 24px;
+            border-top: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-pagination {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-pagination:hover:not(:disabled) {
+            border-color: #667eea;
+            color: #667eea;
+            background: #f7fafc;
+        }
+
+        .btn-pagination:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-numbers {
+            display: flex;
+            gap: 6px;
+        }
+
+        .page-number {
+            width: 36px;
+            height: 36px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            color: #4a5568;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-number:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .page-number.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .duration-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #e2e8f0;
+            color: #4a5568;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-play {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .btn-play:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(67, 233, 123, 0.4);
+        }
+
+        .btn-play:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @@media (max-width: 768px) {
+            .timetracker-container {
+                padding: 16px;
+            }
+
+            #timeDisplay {
+                font-size: 36px;
+            }
+
+            .btn-timer {
+                width: 56px;
+                height: 56px;
+                font-size: 20px;
+            }
+
+            .timer-card {
+                padding: 20px 24px;
+                gap: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .search-input {
+                width: 100%;
+                margin-top: 12px;
+            }
+
+            .records-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .pagination-controls {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script>
+        let timerInterval;
+        let startTime;
+        let isRunning = false;
+        let processRecordId;
+        let loggedUserId = '@ViewBag.LoggedUserId';
+        let currentPage = 1;
+        let totalPages = 1;
+        let searchTimeout;
+
+        // Criar mapa de tipos de atividade dinamicamente
+        const activityTypeMap = {};
+        @foreach (var activityType in Model.ActivityTypesOptions)
+        {
+            <text>activityTypeMap[@activityType.Value] = "@activityType.Text";</text>
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const clientField = document.querySelector('select[name="ProcessRecord.ClientId"]');
+            const solicitanteField = document.getElementById("solicitante");
+            const descriptionField = document.getElementById("description");
+            const departmentField = document.querySelector('select[name="ProcessRecord.DepartmentId"]');
+            const recordTypeField = document.querySelector('select[name="ProcessRecord.ActivityTypeId"]');
+            const startStopButton = document.getElementById("startStopButton");
+
+            // Auto-fill solicitante when client changes
+            clientField.addEventListener('change', async function () {
+                const clientId = clientField.value;
+                if (clientId && clientId !== "0") {
+                    try {
+                        const response = await fetch(`/TimeTracker/GetSolicitanteByClientId?clientId=${clientId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && data.solicitante) {
+                                solicitanteField.value = data.solicitante;
+                            } else {
+                                solicitanteField.value = "";
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Erro na requisição:', error);
+                    }
+                } else {
+                    solicitanteField.value = "";
+                }
+                validateFields();
+            });
+
+            // Validate fields
+            function validateFields() {
+                const isDescriptionValid = descriptionField.value.trim() !== "";
+                const isClientValid = clientField.value !== "" && clientField.value !== "0";
+                const isDepartmentValid = departmentField.value !== "" && departmentField.value !== "0";
+                const isSolicitanteValid = solicitanteField.value.trim() !== "";
+
+                if (isDescriptionValid && isClientValid && isDepartmentValid && isSolicitanteValid) {
+                    startStopButton.disabled = false;
+                } else {
+                    startStopButton.disabled = true;
+                }
+            }
+
+            descriptionField.addEventListener('input', validateFields);
+            departmentField.addEventListener('change', validateFields);
+            solicitanteField.addEventListener('input', validateFields);
+            recordTypeField.addEventListener('change', validateFields);
+
+            // Busca com debounce
+            const searchInput = document.getElementById("searchInput");
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentPage = 1;
+                    loadRecordsForToday(loggedUserId);
+                }, 500);
+            });
+
+            checkDescription();
+            loadRecordsForToday(loggedUserId);
+            checkActiveTimer();
+        });
+
+        async function checkActiveTimer() {
+            try {
+                const response = await fetch(`/TimeTracker/GetActiveTimer?attorneyId=${loggedUserId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.horaInicial) {
+                        processRecordId = data.processRecordId;
+
+                        // Calcula o startTime como "agora menos o tempo já decorrido"
+                        // para que o timer mostre o tempo total correto independente de fuso
+                        const [hours, minutes, seconds] = data.horaInicial.split(':').map(Number);
+                        const dateStr = data.date.split('T')[0];
+                        const [year, month, day] = dateStr.split('-').map(Number);
+                        
+                        // Hora de início no fuso de Brasília (UTC-3)
+                        const startInBrasilia = new Date(Date.UTC(year, month - 1, day, hours + 3, minutes, seconds));
+                        
+                        // Calcula elapsed desde o início até agora
+                        const nowUtc = new Date();
+                        const elapsedMs = nowUtc - startInBrasilia;
+                        
+                        // startTime = agora - elapsed (para que updateTime calcule corretamente)
+                        startTime = new Date(nowUtc - elapsedMs);
+
+                        timerInterval = setInterval(updateTime, 1000);
+                        isRunning = true;
+
+                        // Start floating timer
+                        if (window.startFloatingTimer) {
+                            window.startFloatingTimer(startTime);
+                        }
+
+                        const button = document.getElementById("startStopButton");
+                        button.innerHTML = '<i class="fa fa-stop"></i>';
+                        button.classList.add('running');
+                        button.disabled = false;
+
+                        document.querySelectorAll(".btn-play").forEach(btn => btn.disabled = true);
+                        
+                        document.getElementById("description").value = data.description;
+                        document.querySelector('select[name="ProcessRecord.ClientId"]').value = data.clientId;
+                        document.querySelector('select[name="ProcessRecord.DepartmentId"]').value = data.departmentId;
+                        document.getElementById("solicitante").value = data.solicitante;
+                        document.querySelector('select[name="ProcessRecord.ActivityTypeId"]').value = data.activityTypeId;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao recuperar o estado do cronômetro', error);
+            }
+        }
+
+        async function loadRecordsForToday(attorneyId) {
+            try {
+                const searchValue = document.getElementById("searchInput").value;
+                const url = `/TimeTracker/GetRecordsForToday?attorneyId=${attorneyId}&page=${currentPage}&pageSize=10&search=${encodeURIComponent(searchValue)}`;
+                console.log('Fetching records from:', url);
+                
+                const response = await fetch(url);
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Data received:', data);
+                    
+                    // Suporta tanto array direto quanto objeto com propriedades
+                    let records, totalPagesValue, totalRecordsValue, currentPageValue;
+                    
+                    if (Array.isArray(data)) {
+                        // Formato antigo - array direto
+                        records = data;
+                        totalPagesValue = 1;
+                        totalRecordsValue = data.length;
+                        currentPageValue = 1;
+                    } else {
+                        // Formato novo - objeto com propriedades
+                        records = data.records || [];
+                        totalPagesValue = data.totalPages || 1;
+                        totalRecordsValue = data.totalRecords || 0;
+                        currentPageValue = data.currentPage || 1;
+                    }
+                    
+                    totalPages = totalPagesValue;
+                    
+                    const tableBody = document.querySelector("#recordsTable tbody");
+                    tableBody.innerHTML = "";
+
+                    if (!records || records.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #718096;">No records found</td></tr>';
+                    } else {
+                        records.forEach(record => {
+                            const startTime = new Date(`1970-01-01T${record.horaInicial}Z`);
+                            const endTime = new Date(`1970-01-01T${record.horaFinal}Z`);
+                            const duration = calculateDuration(startTime, endTime);
+                            const formattedDate = new Date(record.date).toLocaleDateString("pt-BR");
+                            
+                            // Formatar horas para HH:MM
+                            const startTimeFormatted = record.horaInicial.substring(0, 5);
+                            const endTimeFormatted = record.horaFinal.substring(0, 5);
+
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td style="width: 100px;">${formattedDate}</td>
+                                <td style="width: 70px;">${startTimeFormatted}</td>
+                                <td style="width: 70px;">${endTimeFormatted}</td>
+                                <td style="width: 100px;"><span class="duration-badge">${duration}</span></td>
+                                <td class="description-cell" style="max-width: 250px;" title="${record.description}">${record.description}</td>
+                                <td style="width: 150px;" title="${record.clienteNome}">${record.clienteNome}</td>
+                                <td style="width: 120px;" title="${record.solicitante || ''}">${record.solicitante || ''}</td>
+                                <td style="width: 120px;"><span class="type-badge">${activityTypeMap[record.activityTypeId] || 'N/A'}</span></td>
+                                <td style="width: 60px; text-align: center; white-space: nowrap;">
+                                    <button class="btn-play" onclick="startTimerFromRecord(${record.id})" ${isRunning ? 'disabled' : ''}>
+                                        <i class="fa fa-play"></i>
+                                    </button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+
+                    updatePaginationControls({
+                        records,
+                        currentPage: currentPageValue,
+                        totalPages: totalPagesValue,
+                        totalRecords: totalRecordsValue,
+                        pageSize: 10
+                    });
+                } else {
+                    console.error('Response not OK:', response.status, response.statusText);
+                    const tableBody = document.querySelector("#recordsTable tbody");
+                    tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #e53e3e;">Error loading records. Please refresh the page.</td></tr>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar registros:', error);
+                const tableBody = document.querySelector("#recordsTable tbody");
+                tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #e53e3e;">Error loading records. Please refresh the page.</td></tr>';
+            }
+        }
+
+        function updatePaginationControls(data) {
+            const paginationInfo = document.getElementById("paginationInfo");
+            const pageNumbers = document.getElementById("pageNumbers");
+            const prevButton = document.getElementById("prevPage");
+            const nextButton = document.getElementById("nextPage");
+
+            // Atualizar informações
+            const startRecord = data.totalRecords === 0 ? 0 : ((data.currentPage - 1) * data.pageSize) + 1;
+            const endRecord = Math.min(data.currentPage * data.pageSize, data.totalRecords);
+            paginationInfo.textContent = `Showing ${startRecord}-${endRecord} of ${data.totalRecords} records`;
+
+            // Atualizar botões
+            prevButton.disabled = data.currentPage === 1;
+            nextButton.disabled = data.currentPage === data.totalPages || data.totalPages === 0;
+
+            // Gerar números de página
+            pageNumbers.innerHTML = '';
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, data.currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(data.totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('span');
+                pageBtn.className = 'page-number' + (i === data.currentPage ? ' active' : '');
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => goToPage(i);
+                pageNumbers.appendChild(pageBtn);
+            }
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                loadRecordsForToday(loggedUserId);
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadRecordsForToday(loggedUserId);
+        }
+
+        async function startTimerFromRecord(recordId) {
+            try {
+                const response = await fetch(`/TimeTracker/GetRecordById?recordId=${recordId}`);
+                if (response.ok) {
+                    const record = await response.json();
+                    
+                    // Apenas copia os dados do registro (não a hora)
+                    document.getElementById("description").value = record.description;
+                    document.querySelector('select[name="ProcessRecord.ClientId"]').value = record.clientId;
+                    document.querySelector('select[name="ProcessRecord.DepartmentId"]').value = record.departmentId;
+                    document.getElementById("solicitante").value = record.solicitante;
+                    document.querySelector('select[name="ProcessRecord.ActivityTypeId"]').value = record.activityTypeId;
+                    
+                    // Valida os campos antes de iniciar
+                    const clientField = document.querySelector('select[name="ProcessRecord.ClientId"]');
+                    const departmentField = document.querySelector('select[name="ProcessRecord.DepartmentId"]');
+                    const solicitanteField = document.getElementById("solicitante");
+                    const descriptionField = document.getElementById("description");
+                    
+                    const isValid = descriptionField.value.trim() !== "" &&
+                                  clientField.value !== "" && clientField.value !== "0" &&
+                                  departmentField.value !== "" && departmentField.value !== "0" &&
+                                  solicitanteField.value.trim() !== "";
+                    
+                    if (isValid) {
+                        // Inicia o timer com a hora ATUAL (não usa a hora do registro antigo)
+                        toggleTimer();
+                    } else {
+                        alert('Preencha todos os campos antes de iniciar o timer.');
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar o registro:', error);
+            }
+        }
+
+        function calculateDuration(startTime, endTime) {
+            const diffMs = endTime - startTime;
+            const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            const diffSecs = Math.floor((diffMs % (1000 * 60)) / 1000);
+            return `${String(diffHrs).padStart(2, '0')}:${String(diffMins).padStart(2, '0')}:${String(diffSecs).padStart(2, '0')}`;
+        }
+
+        function checkDescription() {
+            const description = document.getElementById("description").value;
+            const button = document.getElementById("startStopButton");
+            if (!description.trim()) {
+                button.disabled = true;
+            }
+        }
+
+        async function toggleTimer() {
+            const button = document.getElementById("startStopButton");
+            if (!isRunning) {
+                await startTimer();
+                button.innerHTML = '<i class="fa fa-stop"></i>';
+                button.classList.add('running');
+                button.disabled = false;
+                document.querySelectorAll(".btn-play").forEach(btn => btn.disabled = true);
+            } else {
+                await stopTimer();
+                button.innerHTML = '<i class="fa fa-play"></i>';
+                button.classList.remove('running');
+                button.disabled = true;
+                document.querySelectorAll(".btn-play").forEach(btn => btn.disabled = false);
+            }
+        }
+
+        async function startTimer() {
+            startKeepAlive();
+            const description = document.getElementById("description").value;
+            const clientId = document.querySelector('select[name="ProcessRecord.ClientId"]').value;
+            const departmentId = document.querySelector('select[name="ProcessRecord.DepartmentId"]').value;
+            const solicitante = document.getElementById("solicitante").value;
+            const activityTypeId = document.querySelector('select[name="ProcessRecord.ActivityTypeId"]').value;
+
+            startTime = new Date();
+            const response = await fetch('/TimeTracker/StartTimer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    description: description,
+                    clientId: clientId,
+                    departmentId: departmentId,
+                    solicitante: solicitante,
+                    attorneyId: loggedUserId,
+                    activityTypeId: activityTypeId
+                })
+            });
+
+            if (response.ok) {
+                processRecordId = await response.json();
+                timerInterval = setInterval(updateTime, 1000);
+                isRunning = true;
+                
+                // Start floating timer
+                if (window.startFloatingTimer) {
+                    window.startFloatingTimer(startTime);
+                }
+            } else {
+                const errorText = await response.text();
+                alert(errorText || 'Erro ao iniciar o timer. Verifique se não há outro timer em execução.');
+                
+                // Reset button state
+                const button = document.getElementById("startStopButton");
+                button.innerHTML = '<i class="fa fa-play"></i>';
+                button.classList.remove('running');
+                
+                // Reload page to sync state
+                window.location.reload();
+            }
+        }
+
+        async function stopTimer() {
+            const description = document.getElementById("description").value;
+            const response = await fetch('/TimeTracker/StopTimer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    processRecordId: processRecordId,
+                    description: description
+                })
+            });
+
+            if (response.ok) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                document.getElementById("timeDisplay").textContent = "00:00:00";
+                document.title = "Time Tracker";
+
+                // Stop floating timer
+                if (window.stopFloatingTimerGlobal) {
+                    window.stopFloatingTimerGlobal();
+                }
+
+                document.getElementById("description").value = "";
+                document.querySelector('select[name="ProcessRecord.ClientId"]').value = "0";
+                document.querySelector('select[name="ProcessRecord.DepartmentId"]').value = "0";
+                document.getElementById("solicitante").value = "";
+                document.querySelector('select[name="ProcessRecord.ActivityTypeId"]').value = "0";
+
+                await loadRecordsForToday(loggedUserId);
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const elapsed = Math.floor((now - startTime) / 1000);
+            const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+            const seconds = String(elapsed % 60).padStart(2, '0');
+
+            document.getElementById("timeDisplay").textContent = `${hours}:${minutes}:${seconds}`;
+            document.title = `${hours}:${minutes}:${seconds} - Time Tracker`;
+        }
+
+        function startKeepAlive() {
+            setInterval(() => {
+                fetch('/TimeTracker/KeepAlive')
+                    .then(response => response.ok ? console.log('Keep-alive OK') : console.warn('Erro no keep-alive'))
+                    .catch(error => console.error('Erro na requisição de keep-alive:', error));
+            }, 300000);
+        }
+    </script>
+}

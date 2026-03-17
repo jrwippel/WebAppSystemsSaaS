@@ -1,0 +1,77 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using ClockTrack.Helper;
+using ClockTrack.Models;
+using ClockTrack.Services;
+using static ClockTrack.Helper.Sessao;
+
+namespace ClockTrack.Controllers
+{
+    public class AlterarSenhaController : Controller
+    {
+        private readonly AttorneyService _attorneyService;
+        private readonly ISessao _sessao;
+
+        public AlterarSenhaController(AttorneyService attorneyService, ISessao sessao)
+        {
+            _attorneyService = attorneyService;
+            _sessao = sessao;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Alterar(AlterarSenhaModel alterarSenhaModel)
+        {
+            try
+            {
+                // Verifica se há um usuário logado antes de acessar a sessão
+                Attorney usuarioLogado = _sessao.BuscarSessaoDoUsuario();
+
+                if (usuarioLogado == null)
+                {
+                    // Redireciona para o login se a sessão não está ativa
+                    TempData["MensagemAviso"] = "A sessão expirou. Por favor, faça login novamente.";
+                    return RedirectToAction("Index", "Login");
+                }
+
+                alterarSenhaModel.Id = usuarioLogado.Id;
+
+                if (ModelState.IsValid)
+                {
+                    _attorneyService.AlterarSenha(alterarSenhaModel);
+                    
+                    // Limpa flag de troca obrigatória se estava ativa
+                    var usuarioAtualizado = _attorneyService.ListarPorId(usuarioLogado.Id);
+                    if (usuarioAtualizado != null && usuarioAtualizado.MustChangePassword)
+                    {
+                        usuarioAtualizado.MustChangePassword = false;
+                        _attorneyService.UpdateAttorney(usuarioAtualizado);
+                    }
+                    
+                    TempData["MensagemSucesso"] = "Senha alterada com sucesso";
+                    return View("Index", alterarSenhaModel);
+                }
+
+                return View("Index", alterarSenhaModel);
+            }
+            catch (SessionExpiredException)
+            {
+                // Redireciona para o login se a sessão expirar durante o processo
+                TempData["MensagemAviso"] = "A sessão expirou. Por favor, faça login novamente.";
+                return RedirectToAction("Index", "Login");
+            }
+            catch (Exception erro)
+            {
+                Console.WriteLine($"Erro ao alterar senha: {erro.Message}");
+                TempData["MensagemErro"] = "Ops, não conseguimos alterar a senha. Tente novamente.";
+                return View("Index", alterarSenhaModel);
+            }
+        }
+
+    }
+}
+
