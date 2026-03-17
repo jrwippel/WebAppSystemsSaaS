@@ -90,6 +90,7 @@ namespace ClockTrack.Services
                 obj.RegisterDate = existingAttorney.RegisterDate;
                 obj.TenantId = existingAttorney.TenantId;
                 obj.Department = null; // evita conflito de tracking na navigation property
+                obj.Tenant = null;    // evita loop circular Tenant -> Attorneys -> Tenant
                 _context.Update(obj);
                 await _context.SaveChangesAsync();
             }
