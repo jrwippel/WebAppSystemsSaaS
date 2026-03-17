@@ -181,18 +181,17 @@ namespace ClockTrack.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,ClientId,ValorMensalBruto,ComissaoParceiro,ComissaoSocio")] Mensalista mensalista)
         {
             if (id != mensalista.Id)
-            {
                 return NotFound();
-            }
 
-           // if (ModelState.IsValid)
-           // {
-                    _context.Update(mensalista);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-            //}
-            //ViewData["ClientId"] = new SelectList(_context.Client, "Id", "Document", mensalista.ClientId);
-            //return View(mensalista);
+            var existing = await _context.Mensalista.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
+            if (existing == null)
+                return NotFound();
+
+            mensalista.TenantId = existing.TenantId;
+
+            _context.Update(mensalista);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Mensalistas/Delete/5
