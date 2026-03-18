@@ -69,9 +69,16 @@ namespace ClockTrack.Controllers
         // Retorno após pagamento aprovado
         public async Task<IActionResult> Sucesso(int tenantId, string plano, string payment_id, string status)
         {
-            if (status == "approved" && tenantId > 0)
+            try
             {
-                await AtivarAssinatura(tenantId, plano, payment_id);
+                if (status == "approved" && tenantId > 0)
+                {
+                    await AtivarAssinatura(tenantId, plano, payment_id);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao ativar assinatura no retorno MP");
             }
 
             ViewBag.Plano = plano;
