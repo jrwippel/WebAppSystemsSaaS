@@ -119,5 +119,18 @@ namespace ClockTrack.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        // Diagnóstico temporário — verificar migrations
+        public async Task<IActionResult> DiagMigrations()
+        {
+            if (HttpContext.Session.GetString("superadmin") != "true")
+                return RedirectToAction("Login");
+
+            var migrations = await _context.Database
+                .SqlQueryRaw<string>("SELECT MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId DESC")
+                .ToListAsync();
+
+            return Content(string.Join("\n", migrations), "text/plain");
+        }
     }
 }
