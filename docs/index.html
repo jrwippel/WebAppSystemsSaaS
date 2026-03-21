@@ -257,6 +257,7 @@
         <button class="tab-btn" onclick="goToSlide(3)" data-i18n="tab.relatorio">Relatórios</button>
         <button class="tab-btn" onclick="goToSlide(4)" data-i18n="tab.prefatura">Pré-Fatura</button>
         <button class="tab-btn" onclick="goToSlide(5)" data-i18n="tab.calendario">Calendário</button>
+        <button class="tab-btn" onclick="goToSlide(6)" data-i18n="tab.resultados">Resultados</button>
     </div>
 
     <!-- browser mockup -->
@@ -300,6 +301,7 @@
         <span class="cdot" onclick="goToSlide(3)"></span>
         <span class="cdot" onclick="goToSlide(4)"></span>
         <span class="cdot" onclick="goToSlide(5)"></span>
+        <span class="cdot" onclick="goToSlide(6)"></span>
     </div>
 </section>
 
@@ -431,7 +433,7 @@
 <script>
 (function(){
     var current = 0;
-    var total = 6;
+    var total = 7;
     var autoTimer;
 
     function updateCarousel(idx) {
