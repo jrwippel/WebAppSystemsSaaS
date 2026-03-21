@@ -177,11 +177,14 @@ namespace ClockTrack.Services
                 if (departmentId.HasValue)
                 {
                     percentual = GetMensalistaDepartmentPercentual(mensalista, departmentId.Value);
-                }                
+                }
 
-                decimal tributos = mensalista.ValorMensalBruto * (decimal)0.1453;
+                var parametros = await _context.Parametros.FirstOrDefaultAsync();
+                decimal aliquota = (parametros?.AliquotaTributos ?? 14.53m) / 100m;
+
+                decimal tributos = mensalista.ValorMensalBruto * aliquota;
                 decimal valorMensalLiquido = mensalista.ValorMensalBruto - tributos - mensalista.ComissaoParceiro - mensalista.ComissaoSocio;
-                decimal valorHoraTecLiquida = valorTotalHoras - (valorTotalHoras * (decimal)0.1453);
+                decimal valorHoraTecLiquida = valorTotalHoras - (valorTotalHoras * aliquota);
                 decimal valorAreaLiquido = valorMensalLiquido * percentual / 100;
                 decimal valorResultadoBruto = (mensalista.ValorMensalBruto * percentual / 100) - valorTotalHoras;
                 decimal valorResultadoLiquido = valorAreaLiquido - valorHoraTecLiquida;

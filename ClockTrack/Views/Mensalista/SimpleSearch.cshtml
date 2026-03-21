@@ -99,21 +99,23 @@
                 <thead>
                     <tr>
                         <th>Cliente</th>
-                        <th>Mensal Bruto</th>
-                        <th>Tributos</th>
-                        <th>Com. Parceiro</th>
-                        <th>Com. Sócio</th>
-                        <th>Mensal Liq</th>
-                        <th>%</th>
-                        <th>Valor Área Bruto</th>
-                        <th>Valor Área Liq</th>
-                        <th class="actions-column">Ação</th>
+                        <th>Receita Área Líq</th>
+                        <th>Custo Técnico</th>
+                        <th>Resultado Líq</th>
+                        <th>Horas</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
+                        var pct = item.ValorAreaLiquido > 0
+                            ? (double)item.ValorResultadoLiquido / (double)item.ValorAreaLiquido * 100
+                            : 0;
+                        var statusClass = item.ValorResultadoLiquido >= 0 ? "status-ok" : (pct < -20 ? "status-danger" : "status-warn");
+                        var statusIcon = item.ValorResultadoLiquido >= 0 ? "bi-check-circle-fill" : (pct < -20 ? "bi-x-circle-fill" : "bi-exclamation-circle-fill");
+                        var dashboardUrl = Url.Action("Dashboard", "Mensalista", new { id = item.Mensalista.Id, monthYear = ViewData["monthYear"], clientId = ViewData["clientId"], departmentId = ViewData["departmentId"] });
+                        <tr class="clickable-row" onclick="window.location='@dashboardUrl'" title="Ver análise completa">
                             <td>
                                 <div class="client-name">
                                     <div class="client-icon">
@@ -123,58 +125,31 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="value-badge">
-                                    @item.Mensalista.ValorMensalBruto.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
-                                </span>
-                            </td>
-                            <td>
-                                <span class="value-badge">
-                                    @item.Tributos.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
-                                </span>
-                            </td>
-                            <td>
-                                <span class="value-badge">
-                                    @item.Mensalista.ComissaoParceiro.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
-                                </span>
-                            </td>
-                            <td>
-                                <span class="value-badge">
-                                    @item.Mensalista.ComissaoSocio.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
-                                </span>
-                            </td>
-                            <td>
-                                <span class="value-badge">
-                                    @item.ValorMensalLiquido.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
-                                </span>
-                            </td>
-                            <td>
-                                @($"{item.Percentual:0} %")
-                            </td>
-                            <td>
-                                <span class="value-badge">
-                                    @item.ValorAreaBruto.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
-                                </span>
-                            </td>
-                            <td>
-                                <span class="value-badge">
+                                <span class="value-neutral">
                                     @item.ValorAreaLiquido.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
                                 </span>
                             </td>
-                            <td class="actions-column">
-                                <div class="action-buttons">
-                                    <a href="@Url.Action("ResultadoMes", "Mensalista", new { id = item.Mensalista.Id, monthYear = ViewData["inputMonthYear"], clientId = ViewData["clientId"], departmentId = ViewData["departmentId"] })"
-                                       class="btn-action btn-month" title="Resultado do Mês">
-                                        <i class="bi bi-calendar-day"></i>
-                                    </a>
-                                    <a href="@Url.Action("ResultadoMedia", "Mensalista", new { id = item.Mensalista.Id, monthYear = ViewData["inputMonthYear"], clientId = ViewData["clientId"], departmentId = ViewData["departmentId"] })"
-                                       class="btn-action btn-average" title="Resultado Médio">
-                                        <i class="bi bi-bar-chart-line"></i>
-                                    </a>
-                                    <a href="@Url.Action("ResultadoAcumulado", "Mensalista", new { id = item.Mensalista.Id, monthYear = ViewData["inputMonthYear"], clientId = ViewData["clientId"], departmentId = ViewData["departmentId"] })"
-                                       class="btn-action btn-accumulated" title="Resultado Acumulado">
-                                        <i class="bi bi-graph-up"></i>
-                                    </a>
-                                </div>
+                            <td>
+                                <span class="value-neutral">
+                                    @item.ValorHoraTecLiquida.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
+                                </span>
+                            </td>
+                            <td>
+                                <span class="result-badge @(item.ValorResultadoLiquido >= 0 ? "result-positive" : "result-negative")">
+                                    @item.ValorResultadoLiquido.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
+                                </span>
+                            </td>
+                            <td>
+                                <span class="hours-pill">
+                                    <i class="bi bi-clock"></i>
+                                    @{ int wh = (int)item.TotalHours; int wm = (int)Math.Round((item.TotalHours - wh) * 60); }
+                                    @($"{wh:D2}:{wm:D2}")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-pill @statusClass">
+                                    <i class="bi @statusIcon"></i>
+                                </span>
                             </td>
                         </tr>
                     }
@@ -430,6 +405,81 @@
         font-size: 12px;
         font-weight: 600;
         white-space: nowrap;
+    }
+
+    .result-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .result-positive {
+        background: #c6f6d5;
+        color: #22543d;
+    }
+
+    .result-negative {
+        background: #fed7d7;
+        color: #742a2a;
+    }
+
+    .value-neutral {
+        display: inline-block;
+        padding: 4px 8px;
+        background: #edf2f7;
+        color: #4a5568;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .hours-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        background: #e6f2ff;
+        color: #0066cc;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-size: 16px;
+    }
+
+    .status-ok {
+        background: #c6f6d5;
+        color: #22543d;
+    }
+
+    .status-warn {
+        background: #fefcbf;
+        color: #744210;
+    }
+
+    .status-danger {
+        background: #fed7d7;
+        color: #742a2a;
+    }
+
+    .clickable-row {
+        cursor: pointer;
+    }
+
+    .clickable-row:hover {
+        background: #eef2ff !important;
     }
 
     .percent-badge {

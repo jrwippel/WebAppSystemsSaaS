@@ -127,6 +127,38 @@ namespace ClockTrack.Controllers
             ViewBag.Department = await _departmentService.FindAllAsync();
         }
 
+        public async Task<IActionResult> Dashboard(int id, DateTime? monthYear, int? clientId, int? departmentId)
+        {
+            var mensalista = await _mensalistaService.FindByIdAsync(id);
+            if (mensalista == null) return NotFound();
+
+            if (!monthYear.HasValue) monthYear = DateTime.Now;
+
+            ConvertMonthYearToRange(monthYear.Value, out DateTime minDate, out DateTime maxDate);
+
+            var mes = await _processRecordService.FindByDateMensalistaAsync(minDate, maxDate, clientId, departmentId, QueryType.Monthly);
+            var media = await _processRecordService.FindByDateMensalistaAsync(minDate, maxDate, clientId, departmentId, QueryType.Average);
+            var acumulado = await _processRecordService.FindByDateMensalistaAsync(minDate, maxDate, clientId, departmentId, QueryType.Cumulative);
+
+            var mesDado = mes.FirstOrDefault(m => m.Mensalista.Id == id);
+            var mediaDado = media.FirstOrDefault(m => m.Mensalista.Id == id);
+            var acumuladoDado = acumulado.FirstOrDefault(m => m.Mensalista.Id == id);
+
+            if (mesDado == null) return NotFound();
+
+            ViewData["monthYear"] = monthYear.Value.ToString("yyyy-MM");
+            ViewData["inputMonthYear"] = monthYear.Value.ToString("MM/yyyy");
+            ViewData["clientId"] = clientId;
+            ViewData["departmentId"] = departmentId;
+            ViewData["departmentName"] = await _departmentService.GetDepartmentNameByIdAsync(departmentId);
+
+            ViewBag.Mes = mesDado;
+            ViewBag.Media = mediaDado;
+            ViewBag.Acumulado = acumuladoDado;
+
+            return View();
+        }
+
         public async Task<IActionResult> ResultadoMes(int id, DateTime? monthYear, int? clientId, int? departmentId)
         {
             var mensalista = await _mensalistaService.FindByIdAsync(id);
