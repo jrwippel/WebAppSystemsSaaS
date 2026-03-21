@@ -41,7 +41,7 @@ namespace ClockTrack.Controllers
 
             if (request.ActivityTypeId <= 0)
             {
-                return BadRequest("Tipo de atividade inválido");
+                return BadRequest("Tipo de atividade invï¿½lido");
             }
 
             // Verifica se a sess?o do usu?rio est? ativa
@@ -99,7 +99,7 @@ namespace ClockTrack.Controllers
                 return BadRequest("ProcessRecord ID is required.");
             }
 
-            var processRecord = await _processRecordsService.FindByIdAsync(request.ProcessRecordId);
+            var processRecord = await _context.ProcessRecord.FirstOrDefaultAsync(r => r.Id == request.ProcessRecordId);
 
             if (processRecord == null)
             {
@@ -107,9 +107,19 @@ namespace ClockTrack.Controllers
             }
 
             if (!string.IsNullOrEmpty(request.Description))
-            {
                 processRecord.Description = request.Description;
-            }
+
+            if (request.ClientId > 0)
+                processRecord.ClientId = request.ClientId;
+
+            if (request.DepartmentId > 0)
+                processRecord.DepartmentId = request.DepartmentId;
+
+            if (!string.IsNullOrEmpty(request.Solicitante))
+                processRecord.Solicitante = request.Solicitante;
+
+            if (request.ActivityTypeId > 0)
+                processRecord.ActivityTypeId = request.ActivityTypeId;
 
             var brasiliaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
             var nowInBrasilia = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, brasiliaTimeZone);
@@ -138,7 +148,7 @@ namespace ClockTrack.Controllers
                         Date = diaIntermediario,
                         HoraInicial = new TimeSpan(0, 0, 0),
                         HoraFinal = new TimeSpan(23, 59, 59),
-                        Description = processRecord.Description + " (continuação)",
+                        Description = processRecord.Description + " (continuaï¿½ï¿½o)",
                         ActivityTypeId = processRecord.ActivityTypeId,
                         Solicitante = processRecord.Solicitante
                     };
@@ -154,7 +164,7 @@ namespace ClockTrack.Controllers
                     Date = dataAtual,
                     HoraInicial = new TimeSpan(0, 0, 0),
                     HoraFinal = horaFinalAtual,
-                    Description = processRecord.Description + " (continuação)",
+                    Description = processRecord.Description + " (continuaï¿½ï¿½o)",
                     ActivityTypeId = processRecord.ActivityTypeId,
                     Solicitante = processRecord.Solicitante
                 };
@@ -191,7 +201,7 @@ namespace ClockTrack.Controllers
                 Date = ontem,
                 HoraInicial = new TimeSpan(18, 0, 0), // 18:00
                 HoraFinal = new TimeSpan(0, 0, 0), // Ainda rodando
-                Description = request.Description + " (TESTE - Iniciado ontem às 18:00)",
+                Description = request.Description + " (TESTE - Iniciado ontem ï¿½s 18:00)",
                 ActivityTypeId = request.ActivityTypeId,
                 Solicitante = request.Solicitante
             };
@@ -218,7 +228,7 @@ namespace ClockTrack.Controllers
                 Date = dataAtual,
                 HoraInicial = new TimeSpan(0, 0, 0),
                 HoraFinal = horaFinalSimulada,
-                Description = processRecord.Description + " (continuação - parado hoje às 08:00)",
+                Description = processRecord.Description + " (continuaï¿½ï¿½o - parado hoje ï¿½s 08:00)",
                 ActivityTypeId = processRecord.ActivityTypeId,
                 Solicitante = processRecord.Solicitante
             };
@@ -334,8 +344,11 @@ namespace ClockTrack.Controllers
         public class StopTimerRequest
         {
             public int ProcessRecordId { get; set; }
-
             public string Description { get; set; }
+            public int ClientId { get; set; }
+            public int DepartmentId { get; set; }
+            public string Solicitante { get; set; }
+            public int ActivityTypeId { get; set; }
         }
 
         public class TestMidnightRequest
@@ -492,7 +505,7 @@ namespace ClockTrack.Controllers
                 HoraFinal = TimeSpan.Parse(request.EndTime.Split(' ')[1]),
                 Description = request.Description,
                 Solicitante = request.Solicitante,
-                ActivityTypeId = 1, // Usar o primeiro tipo de atividade como padrão
+                ActivityTypeId = 1, // Usar o primeiro tipo de atividade como padrï¿½o
             };
 
             _context.ProcessRecord.Add(processRecord);

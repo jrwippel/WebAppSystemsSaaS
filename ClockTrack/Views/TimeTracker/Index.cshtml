@@ -1004,12 +1004,21 @@
 
         async function stopTimer() {
             const description = document.getElementById("description").value;
+            const clientId = document.querySelector('select[name="ProcessRecord.ClientId"]').value;
+            const departmentId = document.querySelector('select[name="ProcessRecord.DepartmentId"]').value;
+            const solicitante = document.getElementById("solicitante").value;
+            const activityTypeId = document.querySelector('select[name="ProcessRecord.ActivityTypeId"]').value;
+
             const response = await fetch('/TimeTracker/StopTimer', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     processRecordId: processRecordId,
-                    description: description
+                    description: description,
+                    clientId: parseInt(clientId) || 0,
+                    departmentId: parseInt(departmentId) || 0,
+                    solicitante: solicitante,
+                    activityTypeId: parseInt(activityTypeId) || 0
                 })
             });
 
