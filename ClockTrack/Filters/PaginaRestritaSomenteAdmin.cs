@@ -31,7 +31,7 @@ namespace ClockTrack.Filters
                     context.Result = new RedirectToRouteResult(new RouteValueDictionary { { "controller", "Login" }, { "action", "Index" } });
                 }
 
-                if (attorney.Perfil == ProfileEnum.Padrao)
+                if (attorney.Perfil == ProfileEnum.Padrao || attorney.Perfil == ProfileEnum.Controladoria)
                 {
                     context.Result = new RedirectToRouteResult(new RouteValueDictionary { { "controller", "Restrito" }, { "action", "Index" } });
                 }
