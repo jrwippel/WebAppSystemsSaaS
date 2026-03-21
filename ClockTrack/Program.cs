@@ -133,6 +133,10 @@ namespace ClockTrack
                 {
                     var myDbContext = services.GetRequiredService<ClockTrackContext>();
                     myDbContext.Database.Migrate();
+                    // Garante que AttorneyId seja nullable (valor padrão por cliente)
+                    myDbContext.Database.ExecuteSqlRaw(
+                        "IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='ValorCliente' AND COLUMN_NAME='AttorneyId' AND IS_NULLABLE='NO') " +
+                        "ALTER TABLE ValorCliente ALTER COLUMN AttorneyId INT NULL");
                 }
                 catch (Exception ex)
                 {

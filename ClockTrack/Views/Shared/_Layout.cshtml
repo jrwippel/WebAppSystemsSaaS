@@ -963,7 +963,6 @@
         }
 
         async function stopFloatingTimer() {
-            // Get the processRecordId from the active timer
             const loggedUserId = '@ViewBag.LoggedUserId';
             if (!loggedUserId) {
                 window.location.href = '/TimeTracker/Index';
@@ -971,27 +970,36 @@
             }
 
             try {
-                // Get active timer info
                 const response = await fetch(`/TimeTracker/GetActiveTimer?attorneyId=${loggedUserId}`);
                 if (response.ok) {
                     const data = await response.json();
                     if (data && data.processRecordId) {
-                        // Stop the timer
+                        // Tenta pegar os campos editados do formulário (se estiver na página do TimeTracker)
+                        const descField = document.getElementById("description");
+                        const clientField = document.querySelector('select[name="ProcessRecord.ClientId"]');
+                        const deptField = document.querySelector('select[name="ProcessRecord.DepartmentId"]');
+                        const solField = document.getElementById("solicitante");
+                        const typeField = document.querySelector('select[name="ProcessRecord.ActivityTypeId"]');
+
+                        const payload = {
+                            processRecordId: data.processRecordId,
+                            description: descField ? descField.value : data.description,
+                            clientId: clientField ? (parseInt(clientField.value) || 0) : 0,
+                            departmentId: deptField ? (parseInt(deptField.value) || 0) : 0,
+                            solicitante: solField ? solField.value : data.solicitante,
+                            activityTypeId: typeField ? (parseInt(typeField.value) || 0) : 0
+                        };
+
                         const stopResponse = await fetch('/TimeTracker/StopTimer', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                processRecordId: data.processRecordId,
-                                description: data.description
-                            })
+                            body: JSON.stringify(payload)
                         });
 
                         if (stopResponse.ok) {
-                            // Stop the floating timer
                             if (window.stopFloatingTimerGlobal) {
                                 window.stopFloatingTimerGlobal();
                             }
-                            // Reload current page to update hours
                             window.location.reload();
                         } else {
                             console.error('Erro ao parar o cronômetro');

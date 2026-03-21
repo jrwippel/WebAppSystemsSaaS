@@ -524,7 +524,7 @@ namespace ClockTrack.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AttorneyId")
+                    b.Property<int?>("AttorneyId")
                         .HasColumnType("int");
 
                     b.Property<int>("ClientId")
@@ -735,8 +735,7 @@ namespace ClockTrack.Migrations
                     b.HasOne("ClockTrack.Models.Attorney", "Attorney")
                         .WithMany()
                         .HasForeignKey("AttorneyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ClockTrack.Models.Client", "Client")
                         .WithMany()

@@ -2,620 +2,337 @@
 
 @{
     ViewData["Title"] = "Valores por Cliente";
+
+    var clients   = (ViewBag.Clients   as IEnumerable<ClockTrack.Models.Client>)?.OrderBy(c => c.Name).ToList()   ?? new List<ClockTrack.Models.Client>();
+    var attorneys = (ViewBag.Attorneys as IEnumerable<ClockTrack.Models.Attorney>)?.OrderBy(a => a.Name).ToList() ?? new List<ClockTrack.Models.Attorney>();
+
+    var lookup = Model?.ToDictionary(v => (v.ClientId, v.AttorneyId)) ?? new Dictionary<(int, int?), ClockTrack.Models.ValorCliente>();
 }
 
-<div class="values-list-container">
+<div class="vc-container">
+
     <!-- Header -->
-    <div class="page-header">
-        <div class="header-content">
-            <div class="header-left">
-                <div class="header-icon">
-                    <i class="bi bi-currency-dollar"></i>
-                </div>
-                <div class="header-text">
-                    <h1 class="page-title" data-i18n="values.title">Valores por Cliente/Usuário</h1>
-                    <p class="page-subtitle" data-i18n="values.subtitle">Gerencie os valores de hora por cliente e advogado</p>
-                </div>
-            </div>
-            <div class="header-actions">
-                <a asp-action="Create" class="btn-new-value">
-                    <i class="bi bi-plus-circle"></i>
-                    <span data-i18n="values.btn.new">Novo Registro</span>
-                </a>
+    <div class="vc-header">
+        <div class="vc-header-left">
+            <div class="vc-header-icon"><i class="bi bi-currency-dollar"></i></div>
+            <div>
+                <h1 class="vc-title">Valores por Cliente</h1>
+                <p class="vc-subtitle">Valor padrão por cliente + exceções por advogado</p>
             </div>
         </div>
+        <button class="btn-save-all" id="btnSaveAll" onclick="saveAll()">
+            <i class="bi bi-floppy"></i> Salvar Tudo
+        </button>
     </div>
 
-    <!-- Table Card -->
-    <div class="table-card">
-        <div class="table-header">
-            <div class="table-controls">
-                <div class="show-entries">
-                    <label data-i18n="common.show">Mostrar</label>
-                    <select id="entriesSelect" class="entries-select">
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                    <label data-i18n="common.entries">registros</label>
-                </div>
-                <div class="search-box">
-                    <i class="bi bi-search"></i>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar..." data-i18n-placeholder="common.search">
-                </div>
-            </div>
-        </div>
+    <!-- Legenda -->
+    <div class="vc-legend">
+        <span><span class="dot dot-green"></span> Valor cadastrado</span>
+        <span><span class="dot dot-gray"></span> Sem valor</span>
+        <span><span class="dot dot-yellow"></span> Alterado (não salvo)</span>
+        <span><i class="bi bi-person-fill" style="color:#667eea;font-size:12px;"></i> Exceção por advogado</span>
+    </div>
 
-        <div class="table-responsive">
-            <table class="modern-table" id="valuesTable">
-                <thead>
-                    <tr>
-                        <th data-i18n="values.table.client">Cliente</th>
-                        <th data-i18n="values.table.attorney">Advogado/Sócio</th>
-                        <th data-i18n="values.table.value">Valor/Hora</th>
-                        <th class="actions-column" data-i18n="common.actions">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var item in Model)
+    <!-- Lista de clientes -->
+    <div class="vc-list">
+        @foreach (var client in clients)
+        {
+            var padrao = lookup.ContainsKey((client.Id, (int?)null)) ? lookup[(client.Id, (int?)null)] : null;
+            var valorPadrao = padrao?.Valor ?? 0;
+            var temPadrao = padrao != null && padrao.Valor > 0;
+
+            var excecoes = attorneys.Select(a => new {
+                Attorney = a,
+                Record = lookup.ContainsKey((client.Id, (int?)a.Id)) ? lookup[(client.Id, (int?)a.Id)] : null
+            }).ToList();
+            var temExcecoes = excecoes.Any(e => e.Record != null && e.Record.Valor > 0);
+
+            <div class="client-row @(temPadrao ? "has-default" : "no-default")">
+                <div class="client-main">
+                    <div class="client-info">
+                        <i class="bi bi-briefcase"></i>
+                        <span class="client-name">@client.Name</span>
+                        @if (temExcecoes)
                         {
-                            <tr>
-                                <td class="client-cell">
-                                    <i class="bi bi-briefcase"></i>
-                                    @item.Client.Name
-                                </td>
-                                <td class="attorney-cell">
-                                    <i class="bi bi-person-circle"></i>
-                                    @item.Attorney.Name
-                                </td>
-                                <td class="value-cell">
-                                    <span class="value-badge">
-                                        R$ @item.Valor.ToString("N2")
-                                    </span>
-                                </td>
-                                <td class="actions-cell">
-                                    <div class="action-buttons">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn-action btn-edit" title="Editar">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-action btn-info" title="Detalhes">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn-action btn-delete" title="Excluir">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                            <span class="badge-excecoes">@excecoes.Count(e => e.Record != null && e.Record.Valor > 0) exceção(ões)</span>
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="4" style="text-align: center; padding: 40px; color: #718096;">
-                                <i class="bi bi-inbox" style="font-size: 48px; display: block; margin-bottom: 16px; opacity: 0.5;"></i>
-                                <strong>Nenhum valor encontrado</strong>
-                                <p style="margin: 8px 0 0 0; font-size: 13px;">Clique em "Novo Registro" para adicionar um valor</p>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </div>
+                    <div class="client-default-value">
+                        <label class="value-label">Valor padrão (R$/h)</label>
+                        <input type="number"
+                               class="value-input @(temPadrao ? "filled" : "")"
+                               data-client-id="@client.Id"
+                               data-attorney-id=""
+                               data-record-id="@(padrao?.Id ?? 0)"
+                               data-original="@valorPadrao.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)"
+                               value="@(valorPadrao > 0 ? valorPadrao.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "")"
+                               placeholder="0,00"
+                               step="0.01" min="0"
+                               oninput="markChanged(this)" />
+                    </div>
+                    <button class="btn-toggle-excecoes" onclick="toggleExcecoes(this)" title="Ver/editar exceções por advogado">
+                        <i class="bi bi-person-lines-fill"></i>
+                        <span>Exceções</span>
+                        <i class="bi bi-chevron-down arrow"></i>
+                    </button>
+                </div>
 
-        <div class="table-footer">
-            <div class="table-info">
-                <span data-i18n="common.showing">Mostrando</span>
-                <strong id="showingStart">1</strong>
-                -
-                <strong id="showingEnd">10</strong>
-                <span data-i18n="common.of">de</span>
-                <strong id="totalRecords">@Model.Count()</strong>
-                <span data-i18n="common.records">registros</span>
+                <div class="excecoes-panel" style="display:none;">
+                    <div class="excecoes-header">
+                        <i class="bi bi-info-circle"></i>
+                        Se um advogado tiver valor cadastrado aqui, ele prevalece sobre o valor padrão acima.
+                    </div>
+                    <div class="excecoes-grid">
+                        @foreach (var exc in excecoes)
+                        {
+                            var valorExc = exc.Record?.Valor ?? 0;
+                            var temExc = exc.Record != null && exc.Record.Valor > 0;
+                            <div class="excecao-item">
+                                <span class="atty-name"><i class="bi bi-person-circle"></i> @exc.Attorney.Name</span>
+                                <input type="number"
+                                       class="value-input value-input-sm @(temExc ? "filled" : "")"
+                                       data-client-id="@client.Id"
+                                       data-attorney-id="@exc.Attorney.Id"
+                                       data-record-id="@(exc.Record?.Id ?? 0)"
+                                       data-original="@valorExc.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)"
+                                       value="@(valorExc > 0 ? valorExc.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "")"
+                                       placeholder="Usa padrão"
+                                       step="0.01" min="0"
+                                       oninput="markChanged(this)" />
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
-            <div class="pagination" id="pagination"></div>
-        </div>
+        }
     </div>
+
+    <div id="saveStatus" class="save-status" style="display:none;"></div>
 </div>
 
 <style>
-    .values-list-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
+    .vc-container { max-width: 860px; margin: 0 auto; padding: 20px; }
 
-    /* Page Header */
-    .page-header {
+    .vc-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        padding: 24px 28px;
-        margin-bottom: 24px;
-        box-shadow: 0 6px 25px rgba(102, 126, 234, 0.25);
+        border-radius: 12px; padding: 22px 28px; margin-bottom: 14px;
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: 0 6px 25px rgba(102,126,234,0.25);
+    }
+    .vc-header-left { display: flex; align-items: center; gap: 14px; }
+    .vc-header-icon {
+        width: 46px; height: 46px; background: rgba(255,255,255,0.2);
+        border-radius: 10px; display: flex; align-items: center;
+        justify-content: center; font-size: 22px; color: white;
+    }
+    .vc-title { font-size: 20px; font-weight: 700; color: white; margin: 0 0 3px 0; }
+    .vc-subtitle { font-size: 12px; color: rgba(255,255,255,0.85); margin: 0; }
+
+    .btn-save-all {
+        display: flex; align-items: center; gap: 7px;
+        padding: 10px 22px; background: white; color: #667eea;
+        border: none; border-radius: 8px; font-size: 14px; font-weight: 700;
+        cursor: pointer; transition: all 0.2s; white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .btn-save-all:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .btn-save-all:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .vc-legend {
+        display: flex; gap: 18px; margin-bottom: 14px;
+        font-size: 12px; color: #718096; flex-wrap: wrap; align-items: center;
+    }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+    .dot-green  { background: #38a169; }
+    .dot-gray   { background: #cbd5e0; }
+    .dot-yellow { background: #d69e2e; }
+
+    .vc-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .client-row {
+        background: white; border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border-left: 4px solid #e2e8f0;
+        overflow: hidden; transition: box-shadow 0.2s;
+    }
+    .client-row.has-default { border-left-color: #38a169; }
+    .client-row:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+
+    .client-main {
+        display: flex; align-items: center; gap: 16px;
+        padding: 14px 18px; flex-wrap: wrap;
     }
 
-    .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
+    .client-info {
+        display: flex; align-items: center; gap: 8px;
+        flex: 1; min-width: 180px;
+    }
+    .client-info i { color: #667eea; font-size: 16px; flex-shrink: 0; }
+    .client-name { font-size: 14px; font-weight: 600; color: #2d3748; }
+
+    .badge-excecoes {
+        font-size: 10px; font-weight: 700; padding: 2px 8px;
+        background: #ebf4ff; color: #3182ce; border-radius: 10px;
+        white-space: nowrap;
     }
 
-    .header-left {
-        display: flex;
-        align-items: center;
-        gap: 16px;
+    .client-default-value {
+        display: flex; align-items: center; gap: 10px; flex-shrink: 0;
     }
+    .value-label { font-size: 12px; color: #718096; white-space: nowrap; }
 
-    .header-icon {
-        width: 50px;
-        height: 50px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        color: white;
-        backdrop-filter: blur(10px);
+    .value-input {
+        width: 120px; padding: 8px 12px;
+        border: 2px solid #e2e8f0; border-radius: 7px;
+        font-size: 14px; font-weight: 600; text-align: right;
+        background: #fafafa; color: #2d3748; outline: none;
+        transition: all 0.2s;
     }
+    .value-input.filled { background: #f0fff4; border-color: #9ae6b4; }
+    .value-input.changed { background: #fffbeb !important; border-color: #f6ad55 !important; color: #744210; }
+    .value-input:focus { border-color: #667eea; background: white; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+    .value-input-sm { width: 110px; font-size: 13px; }
 
-    .page-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: white;
-        margin: 0 0 6px 0;
+    .btn-toggle-excecoes {
+        display: flex; align-items: center; gap: 6px;
+        padding: 8px 14px; border: 2px solid #e2e8f0; border-radius: 7px;
+        background: white; color: #4a5568; font-size: 12px; font-weight: 600;
+        cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
     }
+    .btn-toggle-excecoes:hover { border-color: #667eea; color: #667eea; }
+    .btn-toggle-excecoes.open { border-color: #667eea; color: #667eea; background: #ebf4ff; }
+    .btn-toggle-excecoes .arrow { font-size: 10px; transition: transform 0.2s; }
+    .btn-toggle-excecoes.open .arrow { transform: rotate(180deg); }
 
-    .page-subtitle {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.9);
-        margin: 0;
+    .excecoes-panel {
+        border-top: 1px solid #e2e8f0; padding: 14px 18px;
+        background: #f7fafc;
     }
-
-    .btn-new-value {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        background: white;
-        color: #667eea;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    .excecoes-header {
+        font-size: 12px; color: #718096; margin-bottom: 12px;
+        display: flex; align-items: center; gap: 6px;
     }
+    .excecoes-header i { color: #667eea; }
 
-    .btn-new-value:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        color: #667eea;
-    }
-
-    .btn-new-value i {
-        font-size: 18px;
-    }
-
-    /* Table Card */
-    .table-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    }
-
-    .table-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .table-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .show-entries {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        color: #4a5568;
-    }
-
-    .entries-select {
-        padding: 6px 12px;
-        border: 2px solid #e2e8f0;
-        border-radius: 6px;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .entries-select:focus {
-        outline: none;
-        border-color: #667eea;
-    }
-
-    .search-box {
-        display: flex;
-        align-items: center;
+    .excecoes-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
         gap: 10px;
-        padding: 8px 14px;
-        background: #f7fafc;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        transition: all 0.3s ease;
     }
-
-    .search-box:focus-within {
-        border-color: #667eea;
-        background: white;
-    }
-
-    .search-box i {
-        color: #718096;
-        font-size: 16px;
-    }
-
-    .search-input {
-        border: none;
-        background: transparent;
-        font-size: 13px;
-        width: 250px;
-        outline: none;
-    }
-
-    /* Modern Table */
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .modern-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .modern-table thead {
-        background: #f7fafc;
-        border-bottom: 2px solid #e2e8f0;
-    }
-
-    .modern-table th {
-        padding: 14px 16px;
-        text-align: left;
-        font-size: 12px;
-        font-weight: 600;
-        color: #4a5568;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .modern-table tbody tr {
-        border-bottom: 1px solid #f7fafc;
-        transition: all 0.2s ease;
-    }
-
-    .modern-table tbody tr:hover {
-        background: #f7fafc;
-    }
-
-    .modern-table td {
-        padding: 14px 16px;
-        font-size: 13px;
-        color: #2d3748;
-        vertical-align: middle;
-    }
-
-    .client-cell,
-    .attorney-cell {
-        font-weight: 500;
-        vertical-align: middle;
-    }
-
-    .client-cell i,
-    .attorney-cell i {
-        color: #667eea;
-        font-size: 15px;
-        margin-right: 6px;
-    }
-
-    .modern-table tbody tr:nth-child(odd) {
-        background-color: #f9fafb;
-    }
-
-    .modern-table tbody tr:nth-child(even) {
-        background-color: #ffffff;
-    }
-
-    .value-badge {
-        display: inline-block;
-        padding: 6px 16px;
-        background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
-        color: #27ae60;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 700;
-        font-family: 'Courier New', monospace;
-    }
-
-    .actions-column {
-        text-align: center;
-        width: 140px;
-    }
-
-    .actions-cell {
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 6px;
-        justify-content: center;
-    }
-
-    .btn-action {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        font-size: 14px;
-    }
-
-    .btn-edit {
-        background: #e6f2ff;
-        color: #3182ce;
-    }
-
-    .btn-edit:hover {
-        background: #3182ce;
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .btn-info {
-        background: #e6f7ed;
-        color: #38a169;
-    }
-
-    .btn-info:hover {
-        background: #38a169;
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .btn-delete {
-        background: #fff5f5;
-        color: #e53e3e;
-    }
-
-    .btn-delete:hover {
-        background: #e53e3e;
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    /* Table Footer */
-    .table-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 24px;
-        border-top: 1px solid #e2e8f0;
-        background: #f7fafc;
-    }
-
-    .table-info {
-        font-size: 13px;
-        color: #4a5568;
-    }
-
-    .table-info strong {
-        color: #2d3748;
-        font-weight: 600;
-        padding: 0 4px;
-    }
-
-    .pagination {
-        display: flex;
-        gap: 4px;
-    }
-
-    .page-btn {
-        padding: 6px 12px;
+    .excecao-item {
+        display: flex; align-items: center; gap: 10px;
+        background: white; border-radius: 7px; padding: 8px 12px;
         border: 1px solid #e2e8f0;
-        background: white;
-        color: #4a5568;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 13px;
     }
-
-    .page-btn:hover {
-        border-color: #667eea;
-        color: #667eea;
+    .atty-name {
+        flex: 1; font-size: 13px; color: #2d3748;
+        display: flex; align-items: center; gap: 6px; min-width: 0;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .atty-name i { color: #667eea; flex-shrink: 0; }
 
-    .page-btn.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-color: transparent;
+    .save-status {
+        margin-top: 14px; padding: 12px 20px; border-radius: 8px;
+        font-size: 14px; font-weight: 600; text-align: center;
     }
+    .save-status.success { background: #c6f6d5; color: #22543d; }
+    .save-status.error   { background: #fed7d7; color: #742a2a; }
 
-    /* Responsive */
-    @@media (max-width: 768px) {
-        .values-list-container {
-            padding: 12px;
-        }
-
-        .page-header {
-            padding: 18px 20px;
-        }
-
-        .header-content {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .header-left {
-            width: 100%;
-        }
-
-        .header-actions {
-            width: 100%;
-        }
-
-        .btn-new-value {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .table-controls {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .search-input {
-            width: 100%;
-        }
-
-        .table-footer {
-            flex-direction: column;
-            gap: 12px;
-            align-items: flex-start;
-        }
-
-        .modern-table {
-            font-size: 12px;
-        }
-
-        .modern-table th,
-        .modern-table td {
-            padding: 10px 8px;
-        }
+    @@media (max-width: 640px) {
+        .vc-container { padding: 12px; }
+        .vc-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+        .btn-save-all { width: 100%; justify-content: center; }
+        .client-main { flex-direction: column; align-items: flex-start; }
+        .client-default-value { width: 100%; }
+        .value-input { width: 100%; }
     }
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const table = document.getElementById('valuesTable');
-        const tbody = table.querySelector('tbody');
-        const searchInput = document.getElementById('searchInput');
-        const entriesSelect = document.getElementById('entriesSelect');
-        const allRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.querySelector('td[colspan]'));
-        
-        let currentPage = 1;
-        let rowsPerPage = 10;
-        let filteredRows = allRows;
+    function toggleExcecoes(btn) {
+        btn.classList.toggle('open');
+        const panel = btn.closest('.client-row').querySelector('.excecoes-panel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
 
-        if (allRows.length === 0) {
-            document.getElementById('showingStart').textContent = '0';
-            document.getElementById('showingEnd').textContent = '0';
-            document.getElementById('totalRecords').textContent = '0';
-            return;
-        }
+    function markChanged(input) {
+        const original = parseFloat(input.dataset.original) || 0;
+        const current  = parseFloat(input.value) || 0;
+        input.classList.toggle('changed', Math.abs(current - original) > 0.001);
+        input.classList.toggle('filled',  current > 0 && Math.abs(current - original) <= 0.001);
+    }
 
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            
-            filteredRows = allRows.filter(row => {
-                const text = row.textContent.toLowerCase();
-                return text.includes(searchTerm);
+    async function saveAll() {
+        const btn = document.getElementById('btnSaveAll');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Salvando...';
+
+        const items = [];
+        document.querySelectorAll('.value-input').forEach(function(input) {
+            const val = parseFloat(input.value);
+            const recordId = parseInt(input.dataset.recordId) || 0;
+            const attorneyIdRaw = input.dataset.attorneyId;
+            const attorneyId = attorneyIdRaw === '' ? null : parseInt(attorneyIdRaw);
+
+            if ((!isNaN(val) && val > 0) || recordId > 0) {
+                items.push({
+                    id:         recordId,
+                    clientId:   parseInt(input.dataset.clientId),
+                    attorneyId: attorneyId,
+                    valor:      isNaN(val) ? 0 : val
+                });
+            }
+        });
+
+        try {
+            const resp = await fetch('/ValorClientes/SaveGrid', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(items)
             });
-            
-            currentPage = 1;
-            updateTable();
-        });
 
-        entriesSelect.addEventListener('change', function() {
-            rowsPerPage = parseInt(this.value);
-            currentPage = 1;
-            updateTable();
-        });
-
-        function updateTable() {
-            allRows.forEach(row => row.style.display = 'none');
-            
-            const start = (currentPage - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
-            
-            const rowsToShow = filteredRows.slice(start, end);
-            rowsToShow.forEach(row => row.style.display = '');
-            
-            document.getElementById('showingStart').textContent = filteredRows.length > 0 ? start + 1 : 0;
-            document.getElementById('showingEnd').textContent = Math.min(end, filteredRows.length);
-            document.getElementById('totalRecords').textContent = filteredRows.length;
-            
-            updatePagination();
-        }
-
-        function updatePagination() {
-            const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
-            const paginationDiv = document.getElementById('pagination');
-            paginationDiv.innerHTML = '';
-            
-            if (totalPages <= 1) return;
-            
-            const prevBtn = document.createElement('button');
-            prevBtn.className = 'page-btn';
-            prevBtn.textContent = '‹';
-            prevBtn.disabled = currentPage === 1;
-            prevBtn.onclick = () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    updateTable();
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data && data.records) {
+                    data.records.forEach(function(r) {
+                        const attySelector = r.attorneyId == null
+                            ? `.value-input[data-client-id="${r.clientId}"][data-attorney-id=""]`
+                            : `.value-input[data-client-id="${r.clientId}"][data-attorney-id="${r.attorneyId}"]`;
+                        const inp = document.querySelector(attySelector);
+                        if (inp) {
+                            inp.dataset.recordId = r.id;
+                            const val = parseFloat(inp.value) || 0;
+                            inp.dataset.original = val.toFixed(2);
+                            inp.classList.remove('changed');
+                            inp.classList.toggle('filled', val > 0);
+                        }
+                    });
                 }
-            };
-            paginationDiv.appendChild(prevBtn);
-            
-            const maxButtons = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
-            
-            if (endPage - startPage < maxButtons - 1) {
-                startPage = Math.max(1, endPage - maxButtons + 1);
+                document.querySelectorAll('.client-row').forEach(function(row) {
+                    const defaultInput = row.querySelector('.value-input[data-attorney-id=""]');
+                    if (defaultInput) {
+                        const val = parseFloat(defaultInput.value) || 0;
+                        row.classList.toggle('has-default', val > 0);
+                        row.classList.toggle('no-default',  val <= 0);
+                    }
+                });
+                showStatus('Valores salvos com sucesso!', 'success');
+            } else {
+                const errMsg = await resp.text();
+                showStatus('Erro: ' + errMsg, 'error');
             }
-            
-            for (let i = startPage; i <= endPage; i++) {
-                const pageBtn = document.createElement('button');
-                pageBtn.className = 'page-btn' + (i === currentPage ? ' active' : '');
-                pageBtn.textContent = i;
-                pageBtn.onclick = () => {
-                    currentPage = i;
-                    updateTable();
-                };
-                paginationDiv.appendChild(pageBtn);
-            }
-            
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'page-btn';
-            nextBtn.textContent = '›';
-            nextBtn.disabled = currentPage === totalPages;
-            nextBtn.onclick = () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    updateTable();
-                }
-            };
-            paginationDiv.appendChild(nextBtn);
+        } catch(e) {
+            showStatus('Falha na requisição.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-floppy"></i> Salvar Tudo';
         }
+    }
 
-        updateTable();
-    });
+    function showStatus(msg, type) {
+        const el = document.getElementById('saveStatus');
+        el.textContent = msg;
+        el.className = 'save-status ' + type;
+        el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 3500);
+    }
 </script>

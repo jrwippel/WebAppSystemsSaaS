@@ -158,14 +158,15 @@ namespace ClockTrack.Services
                     totalHours /= 3;  // Divida por 3 para obter a média mensal
                 }
 
+                // Carrega todos os valores do cliente uma vez (evita N+1 queries)
+                var valoresCliente = await _context.ValorCliente
+                    .Where(v => v.ClientId == mensalista.ClientId)
+                    .ToListAsync();
+
                 decimal valorTotalHoras = 0;
                 foreach (var record in recordsList)
                 {
-                    var userId = record.AttorneyId;
-                    //var valorPorHora = Convert.ToDecimal(_context.PrecoCliente
-                    var valorPorHora = Convert.ToDecimal(_context.ValorCliente
-                        .FirstOrDefault(pc => pc.ClientId == mensalista.ClientId && pc.AttorneyId == userId)?.Valor ?? 0.0);
-
+                    var valorPorHora = Convert.ToDecimal(ValorClienteService.GetValor(valoresCliente, mensalista.ClientId, record.AttorneyId));
                     valorTotalHoras += (decimal)(record.CalculoHorasDecimal()) * valorPorHora;
                 }
 
