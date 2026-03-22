@@ -25,7 +25,7 @@ namespace ClockTrack.Models
         
         // Multi-tenant
         public int TenantId { get; set; }
-        public Tenant Tenant { get; set; }
+        public Tenant? Tenant { get; set; }
 
         [Range(0, 100, ErrorMessage = "A alíquota deve ser entre 0 e 100")]
         public decimal AliquotaTributos { get; set; } = 14.53m;

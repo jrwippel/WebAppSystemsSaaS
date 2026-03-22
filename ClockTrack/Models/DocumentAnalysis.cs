@@ -85,6 +85,6 @@ namespace ClockTrack.Models
         
         // Multi-tenant
         public int TenantId { get; set; }
-        public Tenant Tenant { get; set; }
+        public Tenant? Tenant { get; set; }
     }
 }
