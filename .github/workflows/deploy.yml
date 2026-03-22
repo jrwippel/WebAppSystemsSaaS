@@ -26,12 +26,11 @@ jobs:
         run: dotnet build ClockTrack/ClockTrack.csproj --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish ClockTrack/ClockTrack.csproj --configuration Release --no-build --output ./publish --no-self-contained
+        run: dotnet publish ClockTrack/ClockTrack.csproj --configuration Release --no-build --output ./publish --runtime win-x64 --self-contained false
 
       - name: Remove large unnecessary files from publish
         run: |
           rm -rf ./publish/wwwroot/lib/bootstrap-icons/*.svg
-          find ./publish/runtimes -mindepth 1 -maxdepth 1 -type d ! -name "win-x64" ! -name "win" -exec rm -rf {} +
 
       - name: Fix web.config outofprocess
         run: |
