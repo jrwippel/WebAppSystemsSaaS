@@ -35,6 +35,22 @@ jobs:
           find ./publish -name "*CognitiveServices.Speech*" -delete
           find ./publish -name "*Microsoft.CognitiveServices*" -delete
 
+      - name: Fix web.config outofprocess
+        run: |
+          cat > ./publish/web.config << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <location path="." inheritInChildApplications="false">
+              <system.webServer>
+                <handlers>
+                  <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
+                </handlers>
+                <aspNetCore processPath="dotnet" arguments=".\ClockTrack.dll" stdoutLogEnabled="true" stdoutLogFile=".\logs\stdout" hostingModel="outofprocess" />
+              </system.webServer>
+            </location>
+          </configuration>
+          EOF
+
       - name: Show publish size
         run: du -sh ./publish
 
