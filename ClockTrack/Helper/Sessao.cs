@@ -25,16 +25,30 @@ namespace ClockTrack.Helper
 
         public void CriarSessaoDoUsuario(Attorney attorney)
         {
-            // Limpa navigation properties para evitar loop circular na serialização
-            attorney.Tenant = null;
-            attorney.Department = null;
-            attorney.ProcessRecords = new List<ProcessRecord>();
-
+            // Não serializar o hash da senha na sessão por segurança
             var settings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             };
-            string valor = JsonConvert.SerializeObject(attorney, settings);
+            var sessionData = new
+            {
+                attorney.Id,
+                attorney.TenantId,
+                attorney.Name,
+                attorney.Email,
+                attorney.Login,
+                attorney.Phone,
+                attorney.BirthDate,
+                attorney.DepartmentId,
+                attorney.Perfil,
+                attorney.RegisterDate,
+                attorney.UpdateDate,
+                attorney.UseBorder,
+                attorney.UseCronometroAlwaysOnTop,
+                attorney.Inativo,
+                attorney.MustChangePassword
+            };
+            string valor = JsonConvert.SerializeObject(sessionData, settings);
             _httpContext.HttpContext.Session.SetString("sessaoUsuarioLogado", valor);
         }
 
