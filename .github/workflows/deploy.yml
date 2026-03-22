@@ -30,21 +30,16 @@ jobs:
 
       - name: Remove large unnecessary files from publish
         run: |
+          # Remove SVGs do bootstrap-icons
           rm -rf ./publish/wwwroot/lib/bootstrap-icons/*.svg
-          rm -rf ./publish/runtimes/win-x86
-          rm -rf ./publish/runtimes/win-arm64
-          rm -rf ./publish/runtimes/linux-arm
-          rm -rf ./publish/runtimes/linux-arm64
-          rm -rf ./publish/runtimes/linux-musl-arm
-          rm -rf ./publish/runtimes/linux-musl-arm64
-          rm -rf ./publish/runtimes/linux-s390x
-          rm -rf ./publish/runtimes/linux-x86
-          rm -rf ./publish/runtimes/browser-wasm
-          rm -rf ./publish/runtimes/ios-arm64
-          rm -rf ./publish/runtimes/unix
+          # Remove todos os runtimes exceto win-x64 (App Service Windows)
+          find ./publish/runtimes -mindepth 1 -maxdepth 1 -type d ! -name "win-x64" -exec rm -rf {} +
+          # Remove DLLs do Speech SDK (muito pesadas, ~80MB)
+          find ./publish -name "*CognitiveServices.Speech*" -delete
+          find ./publish -name "*Microsoft.CognitiveServices*" -delete
 
       - name: Show publish size
-        run: du -sh ./publish
+        run: du -sh ./publish && du -sh ./publish/runtimes 2>/dev/null || true
 
       - name: Zip publish output
         run: cd ./publish && zip -r ../deploy.zip . && cd ..
