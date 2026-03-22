@@ -32,8 +32,6 @@ jobs:
         run: |
           rm -rf ./publish/wwwroot/lib/bootstrap-icons/*.svg
           find ./publish/runtimes -mindepth 1 -maxdepth 1 -type d ! -name "win-x64" -exec rm -rf {} +
-          find ./publish -name "*CognitiveServices.Speech*" -delete
-          find ./publish -name "*Microsoft.CognitiveServices*" -delete
 
       - name: Fix web.config outofprocess
         run: |
