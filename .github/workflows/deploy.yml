@@ -29,16 +29,19 @@ jobs:
         run: dotnet publish ClockTrack/ClockTrack.csproj --configuration Release --no-build --output ./publish
 
       - name: Remove bootstrap-icons SVGs
+        shell: pwsh
         run: Remove-Item -Path "./publish/wwwroot/lib/bootstrap-icons/*.svg" -Force -ErrorAction SilentlyContinue
-        shell: pwsh
 
-      - name: Show publish size
-        run: (Get-ChildItem -Recurse ./publish | Measure-Object -Property Length -Sum).Sum / 1MB
+      - name: Deploy via MSDeploy
         shell: pwsh
-
-      - name: Deploy via WebDeploy
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'clocktrack'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./publish
+        env:
+          DEPLOY_USER: ${{ secrets.AZURE_DEPLOY_USER }}
+          DEPLOY_PASS: ${{ secrets.AZURE_DEPLOY_PASSWORD }}
+        run: |
+          $msdeploy = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          & $msdeploy `
+            -verb:sync `
+            -source:contentPath="$(Resolve-Path ./publish)" `
+            -dest:contentPath="site\wwwroot",computerName="https://clocktrack.scm.azurewebsites.net/msdeploy.axd",userName="$env:DEPLOY_USER",password="$env:DEPLOY_PASS",authType="Basic" `
+            -enableRule:AppOffline `
+            -retryAttempts:3
