@@ -151,7 +151,10 @@
     }
 
     document.getElementById('clientId').addEventListener('change', function () {
-        const clientId = this.value;
+        loadDepartments(this.value, null);
+    });
+
+    function loadDepartments(clientId, selectedDeptId) {
         const deptSelect = document.getElementById('departmentId');
         deptSelect.innerHTML = '<option value="">Selecionar</option>';
         if (!clientId) return;
@@ -163,8 +166,16 @@
                     opt.value = d.id; opt.textContent = d.name;
                     deptSelect.appendChild(opt);
                 });
-                if (data.length === 1) deptSelect.value = data[0].id;
+                if (selectedDeptId) deptSelect.value = selectedDeptId;
+                else if (data.length === 1) deptSelect.value = data[0].id;
             });
+    }
+
+    // Ao carregar a página, se já há cliente selecionado, recarrega as áreas mantendo a área selecionada
+    window.addEventListener('DOMContentLoaded', function () {
+        const clientId = document.getElementById('clientId').value;
+        const deptId   = '@selectedDepartmentId';
+        if (clientId) loadDepartments(clientId, deptId || null);
     });
 </script>
 
@@ -182,7 +193,7 @@
     .page-subtitle { font-size: 14px; color: rgba(255,255,255,0.85); margin: 0; }
 
     .search-card { background: white; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); padding: 28px; margin-bottom: 20px; }
-    .form-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-bottom: 20px; align-items: end; }
+    .form-grid { display: grid; grid-template-columns: 180px 1fr 1fr; gap: 20px; margin-bottom: 20px; align-items: end; }
     .form-group { display: flex; flex-direction: column; min-width: 0; }
     .form-group label { font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
     .form-group label i { color: #667eea; }
