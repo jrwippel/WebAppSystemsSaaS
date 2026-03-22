@@ -404,3 +404,12 @@ hr { border-color: var(--color-border) !important; opacity: 1 !important; }
     background: var(--color-primary) !important;
     border-color: var(--color-primary) !important;
 }
+
+/* ── Page header text colors (gradient background) ── */
+.page-header h2,
+.page-header h1 {
+    color: white;
+}
+.page-header p {
+    color: rgba(255, 255, 255, 0.85);
+}
