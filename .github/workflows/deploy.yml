@@ -31,10 +31,12 @@ jobs:
       - name: Remove bootstrap-icons SVGs from publish
         run: rm -rf ./publish/wwwroot/lib/bootstrap-icons/*.svg
 
+      - name: Show publish size
+        run: du -sh ./publish
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'clocktrack'
-          slot-name: 'production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./publish
