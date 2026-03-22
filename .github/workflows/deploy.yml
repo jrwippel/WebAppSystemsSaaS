@@ -28,8 +28,20 @@ jobs:
       - name: Publish
         run: dotnet publish ClockTrack/ClockTrack.csproj --configuration Release --no-build --output ./publish --no-self-contained
 
-      - name: Remove bootstrap-icons SVGs
-        run: rm -rf ./publish/wwwroot/lib/bootstrap-icons/*.svg
+      - name: Remove large unnecessary files from publish
+        run: |
+          rm -rf ./publish/wwwroot/lib/bootstrap-icons/*.svg
+          rm -rf ./publish/runtimes/win-x86
+          rm -rf ./publish/runtimes/win-arm64
+          rm -rf ./publish/runtimes/linux-arm
+          rm -rf ./publish/runtimes/linux-arm64
+          rm -rf ./publish/runtimes/linux-musl-arm
+          rm -rf ./publish/runtimes/linux-musl-arm64
+          rm -rf ./publish/runtimes/linux-s390x
+          rm -rf ./publish/runtimes/linux-x86
+          rm -rf ./publish/runtimes/browser-wasm
+          rm -rf ./publish/runtimes/ios-arm64
+          rm -rf ./publish/runtimes/unix
 
       - name: Show publish size
         run: du -sh ./publish
@@ -41,12 +53,14 @@ jobs:
         run: du -sh ./deploy.zip
 
       - name: Deploy via Kudu ZIP API
+        env:
+          DEPLOY_USER: ${{ secrets.AZURE_DEPLOY_USER }}
+          DEPLOY_PASS: ${{ secrets.AZURE_DEPLOY_PASSWORD }}
         run: |
           curl -X POST \
             "https://clocktrack.scm.azurewebsites.net/api/zipdeploy" \
-            -u "${{ secrets.AZURE_DEPLOY_USER }}:${{ secrets.AZURE_DEPLOY_PASSWORD }}" \
+            -u "${DEPLOY_USER}:${DEPLOY_PASS}" \
             --data-binary @deploy.zip \
             -H "Content-Type: application/zip" \
             --max-time 300 \
-            -f \
-            -v
+            -f
