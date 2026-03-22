@@ -112,7 +112,7 @@ namespace ClockTrack.Controllers
         {
             if (record == null)
             {
-                return BadRequest(new { success = false, message = "Dados inv�lidos ou nulos" });
+                return BadRequest(new { success = false, message = "Dados invalidos ou nulos" });
             }
 
             // Log para verificar o ID recebido

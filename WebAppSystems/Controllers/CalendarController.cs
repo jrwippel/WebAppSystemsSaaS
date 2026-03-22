@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using WebAppSystems.Data;
 using WebAppSystems.Helper;
 using WebAppSystems.Services;
@@ -76,8 +76,8 @@ namespace WebAppSystems.Controllers
             }
             catch (SessionExpiredException)
             {
-                // Redirecione para a página de login se a sessão expirou
-                TempData["MensagemAviso"] = "A sessão expirou. Por favor, faça login novamente.";
+                // Redirecione para a pï¿½gina de login se a sessï¿½o expirou
+                TempData["MensagemAviso"] = "A sessï¿½o expirou. Por favor, faï¿½a login novamente.";
                 return RedirectToAction("Index", "Login");
             }
         }
@@ -91,7 +91,7 @@ namespace WebAppSystems.Controllers
                     .OrderByDescending(r => r.HoraInicial)
                     .ToListAsync();
 
-                // Formatação dos registros no formato JSON esperado pelo FullCalendar
+                // Formataï¿½ï¿½o dos registros no formato JSON esperado pelo FullCalendar
                 return Json(records.Select(r => new
                 {
                     title = r.Description,
@@ -112,7 +112,7 @@ namespace WebAppSystems.Controllers
         {
             if (record == null)
             {
-                return BadRequest(new { success = false, message = "Dados inválidos ou nulos" });
+                return BadRequest(new { success = false, message = "Dados invalidos ou nulos" });
             }
 
             // Log para verificar o ID recebido
@@ -121,7 +121,7 @@ namespace WebAppSystems.Controllers
             Attorney usuario = _isessao.BuscarSessaoDoUsuario();
             var attorneyId = usuario.Id;
 
-            // Conversão de HoraInicial e HoraFinal de string para TimeSpan
+            // Conversï¿½o de HoraInicial e HoraFinal de string para TimeSpan
             TimeSpan horaInicial = TimeSpan.Parse(record.HoraInicial);  // Espera formato "HH:mm"
             TimeSpan horaFinal = TimeSpan.Parse(record.HoraFinal);
 
