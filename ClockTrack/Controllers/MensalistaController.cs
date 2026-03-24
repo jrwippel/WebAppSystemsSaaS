@@ -11,7 +11,6 @@ using ClockTrack.Models;
 using ClockTrack.Models.Enums;
 using ClockTrack.Models.ViewModels;
 using ClockTrack.Services;
-using ClockTrack.Models.Enums;
 using NPOI.SS.Util;
 using Microsoft.AspNetCore.Http;
 
@@ -270,7 +269,7 @@ namespace ClockTrack.Controllers
 
 
 
-        public async Task<IActionResult> DownloadReport(string monthYearString, int? clientId, int? departmentId, string recordType = null, string format = "xlsx")
+        public async Task<IActionResult> DownloadReport(string monthYearString, int? clientId, int? departmentId, string? recordType = null, string format = "xlsx")
         {
             DateTime? monthYear = null;
 

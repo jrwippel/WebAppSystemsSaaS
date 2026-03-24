@@ -147,7 +147,7 @@
 
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-1">
             @await Component.InvokeAsync("Menu")
         </nav>
     </header>
@@ -166,7 +166,7 @@
         </div>
     }
 
-    <div class="container">
+    <div class="main-container">
         @*@await Component.InvokeAsync("LicenseNotification") *@
         <main role="main" class="pb-3">
             @RenderBody()

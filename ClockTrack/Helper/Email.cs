@@ -14,7 +14,7 @@ namespace ClockTrack.Helper
             _configuration = configuration;
         }
 
-        public async Task<bool> EnviarAsync(string email, string assunto, string mensagem, string anexoPath = null, string htmlBody = null)
+        public async Task<bool> EnviarAsync(string email, string assunto, string mensagem, string? anexoPath = null, string? htmlBody = null)
         {
             try
             {
