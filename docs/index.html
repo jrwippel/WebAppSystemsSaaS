@@ -176,10 +176,10 @@
         <p data-i18n="hero.sub">O ClockTrack, desenvolvido pela JRWIT, é o sistema ideal para controle de horas, honorários e faturamento em escritórios de advocacia. Tenha visibilidade completa da lucratividade por cliente, área e advogado — sem planilhas.</p>
         <div class="hero-actions">
             <a href="https://clocktrack.azurewebsites.net/Registro" class="btn-primary">
-                <i class="bi bi-rocket-takeoff"></i> <span data-i18n="hero.cta">🚀 Testar grátis por 14 dias</span>
+                <i class="bi bi-rocket-takeoff"></i> <span data-i18n="hero.cta">Testar grátis por 14 dias</span>
             </a>
             <a href="#features" class="btn-outline">
-                <i class="bi bi-play-circle"></i> <span data-i18n="hero.cta2">▶️ Ver como funciona</span>
+                <i class="bi bi-play-circle"></i> <span data-i18n="hero.cta2">Ver como funciona</span>
             </a>
         </div>
         <p class="hero-note" data-i18n="hero.note">Sem cartão de crédito. Cancele quando quiser.</p>
@@ -192,17 +192,29 @@
 </section>
 
 <!-- BLOCO DE DOR -->
-<section style="background:#fff8f0; padding:60px 5%; text-align:center; border-top:3px solid #f5576c;">
-    <div style="max-width:680px; margin:0 auto;">
-        <div style="font-size:32px; margin-bottom:16px;">⚠️</div>
-        <h2 style="font-size:clamp(22px,3vw,32px); font-weight:800; color:#2d3748; margin-bottom:24px; line-height:1.4;">A maioria dos escritórios não sabe se está lucrando de verdade.</h2>
-        <div style="display:flex; flex-direction:column; gap:12px; text-align:left; max-width:520px; margin:0 auto 28px;">
-            <div style="display:flex; align-items:center; gap:12px; font-size:16px; color:#4a5568;"><span style="color:#f5576c; font-size:20px;">✗</span> Horas não registradas.</div>
-            <div style="display:flex; align-items:center; gap:12px; font-size:16px; color:#4a5568;"><span style="color:#f5576c; font-size:20px;">✗</span> Honorários calculados manualmente.</div>
-            <div style="display:flex; align-items:center; gap:12px; font-size:16px; color:#4a5568;"><span style="color:#f5576c; font-size:20px;">✗</span> Clientes que consomem tempo… mas não geram retorno.</div>
-            <div style="display:flex; align-items:center; gap:12px; font-size:16px; color:#4a5568;"><span style="color:#f5576c; font-size:20px;">✗</span> No final do mês, o faturamento não reflete o trabalho realizado.</div>
+<section class="how-bg" style="border-top:3px solid #f5576c;">
+    <div style="text-align:center; max-width:680px; margin:0 auto;">
+        <div class="section-label">Por que isso importa</div>
+        <h2 class="section-title">A maioria dos escritórios não sabe se está lucrando de verdade.</h2>
+        <div style="display:flex; flex-direction:column; gap:14px; text-align:left; max-width:520px; margin:32px auto;">
+            <div class="feature-card" style="display:flex; align-items:center; gap:14px; padding:16px 20px;">
+                <span style="color:#f5576c; font-size:22px; flex-shrink:0;">✗</span>
+                <span style="font-size:15px;">Horas não registradas.</span>
+            </div>
+            <div class="feature-card" style="display:flex; align-items:center; gap:14px; padding:16px 20px;">
+                <span style="color:#f5576c; font-size:22px; flex-shrink:0;">✗</span>
+                <span style="font-size:15px;">Honorários calculados manualmente.</span>
+            </div>
+            <div class="feature-card" style="display:flex; align-items:center; gap:14px; padding:16px 20px;">
+                <span style="color:#f5576c; font-size:22px; flex-shrink:0;">✗</span>
+                <span style="font-size:15px;">Clientes que consomem tempo… mas não geram retorno.</span>
+            </div>
+            <div class="feature-card" style="display:flex; align-items:center; gap:14px; padding:16px 20px;">
+                <span style="color:#f5576c; font-size:22px; flex-shrink:0;">✗</span>
+                <span style="font-size:15px;">No final do mês, o faturamento não reflete o trabalho realizado.</span>
+            </div>
         </div>
-        <p style="font-size:18px; font-weight:700; color:#f5576c;">E o prejuízo passa despercebido.</p>
+        <p class="section-sub" style="margin:0 auto; color:#f5576c; font-weight:700;">E o prejuízo passa despercebido.</p>
     </div>
 </section>
 <nav id="navbar">
@@ -472,31 +484,6 @@
     resetAuto();
 })();
 </script>
-<!-- SEÇÃO DE PROVA -->
-<section style="background:#1a202c; padding:60px 5%; text-align:center;">
-    <div style="max-width:640px; margin:0 auto;">
-        <div style="font-size:32px; margin-bottom:16px;">💡</div>
-        <h2 style="font-size:clamp(22px,3vw,30px); font-weight:800; color:white; margin-bottom:20px; line-height:1.4;">Exemplo real</h2>
-        <p style="font-size:17px; color:rgba(255,255,255,.8); margin-bottom:28px;">Um cliente pode parecer lucrativo…<br/>Mas ao analisar:</p>
-        <div style="display:flex; flex-direction:column; gap:12px; max-width:360px; margin:0 auto 28px; text-align:left;">
-            <div style="display:flex; justify-content:space-between; padding:12px 16px; background:rgba(255,255,255,.07); border-radius:8px;">
-                <span style="color:rgba(255,255,255,.7); font-size:15px;">Receita</span>
-                <span style="color:#68d391; font-weight:700; font-size:15px;">R$ 1.630</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; padding:12px 16px; background:rgba(255,255,255,.07); border-radius:8px;">
-                <span style="color:rgba(255,255,255,.7); font-size:15px;">Custo (horas × honorários)</span>
-                <span style="color:#fc8181; font-weight:700; font-size:15px;">R$ 31.902</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; padding:14px 16px; background:rgba(245,87,108,.15); border:1px solid rgba(245,87,108,.4); border-radius:8px;">
-                <span style="color:white; font-weight:700; font-size:15px;">Resultado</span>
-                <span style="color:#f5576c; font-weight:800; font-size:15px;">− R$ 30.272</span>
-            </div>
-        </div>
-        <p style="font-size:16px; color:rgba(255,255,255,.7); margin-bottom:8px;">Sem visibilidade, isso passa despercebido.</p>
-        <p style="font-size:18px; font-weight:800; background:linear-gradient(135deg,#667eea,#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Com o ClockTrack, não.</p>
-    </div>
-</section>
-
 <section id="pricing" style="text-align:center">
     <div class="section-label" data-i18n="pricing.label">Preços</div>
     <h2 class="section-title" data-i18n="pricing.title">Simples e transparente</h2>
@@ -563,7 +550,7 @@
     <h2 data-i18n="cta.title">⚖️ Seu escritório está lucrando…<br/>ou apenas trabalhando mais?</h2>
     <p data-i18n="cta.sub">Tenha controle total dos honorários, horas e faturamento.<br/>Pare de perder dinheiro sem perceber.</p>
     <a href="https://clocktrack.azurewebsites.net/Registro" class="btn-white">
-        <i class="bi bi-rocket-takeoff"></i> <span data-i18n="cta.btn">🚀 Comece agora — 14 dias grátis</span>
+        <i class="bi bi-rocket-takeoff"></i> <span data-i18n="cta.btn">Comece agora — 14 dias grátis</span>
     </a>
 </section>
 
@@ -615,7 +602,7 @@ const i18n = {
         'hero.badge':'14 dias grátis · Sem cartão',
         'hero.title':'⚖️ Descubra quais clientes do seu escritório<br/><span>estão dando prejuízo — em tempo real</span>',
         'hero.sub':'O ClockTrack, desenvolvido pela JRWIT, é o sistema ideal para controle de horas, honorários e faturamento em escritórios de advocacia. Tenha visibilidade completa da lucratividade por cliente, área e advogado — sem planilhas.',
-        'hero.cta':'🚀 Testar grátis por 14 dias','hero.cta2':'▶️ Ver como funciona','hero.note':'Sem cartão de crédito. Cancele quando quiser.',
+        'hero.cta':'Testar grátis por 14 dias','hero.cta2':'Ver como funciona','hero.note':'Sem cartão de crédito. Cancele quando quiser.',
         'features.label':'Funcionalidades','features.title':'Tudo que seu escritório precisa, sem complexidade',
         'features.sub':'Simples de usar, poderoso quando precisa. Feito para escritórios de advocacia que querem resultado.',
         'f1.title':'Time Tracker','f1.desc':'Registre atividades com um clique. Continue de onde parou e evite perder horas faturáveis no dia a dia.',
@@ -642,7 +629,7 @@ const i18n = {
         'faq.q3':'Meus dados ficam seguros?','faq.a3':'Sim. Cada escritório tem seu próprio espaço isolado (multi-tenant). Os dados são armazenados no Microsoft Azure com backup automático e conexão criptografada.',
         'faq.q4':'Posso cancelar a qualquer momento?','faq.a4':'Sim, sem multa e sem burocracia. Entre em contato e cancelamos imediatamente.',
         'faq.q5':'O sistema tem app mobile?','faq.a5':'O ClockTrack é responsivo e funciona muito bem no celular pelo navegador. Um app nativo está no roadmap.',
-        'cta.title':'⚖️ Seu escritório está lucrando…<br/>ou apenas trabalhando mais?','cta.sub':'Tenha controle total dos honorários, horas e faturamento.<br/>Pare de perder dinheiro sem perceber.','cta.btn':'🚀 Comece agora — 14 dias grátis',
+        'cta.title':'⚖️ Seu escritório está lucrando…<br/>ou apenas trabalhando mais?','cta.sub':'Tenha controle total dos honorários, horas e faturamento.<br/>Pare de perder dinheiro sem perceber.','cta.btn':'Comece agora — 14 dias grátis',
         'footer.desc':'Controle de horas, honorários e faturamento para escritórios de advocacia. Desenvolvido pela JRWIT.',
         'footer.product':'Produto','footer.contact':'Contato','footer.rights':'Todos os direitos reservados.',
         'screenshots.label':'O sistema','screenshots.title':'Veja o ClockTrack em ação','screenshots.sub':'Interface limpa, intuitiva e pensada para o dia a dia do seu negócio.',
