@@ -285,6 +285,7 @@
         <button class="tab-btn" onclick="goToSlide(4)" data-i18n="tab.prefatura">Pré-Fatura</button>
         <button class="tab-btn" onclick="goToSlide(5)" data-i18n="tab.calendario">Calendário</button>
         <button class="tab-btn" onclick="goToSlide(6)" data-i18n="tab.resultados">Resultados</button>
+        <button class="tab-btn" onclick="goToSlide(7)" data-i18n="tab.valoresocio">Valor por Sócio</button>
     </div>
 
     <!-- browser mockup -->
@@ -312,6 +313,7 @@
                 <div class="carousel-slide"><img src="./screenshots/prefatura.png" alt="Pré-Fatura" /></div>
                 <div class="carousel-slide"><img src="./screenshots/calendario.png" alt="Calendário" /></div>
                 <div class="carousel-slide"><img src="./screenshots/resultados.png" alt="Resultados" /></div>
+                <div class="carousel-slide"><img src="./screenshots/ValoresClienteSocio.png" alt="Valor por Sócio" /></div>
             </div>
         </div>
 
@@ -329,6 +331,7 @@
         <span class="cdot" onclick="goToSlide(4)"></span>
         <span class="cdot" onclick="goToSlide(5)"></span>
         <span class="cdot" onclick="goToSlide(6)"></span>
+        <span class="cdot" onclick="goToSlide(7)"></span>
     </div>
 </section>
 
@@ -459,7 +462,7 @@
 <script>
 (function(){
     var current = 0;
-    var total = 7;
+    var total = 8;
     var autoTimer;
 
     function updateCarousel(idx) {
@@ -633,7 +636,7 @@ const i18n = {
         'footer.desc':'Controle de horas, honorários e faturamento para escritórios de advocacia. Desenvolvido pela JRWIT.',
         'footer.product':'Produto','footer.contact':'Contato','footer.rights':'Todos os direitos reservados.',
         'screenshots.label':'O sistema','screenshots.title':'Veja o ClockTrack em ação','screenshots.sub':'Interface limpa, intuitiva e pensada para o dia a dia do seu negócio.',
-        'tab.timetracker':'Time Tracker','tab.atividades':'Atividades','tab.relatorio':'Relatórios','tab.prefatura':'Pré-Fatura','tab.resultados':'Resultados','tab.calendario':'Calendário','tab.dashboard':'Dashboard'
+        'tab.timetracker':'Time Tracker','tab.atividades':'Atividades','tab.relatorio':'Relatórios','tab.prefatura':'Pré-Fatura','tab.resultados':'Resultados','tab.calendario':'Calendário','tab.dashboard':'Dashboard','tab.valoresocio':'Valor por Sócio'
     },
     en: {
         'nav.features':'Features','nav.pricing':'Pricing','nav.faq':'FAQ','nav.trial':'Free Trial',
@@ -670,7 +673,7 @@ const i18n = {
         'footer.desc':'Time and resource management for small and medium businesses. Simple, efficient and customizable.',
         'footer.product':'Product','footer.contact':'Contact','footer.rights':'All rights reserved.','footer.made':'Made with ❤️ in Brazil',
         'screenshots.label':'The system','screenshots.title':'See ClockTrack in action','screenshots.sub':'Clean, intuitive interface designed for your daily business operations.',
-        'tab.timetracker':'Time Tracker','tab.atividades':'Activities','tab.relatorio':'Reports','tab.prefatura':'Pre-Invoice','tab.resultados':'Results','tab.calendario':'Calendar','tab.dashboard':'Dashboard'
+        'tab.timetracker':'Time Tracker','tab.atividades':'Activities','tab.relatorio':'Reports','tab.prefatura':'Pre-Invoice','tab.resultados':'Results','tab.calendario':'Calendar','tab.dashboard':'Dashboard','tab.valoresocio':'Value by Partner'
     }
 };
 
