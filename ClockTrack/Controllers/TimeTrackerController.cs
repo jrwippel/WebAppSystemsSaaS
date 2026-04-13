@@ -431,8 +431,9 @@ namespace ClockTrack.Controllers
                     r.Id,
                     r.Description,
                     ClienteNome = r.Client.Name,
-                    r.HoraInicial,
-                    r.HoraFinal,
+                    ClientId = r.ClientId,
+                    HoraInicial = r.HoraInicial.ToString(@"hh\:mm\:ss"),
+                    HoraFinal = r.HoraFinal.ToString(@"hh\:mm\:ss"),
                     ActivityTypeId = r.ActivityTypeId,
                     r.Solicitante,
                     r.Date
@@ -576,6 +577,53 @@ namespace ClockTrack.Controllers
         {
             public string Name { get; set; }
             public string Color { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTime([FromBody] UpdateTimeRequest request)
+        {
+            if (request == null || request.ProcessRecordId == 0)
+                return BadRequest("ID inválido.");
+
+            var record = await _context.ProcessRecord.FindAsync(request.ProcessRecordId);
+            if (record == null)
+                return NotFound();
+
+            if (!TimeSpan.TryParse(request.HoraInicial, out var horaInicial) ||
+                !TimeSpan.TryParse(request.HoraFinal, out var horaFinal))
+                return BadRequest("Formato de hora inválido.");
+
+            if (horaInicial >= horaFinal)
+                return BadRequest("A hora inicial deve ser menor que a hora final.");
+
+            record.HoraInicial = horaInicial;
+            record.HoraFinal = horaFinal;
+
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                record.Description = request.Description;
+            if (request.ClientId.HasValue && request.ClientId > 0)
+                record.ClientId = request.ClientId.Value;
+            if (!string.IsNullOrWhiteSpace(request.Solicitante))
+                record.Solicitante = request.Solicitante;
+            if (request.ActivityTypeId.HasValue && request.ActivityTypeId > 0)
+                record.ActivityTypeId = request.ActivityTypeId.Value;
+
+            await _context.SaveChangesAsync();
+
+            var diff = record.HoraFinal - record.HoraInicial;
+            var duration = $"{(int)diff.TotalHours:00}:{diff.Minutes:00}:{diff.Seconds:00}";
+            return Ok(new { duration });
+        }
+
+        public class UpdateTimeRequest
+        {
+            public int ProcessRecordId { get; set; }
+            public string HoraInicial { get; set; }
+            public string HoraFinal { get; set; }
+            public string Description { get; set; }
+            public int? ClientId { get; set; }
+            public string Solicitante { get; set; }
+            public int? ActivityTypeId { get; set; }
         }
 
         // Action para retornar o solicitante baseado no cliente

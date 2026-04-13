@@ -8,7 +8,7 @@
 
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
 
-    var adminControllers = new[] { "ValorClientes", "Attorneys", "Clients", "Departments", "Mensalistas", "Mensalista", "PercentualAreas", "ActivityTypes", "ProcessRecord" };
+    var adminControllers = new[] { "ValorClientes", "Attorneys", "Clients", "Departments", "Mensalistas", "Mensalista", "PercentualAreas", "ActivityTypes", "ProcessRecord", "PainelGestao" };
 
     Func<string[], bool> isActive = controllers =>
         controllers.Any(c => string.Equals(c, currentController, StringComparison.OrdinalIgnoreCase));
@@ -364,7 +364,7 @@
             {
                 <a class="dropdown-item" asp-controller="Assinatura" asp-action="Planos">
                     <i class="bi bi-credit-card"></i>
-                    <span>Assinatura</span>
+                    <span>Assinatura / Planos</span>
                 </a>
             }
             <a class="dropdown-item" asp-controller="Home" asp-action="About">
@@ -432,6 +432,14 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link @(isActive(new[]{"Assinatura"}) ? "active-page" : "")"
+               asp-controller="Assinatura" asp-action="Planos">
+                <i class="bi bi-credit-card"></i>
+                <span>Planos</span>
+            </a>
+        </li>
+
         @if (showAdminItems)
         {
             <li class="nav-item nav-dropdown" id="manageDropdown">
@@ -447,6 +455,13 @@
                         <i class="bi bi-file-earmark-bar-graph"></i>
                         <span data-i18n="menu.relatorios">Relatórios</span>
                     </a>
+                    @if (isAdmin)
+                    {
+                        <a class="nav-dropdown-item" asp-controller="PainelGestao" asp-action="Index">
+                            <i class="bi bi-bar-chart-line-fill"></i>
+                            <span>Painel de Gestão</span>
+                        </a>
+                    }
 
                     <div class="nav-dropdown-divider"></div>
                     <div class="nav-dropdown-label">Cadastros</div>

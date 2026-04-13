@@ -61,6 +61,12 @@ namespace WebAppSystems.Controllers
                     .Include(p => p.ActivityType)
                     .AsQueryable();
 
+                // Filtro por perfil: não-admin vê apenas os próprios registros
+                if (usuario.Perfil != ProfileEnum.Admin)
+                {
+                    query = query.Where(p => p.AttorneyId == usuario.Id);
+                }
+
                 // Filtro por status
                 if (status == "running")
                 {

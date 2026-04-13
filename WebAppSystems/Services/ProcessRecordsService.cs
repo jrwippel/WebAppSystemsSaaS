@@ -45,7 +45,7 @@ namespace WebAppSystems.Services
                 .Include(pr => pr.ActivityType)
                 .AsQueryable();
 
-            if (perfil == ProfileEnum.Padrao && loggedUserId.HasValue)
+            if (perfil != ProfileEnum.Admin && loggedUserId.HasValue)
             {
                 query = query.Where(pr => pr.AttorneyId == loggedUserId.Value);
             }

@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ClockTrack.Data;
 using ClockTrack.Models;
+using ClockTrack.Models.Dto;
 using ClockTrack.Models.Enums;
 
 namespace ClockTrack.Services
@@ -45,7 +46,7 @@ namespace ClockTrack.Services
                 .Include(pr => pr.ActivityType)
                 .AsQueryable();
 
-            if (perfil == ProfileEnum.Padrao && loggedUserId.HasValue)
+            if (perfil != ProfileEnum.Admin && loggedUserId.HasValue)
             {
                 query = query.Where(pr => pr.AttorneyId == loggedUserId.Value);
             }
@@ -245,7 +246,7 @@ namespace ClockTrack.Services
             var lastDayLastMonth = firstDayMonth.AddDays(-1);
 
             var query = _context.ProcessRecord.Where(p => p.HoraFinal != TimeSpan.Zero && p.HoraFinal > p.HoraInicial);
-            if (perfil == ProfileEnum.Padrao)
+            if (perfil != ProfileEnum.Admin)
                 query = query.Where(p => p.AttorneyId == userId);
 
             var all = await query.ToListAsync();
@@ -267,6 +268,128 @@ namespace ClockTrack.Services
                 ClientesAtivos = clientesAtivos
             };
         }
+
+        // --- Painel Gestão ---
+
+        public async Task<List<GestaoColaboradorDto>> GetHorasPorColaboradorAsync(DateTime from, DateTime to)
+        {
+            var records = await _context.ProcessRecord
+                .Include(p => p.Attorney)
+                .Where(p => p.Date.Date >= from.Date && p.Date.Date <= to.Date
+                         && p.HoraFinal != TimeSpan.Zero && p.HoraFinal > p.HoraInicial
+                         && !p.Attorney.Inativo)
+                .ToListAsync();
+
+            return records
+                .GroupBy(p => new { p.AttorneyId, p.Attorney.Name })
+                .Select(g => new GestaoColaboradorDto
+                {
+                    AttorneyId = g.Key.AttorneyId,
+                    Nome = g.Key.Name,
+                    TotalHoras = Math.Round(g.Sum(p => (p.HoraFinal - p.HoraInicial).TotalHours), 2),
+                    TotalRegistros = g.Count(),
+                    UltimoLancamento = g.Max(p => p.Date)
+                })
+                .OrderByDescending(x => x.TotalHoras)
+                .ToList();
+        }
+
+        public async Task<List<GestaoDiarioDto>> GetHorasPorDiaAsync(DateTime from, DateTime to)
+        {
+            var records = await _context.ProcessRecord
+                .Where(p => p.Date.Date >= from.Date && p.Date.Date <= to.Date
+                         && p.HoraFinal != TimeSpan.Zero && p.HoraFinal > p.HoraInicial)
+                .ToListAsync();
+
+            return records
+                .GroupBy(p => p.Date.Date)
+                .Select(g => new GestaoDiarioDto
+                {
+                    Data = g.Key,
+                    TotalHoras = Math.Round(g.Sum(p => (p.HoraFinal - p.HoraInicial).TotalHours), 2),
+                    TotalRegistros = g.Count()
+                })
+                .OrderBy(x => x.Data)
+                .ToList();
+        }
+
+        public async Task<List<Attorney>> GetColaboradoresSemLancamentoAsync(int dias)
+        {
+            var desde = DateTime.Today.AddDays(-dias);
+            var comLancamento = await _context.ProcessRecord
+                .Where(p => p.Date.Date >= desde && p.HoraFinal != TimeSpan.Zero)
+                .Select(p => p.AttorneyId).Distinct().ToListAsync();
+
+            return await _context.Attorney
+                .Where(a => !a.Inativo && !comLancamento.Contains(a.Id))
+                .OrderBy(a => a.Name).ToListAsync();
+        }
+
+        public async Task<List<GestaoTopClientesDto>> GetTopClientesPorColaboradorAsync(DateTime from, DateTime to, int topN = 3)
+        {
+            var records = await _context.ProcessRecord
+                .Include(p => p.Attorney).Include(p => p.Client)
+                .Where(p => p.Date.Date >= from.Date && p.Date.Date <= to.Date
+                         && p.HoraFinal != TimeSpan.Zero && p.HoraFinal > p.HoraInicial
+                         && !p.Attorney.Inativo && !p.Client.ClienteInterno)
+                .ToListAsync();
+
+            return records
+                .GroupBy(p => new { p.AttorneyId, p.Attorney.Name })
+                .OrderByDescending(g => g.Sum(p => (p.HoraFinal - p.HoraInicial).TotalHours))
+                .Select(g =>
+                {
+                    var total = g.Sum(p => (p.HoraFinal - p.HoraInicial).TotalHours);
+                    return new GestaoTopClientesDto
+                    {
+                        AttorneyId = g.Key.AttorneyId,
+                        Nome = g.Key.Name,
+                        TotalHoras = Math.Round(total, 1),
+                        TopClientes = g.GroupBy(p => new { p.ClientId, p.Client.Name })
+                            .Select(cg => new TopClienteItem
+                            {
+                                Cliente = cg.Key.Name,
+                                Horas = Math.Round(cg.Sum(p => (p.HoraFinal - p.HoraInicial).TotalHours), 1),
+                                Percentual = total > 0
+                                    ? Math.Round(cg.Sum(p => (p.HoraFinal - p.HoraInicial).TotalHours) / total * 100, 0)
+                                    : 0
+                            })
+                            .OrderByDescending(c => c.Horas).Take(topN).ToList()
+                    };
+                })
+                .ToList();
+        }
+
+        public async Task<List<GestaoConsistenciaDto>> GetConsistenciaLancamentosAsync(DateTime from, DateTime to)
+        {
+            var records = await _context.ProcessRecord
+                .Include(p => p.Attorney)
+                .Where(p => p.Date.Date >= from.Date && p.Date.Date <= to.Date
+                         && p.HoraFinal != TimeSpan.Zero && p.HoraFinal > p.HoraInicial
+                         && !p.Attorney.Inativo)
+                .ToListAsync();
+
+            var totalDias = (to.Date - from.Date).Days + 1;
+            var diasUteis = Enumerable.Range(0, totalDias)
+                .Select(i => from.Date.AddDays(i))
+                .Count(d => d.DayOfWeek != DayOfWeek.Saturday && d.DayOfWeek != DayOfWeek.Sunday);
+
+            return records
+                .GroupBy(p => new { p.AttorneyId, p.Attorney.Name })
+                .Select(g => new GestaoConsistenciaDto
+                {
+                    Nome = g.Key.Name,
+                    DiasComLancamento = g.Select(p => p.Date.Date).Distinct().Count(),
+                    DiasUteis = diasUteis,
+                    Percentual = diasUteis > 0
+                        ? Math.Round(g.Select(p => p.Date.Date).Distinct().Count() * 100.0 / diasUteis, 0)
+                        : 0
+                })
+                .OrderByDescending(x => x.Percentual)
+                .ToList();
+        }
+
+
 
     }
 }

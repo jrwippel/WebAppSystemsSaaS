@@ -61,6 +61,12 @@ namespace ClockTrack.Controllers
                     .Include(p => p.ActivityType)
                     .AsQueryable();
 
+                // Filtro por perfil: não-admin vê apenas os próprios registros
+                if (usuario.Perfil != ProfileEnum.Admin)
+                {
+                    query = query.Where(p => p.AttorneyId == usuario.Id);
+                }
+
                 // Filtro por status
                 if (status == "running")
                 {
@@ -179,7 +185,8 @@ namespace ClockTrack.Controllers
                     HoraInicial = TimeSpan.Zero,
                     HoraFinal = TimeSpan.Zero,
                     Description = string.Empty,
-                    ClientId = 0
+                    ClientId = 0,
+                    DepartmentId = usuario.DepartmentId
                 },
                 Attorneys = attorneys,
                 Clients = clients,
