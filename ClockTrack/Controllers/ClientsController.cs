@@ -15,8 +15,7 @@ using static ClockTrack.Helper.Sessao;
 
 namespace ClockTrack.Controllers
 {
-    [PaginaParaUsuarioLogado]
-    [PaginaRestritaSomenteAdmin]
+    [PaginaParaAdminOuControladoria]
     public class ClientsController : Controller
     {
         private readonly ClockTrackContext _context;

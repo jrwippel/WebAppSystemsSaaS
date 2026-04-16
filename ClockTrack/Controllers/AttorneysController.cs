@@ -13,8 +13,7 @@ using static ClockTrack.Helper.Sessao;
 
 namespace ClockTrack.Controllers
 {
-    [PaginaParaUsuarioLogado]
-[PaginaRestritaSomenteAdmin]
+    [PaginaParaAdminOuControladoria]
     public class AttorneysController : Controller
     {
         private readonly AttorneyService _attorneyService;
